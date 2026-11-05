@@ -1,0 +1,178 @@
+[
+  {
+    "id": "schedule",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/schedule/",
+    "local_file": "raw/schedule.html",
+    "retrieved_at": "2026-11-05T15:01:41.807389-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "802867ba2d4d441b409cc836b3c03200173f3036b08b911c90208797016d3e9c"
+  },
+  {
+    "id": "main-api",
+    "url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+    "local_file": "raw/sessionize-All.json",
+    "retrieved_at": "2026-11-05T15:02:14.136613-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official linked Sessionize API",
+    "sha256": "2703793dbca7caa55d705494f14c2da92d9a14bea97506ae7704a88b6b5f8cd4"
+  },
+  {
+    "id": "main-grid",
+    "url": "https://sessionize.com/api/v2/svi82w6c/view/GridSmart",
+    "local_file": "raw/sessionize-GridSmart.json",
+    "retrieved_at": "2026-11-05T15:02:15.144402-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official linked Sessionize API",
+    "sha256": "2f1c53483e1169d710cccc4e5b938c2f9339c4b7e02080844d421b6c8b34e2d1"
+  },
+  {
+    "id": "attend-venue-travel",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/venue-travel/",
+    "local_file": "raw/attend-venue-travel.html",
+    "retrieved_at": "2026-11-05T15:01:56.708266-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "6e13c6850febdb149e862fef16cfe9eca3a421d772f3a8c8f0748385ec96d6d3"
+  },
+  {
+    "id": "attend-faq",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/faq/",
+    "local_file": "raw/attend-faq.html",
+    "retrieved_at": "2026-11-05T15:01:56.752256-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "8fa665e1e89364f48452589a9fda89289f3724107ac38bef358ea5f75970747b"
+  },
+  {
+    "id": "attend-inclusion-accessibility",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/inclusion-accessibility/",
+    "local_file": "raw/attend-inclusion-accessibility.html",
+    "retrieved_at": "2026-11-05T15:01:56.776252-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "42b0907f31e019d167d85a45afca3c7d48303f408da7f7ede832aa398722365b"
+  },
+  {
+    "id": "register",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/register/",
+    "local_file": "raw/register.html",
+    "retrieved_at": "2026-11-05T15:01:56.660276-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "fdf589682665051947d4afd2291a5c769fa2925988986c01cd49c347dcf3f5ef"
+  },
+  {
+    "id": "attend",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/",
+    "local_file": "raw/attend.html",
+    "retrieved_at": "2026-11-05T15:01:57.080188-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "2d41c3f4bb9d24bb458b1ca7051c8d715578918725fd66718800c1ffb5d73c70"
+  },
+  {
+    "id": "app-guide",
+    "url": "https://events.linuxfoundation.org/sessionize-app-experience/",
+    "local_file": "raw/app-guide.html",
+    "retrieved_at": "2026-11-05T15:02:28.277649-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "80799fb367e158d9441e17592ea9e35bedcd534e15a45d4215f9cbd74e7a540f",
+    "requested_url": "https://events.linuxfoundation.org/sessionize-app-experience/"
+  },
+  {
+    "id": "onsite-resources",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/event-resources/",
+    "local_file": "raw/onsite-resources.html",
+    "retrieved_at": "2026-11-05T15:02:28.633574-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "fbd820d500c29b578983e70d683007e58cfd105698e670b3f17db43d68034801",
+    "requested_url": "https://bit.ly/kcna26resources"
+  },
+  {
+    "id": "public-app",
+    "url": "https://kubecon-cloudnativecon-north-america-2026.sessionize.com/",
+    "local_file": "raw/public-app.html",
+    "retrieved_at": "2026-11-05T15:02:29.185459-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "b150d62030a08dc1794c51f0cd2f6e77d396139eb078b1fc6baff190d8c51f01",
+    "requested_url": "https://kubecon-cloudnativecon-north-america-2026.sessionize.com"
+  },
+  {
+    "id": "venue-map",
+    "url": "https://events.linuxfoundation.org/wp-content/uploads/2026/10/KCNA26-VenueMap-118x96-3.pdf",
+    "local_file": "maps/venue.pdf",
+    "retrieved_at": "2026-11-05T15:02:02.339086-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "6fcfb1bbd468e15a1e48b65e65783b53484571e5a6ef5445abf10f2bbf0f9ab8",
+    "requested_url": "https://events.linuxfoundation.org/kcna26-venue-map"
+  },
+  {
+    "id": "expo-map",
+    "url": "https://events.linuxfoundation.org/wp-content/uploads/2026/10/KCNA26_ExpoHallMap.pdf",
+    "local_file": "maps/expo.pdf",
+    "retrieved_at": "2026-11-05T15:02:02.507050-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "d99c56154e7e9de54f20ad29045087d063bc2b97d9efef95dcd2351ce54ad9c2",
+    "requested_url": "https://events.linuxfoundation.org/kcna26-expo-map"
+  },
+  {
+    "id": "cncf-colocated-page",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/co-located-events/cncf-hosted-co-located-schedule/",
+    "local_file": "raw/cncf-colocated.html",
+    "retrieved_at": "2026-11-05T15:02:39.899213-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "fbe838e2c311457e5b6fe7618d79aa5f6d76dbab80ede70b73abc740ea647a3f"
+  },
+  {
+    "id": "cncf-colocated-api",
+    "url": "https://sessionize.com/api/v2/ayajbd6b/view/All",
+    "local_file": "raw/cncf-colocated-All.json",
+    "retrieved_at": "2026-11-05T15:02:40.994984-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official linked Sessionize API",
+    "sha256": "100173a7e1b9a3865f68aaa3a7f0a25d6fa8f7342f88bb585b7ee18509696b64"
+  },
+  {
+    "id": "sponsor-colocated-page",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/co-located-events/sponsor-hosted-co-located-schedule/",
+    "local_file": "raw/sponsor-colocated.html",
+    "retrieved_at": "2026-11-05T15:02:41.146952-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "767c52d8e37912b7a56255be0da1f4170f4ce3106bae92798642315aa8a82755"
+  },
+  {
+    "id": "sponsor-colocated-api",
+    "url": "https://sessionize.com/api/v2/etvmcsmr/view/All",
+    "local_file": "raw/sponsor-colocated-All.json",
+    "retrieved_at": "2026-11-05T15:02:41.578861-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official linked Sessionize API",
+    "sha256": "7f8265f48a04b091c8f77cb7cfd18e006befc2f8b0e56e12553d0e936f20a37f"
+  },
+  {
+    "id": "maintainer-summit-page",
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/features-add-ons/maintainer-summit/",
+    "local_file": "raw/maintainer-summit.html",
+    "retrieved_at": "2026-11-05T15:02:41.730829-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official organizer",
+    "sha256": "4d4a37e18937c005fa152c40571fa9a20d57994fc075a34a83d27104dec3b351"
+  },
+  {
+    "id": "maintainer-summit-api",
+    "url": "https://sessionize.com/api/v2/qtujim6y/view/All",
+    "local_file": "raw/maintainer-summit-All.json",
+    "retrieved_at": "2026-11-05T15:02:42.254720-06:00",
+    "retrieval_timezone": "America/Chicago",
+    "authority": "official linked Sessionize API",
+    "sha256": "244178758fde959bed22bf5d5c0f8b2b04a0facb546ea7d95b9599fa946832c8"
+  }
+]

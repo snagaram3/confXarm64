@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { embed, VECTOR_DIMS } from "./embed.ts";
 import { es, INDEX, waitForElasticsearch } from "./es.ts";
+import { officialSessions } from "./schedule.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -73,6 +74,8 @@ export async function seedIndex(): Promise<{ documents: number }> {
         track: { type: "text", fields: { raw: { type: "keyword" } } },
         role: { type: "text" },
         company: { type: "text" },
+        dataset: { type: "keyword" },
+        building: { type: "keyword" },
         embedding: {
           type: "dense_vector",
           dims: VECTOR_DIMS,
@@ -85,13 +88,15 @@ export async function seedIndex(): Promise<{ documents: number }> {
 
   const ops: unknown[] = [];
 
-  for (const session of catalog.sessions) {
-    ops.push({ index: { _index: INDEX, _id: `session:${session.id}` } });
+  for (const session of officialSessions) {
+    ops.push({ index: { _index: INDEX, _id: `session:main:${session.id}` } });
     ops.push({
       kind: "session",
       id: session.id,
+      dataset: "main",
       roomId: session.roomId,
       floor: session.floor,
+      building: session.building ?? "",
       title: session.title,
       abstract: session.abstract,
       tags: session.tags,
@@ -132,12 +137,15 @@ export async function seedIndex(): Promise<{ documents: number }> {
     }
   }
 
-  const bulk = await es.bulk({ refresh: true, operations: ops });
-  if (bulk.errors) {
-    const first = bulk.items.find((item) => item.index?.error);
-    throw new Error(
-      `Bulk index failed: ${JSON.stringify(first?.index?.error ?? bulk.items[0])}`,
-    );
+  for (let i = 0; i < ops.length; i += 200) {
+    const slice = ops.slice(i, i + 200);
+    const bulk = await es.bulk({ refresh: i + 200 >= ops.length, operations: slice });
+    if (bulk.errors) {
+      const first = bulk.items.find((item) => item.index?.error);
+      throw new Error(
+        `Bulk index failed: ${JSON.stringify(first?.index?.error ?? bulk.items[0])}`,
+      );
+    }
   }
 
   return { documents: ops.length / 2 };

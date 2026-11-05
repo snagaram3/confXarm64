@@ -1,0 +1,92 @@
+[
+  {
+    "id": "community-hub",
+    "name": "Community Hub",
+    "building": "Salt Palace",
+    "level": 1,
+    "location_label": "Grand Ballroom J",
+    "source_id": "venue-map",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "media-lounge",
+    "name": "Media Lounge",
+    "building": "Salt Palace",
+    "level": 3,
+    "location_label": "355 D",
+    "source_id": "venue-map",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "speaker-lounge",
+    "name": "Speaker Lounge",
+    "building": "Salt Palace",
+    "level": 2,
+    "location_label": "253",
+    "source_id": "venue-map",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "speaker-ready",
+    "name": "Speaker Ready Room",
+    "building": "Salt Palace",
+    "level": 2,
+    "location_label": "252 A",
+    "source_id": "venue-map",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "quiet-all",
+    "name": "All-Attendee Quiet Room",
+    "building": "Salt Palace",
+    "level": 2,
+    "location_label": "260A",
+    "source_id": "attend-inclusion-accessibility",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "quiet-women-nonbinary",
+    "name": "Women + Non-Binary Quiet Room",
+    "building": "Salt Palace",
+    "level": 2,
+    "location_label": "260B",
+    "source_id": "attend-inclusion-accessibility",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "prayer",
+    "name": "Prayer Room",
+    "building": "Hyatt Regency",
+    "level": 5,
+    "location_label": "Zion",
+    "source_id": "attend-inclusion-accessibility",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "first-aid-150",
+    "name": "First Aid",
+    "building": "Salt Palace",
+    "level": 1,
+    "location_label": "by Room 150",
+    "source_id": "attend-inclusion-accessibility",
+    "coordinates": null,
+    "step_free_route_verified": false
+  },
+  {
+    "id": "first-aid-halls",
+    "name": "First Aid",
+    "building": "Salt Palace",
+    "level": 1,
+    "location_label": "outside Halls 2 + 3",
+    "source_id": "attend-inclusion-accessibility",
+    "coordinates": null,
+    "step_free_route_verified": false
+  }
+]

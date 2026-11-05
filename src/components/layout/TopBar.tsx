@@ -1,4 +1,3 @@
-import { venue } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { UserRound } from "lucide-react";
@@ -17,11 +16,11 @@ export function TopBar() {
               Floorwise
             </p>
             <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground">
-              Sample catalog
+              Private companion
             </span>
           </div>
           <p className="mt-1 truncate text-xs text-muted-foreground">
-            {venue.name} · seeded demo, not a live KubeCon schedule
+            KCNA26 Salt Palace + Hyatt · official schedule snapshot, not an LF/CNCF app
           </p>
         </div>
       </div>

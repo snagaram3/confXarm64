@@ -1,0 +1,7 @@
+{
+  "notice": "CNCF-hosted, sponsor-hosted, and Maintainer Summit feeds overlap main umbrella events. They are not unioned into the main catalog.",
+  "cncf_colocated_sessions": 229,
+  "sponsor_colocated_sessions": 14,
+  "maintainer_summit_sessions": 38,
+  "files_omitted": "Full related JSON stays in the source pack, not this repo catalog."
+}

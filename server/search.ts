@@ -107,13 +107,14 @@ export async function hybridSearch(opts: {
   const role = opts.role ?? "";
   const qvec = embed([textQuery, role, ...interests]);
   const should = namedQueries(interests, textQuery, role);
+  const size = opts.size ?? (opts.kind === "session" ? 40 : 50);
 
   const filters: estypes.QueryDslQueryContainer[] = [{ term: { kind: opts.kind } }];
   if (opts.boothId) filters.push({ term: { boothId: opts.boothId } });
 
   const response = await es.search({
     index: INDEX,
-    size: opts.size ?? 50,
+    size,
     query: {
       function_score: {
         query: {

@@ -1,6 +1,8 @@
 import { SuggestionRail } from "@/components/layout/SuggestionRail";
 import { VenueMap } from "@/components/map/VenueMap";
 import { ProfileSheet } from "@/components/profile/ProfileSheet";
+import { AgendaPanel } from "@/components/agenda/AgendaPanel";
+import { FeaturedPanel } from "@/components/sessions/FeaturedPanel";
 import { RankedList } from "@/components/sessions/RankedList";
 import { SessionDetail } from "@/components/sessions/SessionDetail";
 import { SponsorView } from "@/components/sponsor/SponsorView";
@@ -27,7 +29,13 @@ export function AppShell() {
               <SearchStatus />
               {view !== "navigate" && <SuggestionRail />}
               {view === "map" && <SessionDetail />}
-              {view === "agenda" && <RankedList />}
+              {view === "agenda" && (
+                <>
+                  <FeaturedPanel />
+                  <RankedList />
+                </>
+              )}
+              {view === "plan" && <AgendaPanel />}
               {view === "navigate" && <NavigatePanel />}
               {view === "sponsor" && <SponsorView />}
             </div>

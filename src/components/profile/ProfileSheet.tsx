@@ -25,8 +25,8 @@ export function ProfileSheet() {
         <SheetHeader>
           <SheetTitle>Your floor profile</SheetTitle>
           <SheetDescription>
-            Interests re-rank the seeded catalog in Elasticsearch. Map colors update
-            to Must, Maybe, and Meh. This is not a live KubeCon feed.
+            Interests re-rank the official 2026 main schedule in Elasticsearch. Map
+            colors update to Must, Maybe, and Meh. Personal fit, not a popularity score.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-5 p-6 pt-4">

@@ -29,8 +29,8 @@ export function buildSuggestions(input: SuggestionInput): Suggestion[] {
         id: "es-retry",
         kind: "status",
         title: "Search is still starting",
-        body: "The sample floor plan stays available. Ranks fill in when Elasticsearch is ready — this is not a live venue feed.",
-        why: "Seeded demo catalog. Retry when the search service answers.",
+        body: "The expo map stays available. Ranks fill in when Elasticsearch is ready.",
+        why: "Official schedule search. Retry when the search service answers.",
         actions: ["retry"],
       },
     ];
@@ -46,8 +46,8 @@ export function buildSuggestions(input: SuggestionInput): Suggestion[] {
       title: room === "255" ? `Start in room ${room}` : `Must: ${top.item.title}`,
       body:
         room === "255"
-          ? `${top.item.title} is your strongest tag match in the sample catalog.`
-          : `Room ${room} · ${top.item.start}. Ranked from your interests against the sample catalog.`,
+          ? `${top.item.title} is your strongest tag match in the official schedule.`
+          : `${top.item.roomLabel ?? `Room ${room}`} · ${top.item.start}. Personal Elasticsearch fit, not a popularity rank.`,
       why: top.matchedTags.length
         ? `Matches your interests: ${top.matchedTags.join(", ")}.`
         : top.why,

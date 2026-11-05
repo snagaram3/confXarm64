@@ -1,10 +1,8 @@
 # Floorwise
 
-Conference companion for Salt Palace — find the right talk, walk there, peek the room before you go.
+Private conference companion for Salt Palace + Hyatt during KubeCon + CloudNativeCon North America 2026. Find a talk, pin it on your agenda, see exhibitor logos on the official expo floorplan, and get an advance reminder.
 
-Hackathon: WeMakeDevs Cloud Native Hackathon (make conferences easier). Primary prize track: **Elasticsearch**. Product name: Floorwise.
-
-The UI is a **sample / demo catalog** (12 seeded talks, scripted 255 route). Official KCNA26 exhibitor names and booth numbers on the Sponsor surface come from the 5 Nov 2026 Expo Hall Map snapshot. Indoor booth coordinates, crowd telemetry, and a route graph were not published — unrated exhibitors stay **Unrated**, not silent Meh, and pins are not invented.
+Hackathon: WeMakeDevs Cloud Native Hackathon. Primary prize track: **Elasticsearch**. Product name: Floorwise. Not an official Linux Foundation, CNCF, Grok, or sponsor app.
 
 ## Retrieve this update (non-destructive)
 
@@ -24,13 +22,13 @@ Floorwise publishes Elasticsearch on **loopback :19200** so it does not bind hos
 
 Cluster health is **`http://127.0.0.1:19200/_cluster/health`**. Expect `"cluster_name" : "floorwise"`. Yellow or green is ready. A red `docker-cluster` on `:9200` is a different process; leave it alone.
 
-Do not add a `docker-compose.override.yml` that publishes `9200:9200` — Compose **appends** `ports` lists and would fight the existing container.
-
 ```bash
 docker compose config | grep -E 'published|target|floorwise_esdata|ELASTICSEARCH_URL'
 docker compose up -d elasticsearch
 curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=90s&pretty"
 npm install
+npm run vapid:provision
+npm run sponsor:provision -- elastic
 npm run dev
 ```
 
@@ -41,92 +39,79 @@ curl -sS http://127.0.0.1:43181/api/health
 curl -sS http://127.0.0.1:43180/api/health
 ```
 
-Open [http://127.0.0.1:43180](http://127.0.0.1:43180). First boot can sit on **red** while Elasticsearch forms the cluster. The API waits up to **120s** for yellow/green. Compose healthchecks wait for yellow inside the container (`127.0.0.1:9200`).
-
-If Floorwise (`:19200`) is still red after that window, inspect that endpoint only — do not delete the volume and do not touch `:9200`:
-
-```bash
-curl -sS "http://127.0.0.1:19200/_cluster/health?pretty"
-curl -sS "http://127.0.0.1:19200/_cat/shards?v"
-docker compose logs elasticsearch --tail 80
-```
+Open [http://127.0.0.1:43180](http://127.0.0.1:43180). First boot can sit on **red** while Elasticsearch forms the cluster. The API waits up to **120s** for yellow/green and then indexes the official 601-record main schedule.
 
 No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17 tarball and starts it on loopback `:19200`, then `npm run dev`.
 
-All-in-one container (optional):
+This cloud preview may point `ELASTICSEARCH_URL` at a local tarball on `:9200`. Mac / other hosts should keep **19200**.
+
+## What you get
+
+1. **Expo map** — official `expo.pdf` rendered as a zoom/pan floorplan. Catalog exhibitor logos sit on PDF-text booth numbers (image-relative anchors, not indoor GPS). Tap a logo for a clamped popover, Must/Maybe/Meh bots, and booth actions. Unplaced exhibitors (if any) are listed with a reason instead of an invented pin.
+2. **Venue map** — official `venue.pdf` with verified room labels for Salt Palace and Hyatt levels 2–5. Unverified rooms stay in the unplaced list. Hyatt talks are never routed to the sample 255 schematic.
+3. **Official schedule** — 601 main-schedule records (registration, breaks, showcases, and talks — not 601 technical talks), 715 speakers, 37 room labels. Source timezone America/Denver (−07:00) for 8–12 Nov 2026. Related colocated feeds (229 / 14 / 38) stay distinct. Elasticsearch hybrid search ranks the official catalog.
+4. **Personal agenda** — add/remove, per-day timeline, upcoming/ongoing/finished, next-session countdown, overlap warnings, planning-buffer gaps labeled as estimates. Display timezone: conference America/Denver or America/Chicago. Stored only in this browser. Optional ICS download; Floorwise never writes to a real calendar.
+5. **Keynote picks** — curated from the official Keynote Sessions track. Names, titles, photos, and bios come from the published schedule. Not a popularity ranking.
+6. **Reminders** — opt-in per session, default 10 minutes (5/10/15). Browser permission is requested only from **Enable notifications**. Background Web Push needs VAPID keys (`npm run vapid:provision`, gitignored `data/vapid.json`), a supported browser, HTTPS or localhost, and a running API. Until VAPID exists, in-tab / foreground notifications are clearly labeled.
+
+Sample 12-talk catalog + scripted 255 route remain on the **Sample schematic** surface and are labeled SAMPLE. They are not merged into the official Elasticsearch catalog.
+
+## Reminders (local Web Push)
 
 ```bash
-docker compose --profile full up --build
+npm run vapid:provision
 ```
 
-That serves the built app at `:43180`. Elasticsearch is still published on host `:19200`; the app container talks to `http://elasticsearch:9200`.
+That writes public + private VAPID keys to gitignored `data/vapid.json`. The private key is not printed. Restart the API. Then tap **Enable notifications** in Agenda.
+
+Foreground-only mode (no VAPID, or a browser that cannot subscribe): in-tab `Notification` timers while the page stays open. That limitation is shown on Agenda and session detail. No email, SMS, or CRM sends.
+
+Test fire is localhost-only (`POST /api/reminders/test-fire`) and uses a synthetic session id.
 
 ## Exhibitor lead portal (local MVP)
 
-A separate Floorwise-hosted surface — not an official sponsor site, organizer login, or CNCF form.
+A separate Floorwise-hosted surface — not an official sponsor site.
 
-- Attendee connect: [http://127.0.0.1:43180/connect/elastic](http://127.0.0.1:43180/connect/elastic) (any catalog exhibitor id). Copy the `?from=link` URL for booth signage.
+- Attendee connect: [http://127.0.0.1:43180/connect/elastic](http://127.0.0.1:43180/connect/elastic)
 - Sponsor portal: [http://127.0.0.1:43180/sponsor-portal](http://127.0.0.1:43180/sponsor-portal)
-- Read-only sample dashboard (synthetic `@example.com` / `@example.org` rows, not the real store): [http://127.0.0.1:43180/sponsor-portal/demo](http://127.0.0.1:43180/sponsor-portal/demo)
+- Sample dashboard: [http://127.0.0.1:43180/sponsor-portal/demo](http://127.0.0.1:43180/sponsor-portal/demo)
 
-Must / Maybe / Meh, nearby visitors, and search fit **never** create a lead. The connect form requires an unchecked contact-consent box. Consent wording, version (`floorwise-lead-v1`), timestamp, exhibitor, and source are stored with the row.
-
-Leads live in gitignored SQLite (`data/leads.sqlite` by default), not the public Elasticsearch catalog. Session cookies are httpOnly. There is **no** default password.
-
-Provision a sponsor-scoped secret on the machine that runs the API (fail-closed until this exists):
+Leads live in gitignored SQLite (`data/leads.sqlite`). Reminders live in a separate `data/reminders.sqlite`. Agenda choices are never sent to sponsors.
 
 ```bash
 npm run sponsor:provision -- elastic
 ```
 
-The plaintext secret is written once to a gitignored file under `data/` (path printed; the value is not). Open that file locally and sign in at `/sponsor-portal`. Pass `--rotate` to replace a secret. Do not commit `data/`, `sponsor-credentials.json`, or `sponsor-secret-*.txt`.
+## Demo
 
-This is a **local MVP**, not production identity or privacy posture: file-backed scrypt hashes, cookie sessions, and SQLite on disk. Do not expose the lead database or `:43181` on a public network.
+Default profile is **Staff Platform Engineer · Kubernetes · observability · platform engineering · eBPF · OpenTelemetry**.
 
-## Under-3-minute demo
-
-Sample profile is already **Staff Platform Engineer · Kubernetes · observability · platform engineering · eBPF · OpenTelemetry**.
-
-1. **Late for 255** — tap **I’m late for 255**. Follow altitude-aware steps from the West Temple doors (Level 1) up the east escalators to room **255** on the mezzanine. Scripted sample route, not live indoor positioning.
-2. **Must / Maybe / Meh (sessions)** — **Map** / **For you**. Room 255 is green Must from Elasticsearch. Toggle interests (try only `AI/ML`) and watch the map recolor.
-3. **Crowd take** — with 255 selected, read the seeded photo + one-line take.
-4. **Sponsors** — **Booths** tab or the Level 1 exhibitor dock. Official names/booth numbers from the expo PDF. Tap **Must go / Maybe / Meh** on a card; a matching bot bounces on the pin and the card. Unrated stays Unrated until you pick. Prefs persist in `localStorage` and stay in sync. Radar uses a monogram because no official mark was obtained.
-
-Type `eBPF` or `255` in For you to show the hybrid query. Must rows include a **Why this rank** line.
+1. **Expo logos** — Map tab, Expo floor. Pinch/scroll zoom, tap Elastic / Grafana / Docker logos. Preference bots bounce then idle (Must green / Maybe amber / Meh gray / Unrated). Reduced-motion OS setting stops the animation.
+2. **Official talk** — For you. Search `keynote` or `eBPF`. Open a result. Add to agenda. Hall DE is on the venue map; Hyatt rooms stay on Hyatt.
+3. **Agenda** — Agenda tab. Switch timezone Denver ↔ Chicago. Set a 10 min planning buffer. Watch overlap and gap copy. Download ICS if you want a file; nothing is written to a calendar.
+4. **Keynote picks** — For you, above the ranking. Sourced from the Keynote Sessions track.
+5. **Remind me** — Enable notifications, then Remind on a future talk (or use the planner clock). Cancel reschedules cleanly. Removing from the agenda cancels the job.
+6. **Sample 255** — 255 tab is still the labeled sample walk, not a live indoor route.
 
 ## Elasticsearch track
 
-Ranking is **not** computed in the browser. `POST /api/rank` runs a hybrid query:
+`POST /api/rank` hybrid-ranks the official main schedule:
 
-- **BM25** `multi_match` on title^3, abstract, tags, track, speaker, plus named `term` queries per interest
-- **Vector** `dense_vector` (48-dim) with cosine via `function_score`
-- Hits become Must / Maybe / Meh from ES `_score` + tag overlap
+- BM25 `multi_match` on title^3, abstract, tags, track, speaker
+- 48-dim cosine `dense_vector`
+- Must / Maybe / Meh from ES `_score` + tag overlap (personal fit, not global popularity)
 
-Sponsor **visit prefs** (the colored bots) are your picks, not the Elasticsearch attendee-fit rank. Search fit still shows on the selected exhibitor card when the index is ready.
+Re-seed without restarting: `npm run seed`.
 
-Re-seed without restarting the app: `npm run seed`.
-
-## Optional: Dash0 / OpenTelemetry
-
-Leave env unset for local runs — no Dash0 key required.
+## Verify
 
 ```bash
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://ingress.<region>.aws.dash0.com
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <token>"
-export OTEL_SERVICE_NAME=floorwise-api
-npm run dev
-```
-
-## Optional: Radar / Kubernetes
-
-```bash
-docker build -t floorwise:dev .
-kubectl apply -k k8s
-kubectl -n floorwise port-forward svc/floorwise 43180:80
+npm test
+npm run build
 ```
 
 ## What is in / out
 
-**In:** Salt Palace L1–L3 sample map, profile → Must/Maybe/Meh for talks, scripted wayfinding to 255, crowd takes, official exhibitor slice with logos + user prefs, Elasticsearch ranking, opted-in exhibitor leads with a scoped portal.
+**In:** Official 2026 main schedule + speakers + rooms, PDF-anchored expo logos, verified venue room pins, personal agenda, keynote picks, opt-in Web Push reminders, sponsor lead portal, Elasticsearch ranking, sample 255 schematic (labeled).
 
-**Out:** Full KCNA26 schedule import, invented booth coordinates, ARKit/ARCore, beacons, live heatmaps, production SSO, CRM/email sends, wiping Docker volumes, harvesting contacts from Must/Maybe/Meh or nearby.
+**Out:** Surveyed indoor coordinates, step-free routing, live crowd counts, invented celebrity attendees, popularity rankings, merging colocated feeds into the main catalog, email/SMS/CRM, writing to a real calendar, public deployment, wiping Docker volumes, harvesting contacts from Must/Maybe/Meh.

@@ -1,0 +1,212 @@
+{
+  "map": "expo",
+  "image": "/maps/expo-floorplan.png",
+  "source": {
+    "file": "official expo.pdf from KCNA26 maps pack",
+    "page": 1,
+    "url": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/attend/venue-travel/",
+    "retrieved": "2026-11-05"
+  },
+  "clipPdf": [
+    820.0,
+    50.0,
+    1230.0,
+    620.0
+  ],
+  "pdfSize": [
+    1700.7900390625,
+    691.2000122070312
+  ],
+  "booths": [
+    {
+      "id": "elastic",
+      "boothNumber": "196",
+      "placed": true,
+      "nx": 0.85722,
+      "ny": 0.56087,
+      "pdfX": 1171.46,
+      "pdfY": 369.7,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "grafana",
+      "boothNumber": "214",
+      "placed": true,
+      "nx": 0.72876,
+      "ny": 0.49189,
+      "pdfX": 1118.79,
+      "pdfY": 330.38,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "isovalent",
+      "boothNumber": "112",
+      "placed": true,
+      "nx": 0.56433,
+      "ny": 0.75721,
+      "pdfX": 1051.37,
+      "pdfY": 481.61,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "datadog",
+      "boothNumber": "152",
+      "placed": true,
+      "nx": 0.68317,
+      "ny": 0.70847,
+      "pdfX": 1100.1,
+      "pdfY": 453.83,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "suse",
+      "boothNumber": "107",
+      "placed": true,
+      "nx": 0.40016,
+      "ny": 0.87531,
+      "pdfX": 984.07,
+      "pdfY": 548.93,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "hashicorp",
+      "boothNumber": "225",
+      "placed": true,
+      "nx": 0.72876,
+      "ny": 0.43291,
+      "pdfX": 1118.79,
+      "pdfY": 296.76,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "dash0",
+      "boothNumber": "134",
+      "placed": true,
+      "nx": 0.42153,
+      "ny": 0.70979,
+      "pdfX": 992.83,
+      "pdfY": 454.58,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "radar",
+      "boothNumber": "365",
+      "placed": true,
+      "nx": 0.77111,
+      "ny": 0.13016,
+      "pdfX": 1136.15,
+      "pdfY": 124.19,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "docker",
+      "boothNumber": "141",
+      "placed": true,
+      "nx": 0.12767,
+      "ny": 0.82644,
+      "pdfX": 872.35,
+      "pdfY": 521.07,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    },
+    {
+      "id": "azure",
+      "boothNumber": "117",
+      "placed": true,
+      "nx": 0.43776,
+      "ny": 0.80109,
+      "pdfX": 999.48,
+      "pdfY": 506.62,
+      "method": "pdf-text-bbox-center on expo.pdf page 1, image-relative to cropped floorplan",
+      "sourcePage": 1,
+      "sourceFile": "maps/expo.pdf",
+      "clipPdf": [
+        820.0,
+        50.0,
+        1230.0,
+        620.0
+      ],
+      "note": "Approximate image-relative anchor on the official Solutions Showcase map. Not geospatial or surveyed indoor coordinates."
+    }
+  ]
+}

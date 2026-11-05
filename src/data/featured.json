@@ -1,0 +1,300 @@
+{
+  "label": "Keynote picks",
+  "disclaimer": "Curated from the official Keynote Sessions track in Hall DE. Names, titles, photos, and bios come from the published schedule. There are no attendance counts in this pack \u2014 this is not a popularity ranking.",
+  "sourceIds": [
+    "main-api",
+    "schedule"
+  ],
+  "picks": [
+    {
+      "sessionId": "1302801",
+      "title": "Welcome + Opening Remarks",
+      "start": "2026-11-10T09:00:00-07:00",
+      "end": "2026-11-10T09:31:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "3e2472c2-8a1d-439b-9b13-030a77759ec9",
+          "fullName": "Jonathan Bryce",
+          "tagLine": "",
+          "bio": "Jonathan Bryce is the Executive Director of Cloud & Infrastructure at the Linux Foundation, where he leads both the Cloud Native Computing Foundation (CNCF) and the OpenInfra Foundation\u2014two of the largest and most influential open source communities in the world. With over 15 years of open source leadership, Jonathan co-founded the OpenStack project, guiding its evolution into a global ecosystem that supports a multi-billion-dollar market and serves as the de facto standard for open cloud infrastructure. Before his open source career, Jonathan spent over a decade in data center infrastructure and co-founded one of the industry\u2019s earliest cloud computing companies, which grew into a billion-dollar business following its acquisition by Rackspace. Passionate about open collaboration, infrastructure innovation, and empowering users, contributors, and ecosystems worldwide, Jonathan frequently speaks at international conferences on open source strategy, infrastructure modernization, cloud-native technologies, and open source AI initiatives.",
+          "photo": "https://cdn.sessionize.com/image/f0af-400o400o1-N7pZDMKGtWFrBLBuw7FkLs.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "a6af85ee-7f4c-44a8-82ba-54cca2777fad",
+          "fullName": "Chris Aniszczyk",
+          "tagLine": "building a better world through open collaboration",
+          "bio": "building a better world through open collaboration",
+          "photo": "https://cdn.sessionize.com/image/e607-400o400o1-46gETgg2LpFuBJEgLTTjxc.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "7ba0e0db-b8be-4a8d-a88e-b410b88ec162",
+          "fullName": "Robert Nishihara",
+          "tagLine": "Co-founder, Anyscale",
+          "bio": "Robert Nishihara is one of the creators of Ray, the world\u2019s leading open source AI compute engine. Ray is used by companies across the board from Canva to Runway to Coinbase to Pinterest to scale their machine learning training, inference, and data processing workloads. He is one of the co-founders of Anyscale, which is the company behind Ray. He did his PhD in machine learning and distributed systems in the computer science department at UC Berkeley. Before that, he majored in math at Harvard.",
+          "photo": "https://cdn.sessionize.com/image/115f-400o400o1-p7bZNNoGH3msAKsgpxKWSg.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "585aee7d-55fc-4411-b570-97a69f90628f",
+          "fullName": "Rita Zhang",
+          "tagLine": "Principal software engineer, Kubernetes AI Conformance program chair and sig-auth chair",
+          "bio": "Rita Zhang is a Principal software engineer at CoreWeave, based in San Francisco bay area. She works on the inference platform powering the serverless and dedicated inference products. She is a Kubernetes sig-auth chair, a Kubernetes AI Conformance program chair, and a maintainer of the Open policy agent Gatekeeper project. Rita is passionate about open source and running distributed workloads at scale.",
+          "photo": "https://cdn.sessionize.com/image/7a68-400o400o1-n2FJKzHhmf6AQTfyVikdyJ.png",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "a056f172-84b3-43ad-ab16-91d76db59966",
+          "fullName": "Kevin Cochrane",
+          "tagLine": "",
+          "bio": "Kevin Cochrane is a 25+ year pioneer of the digital experience space. Kevin co-founded his first start-up, Interwoven, in 1996, pioneered open source content management at Alfresco in 2006, and built a global leader in digital experience management as CMO of Day Software and later Adobe. Kevin has also held senior executive positions at OpenText, Bloomreach, and SAP. Now at Vultr, Kevin is working to build Vultr's global brand presence as a leader in the independent cloud platform market.",
+          "photo": "https://cdn.sessionize.com/image/5d37-400o400o1-Sbx8GTRa9R4AvYEgZhwu5S.png",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "e3176fa8-8cc6-4614-8bc3-68068d2fd5e5",
+          "fullName": "Bassam Tabbara",
+          "tagLine": "Crossplane Steering Committee, Founder & CEO Upbound",
+          "bio": "Bassam has created two CNCF-graduated open source projects, Crossplane and Rook, and now leads Modelplane, an open source control plane for AI inference. He is a founding member of the Crossplane Steering Committee, and the CEO & Founder of Upbound, the control plane company.",
+          "photo": "https://cdn.sessionize.com/image/3d93-400o400o1-M4CFFua3KsnFPL4kuHqxB4.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions block on Tuesday in Hall DE \u2014 opening remarks with named CNCF/Linux Foundation speakers from the published schedule.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1301696",
+      "title": "Engineering Kubernetes for the Next Era of Workloads",
+      "start": "2026-11-10T09:42:00-07:00",
+      "end": "2026-11-10T09:47:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "d96c413a-8318-4289-a250-06d98504be45",
+          "fullName": "Mike Stefaniak",
+          "tagLine": "Senior Manager, Product, AWS",
+          "bio": "Mike Stefaniak is a Senior Manager of Product at AWS, where he leads product strategy for containers. His team focuses on simplifying Kubernetes for platform engineers and application developers at scale, spanning compute elasticity, workload abstraction, and cluster governance.",
+          "photo": "https://cdn.sessionize.com/image/d7f1-400o400o1-GXuAfdajiE1xZSHEn933fx.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk with a named speaker bio in the Sessionize dump.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1363682",
+      "title": "Building the Next Generation of AI with Open Source",
+      "start": "2026-11-10T09:49:00-07:00",
+      "end": "2026-11-10T09:56:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "b29f93be-574f-420f-9d43-ab44118ca0f4",
+          "fullName": "Warren Barkley",
+          "tagLine": "NVIDIA VP DSX",
+          "bio": "Warren Barkley is Vice President at NVIDIA, where he leads the DSX platform, open, modular software for operating AI factories at scale and DGXC NVIDIA research cloud. With nearly three decades in technology leadership, Warren has held senior roles at Google, AWS, Clearwater Analytics, and Amazon, and spent the last 12 years building AI models and infrastructure. ",
+          "photo": "https://cdn.sessionize.com/image/8830-400o400o1-5dzeF5xKDG4w9myZe7fgH.png",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk with a named speaker bio in the Sessionize dump.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1372841",
+      "title": "Human Scale, Agent Scale",
+      "start": "2026-11-11T09:00:00-07:00",
+      "end": "2026-11-11T09:05:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "3e2472c2-8a1d-439b-9b13-030a77759ec9",
+          "fullName": "Jonathan Bryce",
+          "tagLine": "",
+          "bio": "Jonathan Bryce is the Executive Director of Cloud & Infrastructure at the Linux Foundation, where he leads both the Cloud Native Computing Foundation (CNCF) and the OpenInfra Foundation\u2014two of the largest and most influential open source communities in the world. With over 15 years of open source leadership, Jonathan co-founded the OpenStack project, guiding its evolution into a global ecosystem that supports a multi-billion-dollar market and serves as the de facto standard for open cloud infrastructure. Before his open source career, Jonathan spent over a decade in data center infrastructure and co-founded one of the industry\u2019s earliest cloud computing companies, which grew into a billion-dollar business following its acquisition by Rackspace. Passionate about open collaboration, infrastructure innovation, and empowering users, contributors, and ecosystems worldwide, Jonathan frequently speaks at international conferences on open source strategy, infrastructure modernization, cloud-native technologies, and open source AI initiatives.",
+          "photo": "https://cdn.sessionize.com/image/f0af-400o400o1-N7pZDMKGtWFrBLBuw7FkLs.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Wednesday Keynote Sessions opener in Hall DE.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1363905",
+      "title": "A Tribute to Open Source",
+      "start": "2026-11-11T09:45:00-07:00",
+      "end": "2026-11-11T09:50:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "a5321460-037e-4a00-8746-56eb0ed1c8b7",
+          "fullName": "Lucy Sweet",
+          "tagLine": "Member of Technical Staff at Anthropic",
+          "bio": "Lucy is a Member of Technical Staff at Anthropic and co-lead of the Kubernetes Node Lifecycle Working Group.",
+          "photo": "https://cdn.sessionize.com/image/1ed3-400o400o1-sa5rk3TE889rKHLBWYWBoa.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk titled from the published schedule, with a named speaker bio.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1353217",
+      "title": "Code, Containers, and Clusters: The Next Chapter of Apple's Container Framework",
+      "start": "2026-11-11T09:52:00-07:00",
+      "end": "2026-11-11T10:02:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "19793d59-0563-400d-b942-fdf615c1b166",
+          "fullName": "Kathryn Baldauf",
+          "tagLine": "Apple Containerization Software Engineer",
+          "bio": "Kathryn is a software engineer at Apple, where she works on Apple's open source Container and Containerization projects. She has been working in the open source container ecosystem for the past 7 years.",
+          "photo": "https://cdn.sessionize.com/image/65f8-400o400o1-GVD5YKaw1p3na1geFnbD7.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "8c2bde12-2978-4a39-88ca-4890326d1057",
+          "fullName": "Vince Prignano",
+          "tagLine": "Staff Engineer at Apple, Inc.",
+          "bio": "Vince Prignano is a Staff Engineer at Apple, where he leads Kubernetes infrastructure spanning clouds and bare metal.",
+          "photo": "https://cdn.sessionize.com/image/97e9-400o400o1-siwofXTxq7x4QnwNkWm9Eu.png",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk; speakers listed with published Sessionize bios.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1363972",
+      "title": "Cloud Native: Built by Humans, Engineered to Evolve",
+      "start": "2026-11-12T09:00:00-07:00",
+      "end": "2026-11-12T09:10:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "8dbd6d2e-738b-4fa5-bc14-27dee4cc02eb",
+          "fullName": "Jeffrey Sica",
+          "tagLine": "Head of Projects @ CNCF",
+          "bio": "Jeffrey (@jeefy) is Head of Projects at the CNCF, with a focus on improving community and project automation. Before that, he worked at Red Hat and the University of Michigan focusing on Cloud Native technologies and CI/CD patterns. Jeffrey has been a contributor to upstream Kubernetes, helping in SIG-Contribex, SIG-Release, and SIG-UI. He passionately advocates for open source development and recognizing and alleviating burnout.",
+          "photo": "https://cdn.sessionize.com/image/cf53-400o400o1-HNeE59sqGRxESniqMrWNPs.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Thursday Keynote Sessions opener in Hall DE.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1353351",
+      "title": "Celebrating the People Who Make Cloud Native Possible",
+      "start": "2026-11-12T09:19:00-07:00",
+      "end": "2026-11-12T09:30:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "1f913552-d385-432d-88fb-960206dd522f",
+          "fullName": "Jorge Castro",
+          "tagLine": "Let's keep the modern world running, sustainably.",
+          "bio": "Jorge O. Castro is a community engineer, specializing in Open Source. He's basically a cat herder \u2013 a combination of engineering, developer relations, and user advocacy. \r\n\r\nThese days Jorge is the Technical Program Management Director at the Cloud Native Computing Foundation, where he's tasked with helping make open source sustainable. He has worked on Ubuntu, Kubernetes, Kubeflow, Cloud Custodian, and Project Bluefin. ",
+          "photo": "https://cdn.sessionize.com/image/bb61-400o400o1-M4P3YqqkeapmucwJA5gw4L.png",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk with a named speaker bio in the Sessionize dump.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1352067",
+      "title": "Kubeflow Graduation: Powering the Next Era of Cloud Native AI With an Open Community",
+      "start": "2026-11-12T09:12:00-07:00",
+      "end": "2026-11-12T09:17:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "8f2a6af4-787b-469a-9772-5aa998c05482",
+          "fullName": "Ron Kahn",
+          "tagLine": "Senior Software Engineer, NVIDIA",
+          "bio": "Ron Kahn is a Senior Software Engineer at NVIDIA, a maintainer of NVIDIA Grove project, and snapshot project. When not simplifying AI for Kubernetes, Ron can be found cooking something delicious.",
+          "photo": "https://cdn.sessionize.com/image/4b91-400o400o1-PigGGqNbMpS98oJFhL1N3H.png",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "d2462872-1ca2-4a95-a111-2ec722768036",
+          "fullName": "Andrey Velichkevich",
+          "tagLine": "Kubeflow Steering Committee",
+          "bio": "Andrey Velichkevich is an AI Engineer at Apple and a key contributor to the Kubeflow and Kubernetes projects. He serves on the Kubeflow Steering Committee and is a co-chair for Kubernetes WG WAS and Checkpoint/Restore. In addition, Andrey is an active member of the Batch WG, SIG Scheduling, and the CNCF AI TSG. He is a co-author of the CNCF AI White Paper and actively contributes to multiple AI initiatives that advance the CNCF community and the broader cloud-native AI ecosystem.",
+          "photo": "https://cdn.sessionize.com/image/6665-400o400o1-Basp79n5MRMRPSRAqbHbe6.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "531b8bfa-efc4-46f8-96fe-618ad8c3dac0",
+          "fullName": "Vara Bonthu",
+          "tagLine": "AWS, Principal Technologist, OSS - Data, AI and Kubernetes",
+          "bio": "Vara Bonthu is a Principal Technologist at AWS and CNCF maintainer for the Kubeflow Spark Operator and MCP Server for Spark History Server. He leads the Data-on-EKS and AI-on-EKS open-source initiatives and has operated Spark on Kubernetes at the scale of thousands of nodes and hundreds of thousands of pods. His work focuses on performance, resiliency, and AI-driven observability for Spark, Ray, and Kubeflow.",
+          "photo": "https://cdn.sessionize.com/image/a40e-400o400o1-DpUmyvWXM79JS4bdPbekQm.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "9d75f1a3-bb8d-4d46-9de6-731feaa29028",
+          "fullName": "Ekin Karabulut",
+          "tagLine": "AI/ML Developer Advocate",
+          "bio": "Ekin is a Developer Advocate at NVIDIA, following the acquisition of Run:ai. Prior to that, she specialized in the privacy implications of federated learning systems with DNNs. Currently, she is exploring the efficient usage of large models in production and one of the maintainers of KAI scheduler, which is a CNCF sandbox project. ",
+          "photo": "https://cdn.sessionize.com/image/eecf-400o400o1-pZJa7toVkK4Y3yXanEAECR.jpg",
+          "isTopSpeaker": true
+        },
+        {
+          "id": "00407ab5-f8e4-4d04-b154-551208836c96",
+          "fullName": "Manabu McCloskey",
+          "tagLine": "Sr. Solutions Architect at AWS",
+          "bio": "Manabu is a Solutions Architect at Amazon Web Services. He focuses on contributing to open source application delivery tooling and works with AWS strategic customers to design and implement enterprise solutions using AWS resources and open source technologies. His interests include Kubernetes, GitOps, Serverless, and Souls Series. ",
+          "photo": "https://cdn.sessionize.com/image/23ac-400o400o1-hryVbTdLS1rbKtMmk8Nr8P.png",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions announcement talk; speakers listed on the published schedule.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    },
+    {
+      "sessionId": "1294245",
+      "title": "Cloud Native Without Limits: What Can AI Agents Do for Us?",
+      "start": "2026-11-12T10:10:00-07:00",
+      "end": "2026-11-12T10:20:00-07:00",
+      "roomLabel": "Salt Palace | Level 1 | Hall DE",
+      "track": "Keynote Sessions",
+      "speakers": [
+        {
+          "id": "77117339-b3fd-484f-bd53-d40bef8fce5a",
+          "fullName": "Lin Sun",
+          "tagLine": "solo.io",
+          "bio": "Lin is the Head of Open Source at Solo.io, contributing full-time to the open-source community. She serves on the CNCF Technical Oversight Committee (TOC), is a CNCF Ambassador, and is a maintainer for Istio, kgateway, and kagent. An international speaker at tech conferences, Lin frequently blogs about gateways, service meshes, cloud-native connectivity, and AI agents. She is the author of \u201cSidecar-less Istio Explained\u201d and \u201cAI Agents in Kubernetes\u201d, and holds more than 200 patents.",
+          "photo": "https://cdn.sessionize.com/image/b154-400o400o1-UnrH8vnN8XbaR16rnvDHp6.jpg",
+          "isTopSpeaker": true
+        }
+      ],
+      "why": "Official Keynote Sessions talk with a named speaker bio in the Sessionize dump.",
+      "label": "Keynote pick",
+      "source": "Main schedule track \u201cKeynote Sessions\u201d from Sessionize All + speaker bios. Not an audience or popularity ranking."
+    }
+  ]
+}

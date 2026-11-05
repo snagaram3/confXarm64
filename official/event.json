@@ -1,0 +1,110 @@
+{
+  "name": "KubeCon + CloudNativeCon North America 2026",
+  "edition": 2026,
+  "advertised_start_date": "2026-11-09",
+  "advertised_end_date": "2026-11-12",
+  "main_conference_dates": [
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12"
+  ],
+  "pre_event_date": "2026-11-09",
+  "schedule_date_range": [
+    "2026-11-08",
+    "2026-11-12"
+  ],
+  "timezone": "America/Denver",
+  "source_timezone": "MST (UTC-7)",
+  "venue": {
+    "name": "Salt Palace Convention Center",
+    "city": "Salt Lake City",
+    "region": "Utah",
+    "additional_programming_venue": "Hyatt Regency Salt Lake City",
+    "badge_pickup": "Salt Palace | 200 South Entrance (South)",
+    "source_ids": [
+      "schedule",
+      "attend-faq",
+      "venue-map"
+    ],
+    "address": "90 South West Temple, Salt Lake City, UT 84101",
+    "additional_venue_address": "170 South West Temple, Salt Lake City, UT 84101"
+  },
+  "coverage": {
+    "main_sessions": 601,
+    "main_speakers": 715,
+    "main_room_labels": 37,
+    "daily_session_counts": {
+      "2026-11-08": 4,
+      "2026-11-09": 79,
+      "2026-11-10": 194,
+      "2026-11-11": 203,
+      "2026-11-12": 121
+    },
+    "related_schedule_counts": {
+      "cncf-colocated": 229,
+      "sponsor-colocated": 14,
+      "maintainer-summit": 38
+    },
+    "pagination": "All endpoint is a single JSON object with sessions/speakers/rooms/categories/questions; no pagination. GridSmart supplies all five days in one array.",
+    "main_grid_unique_sessions": 601,
+    "main_grid_id_set_matches_all": true,
+    "main_embedded_id_set_matches_api": true,
+    "embedded_vs_api": "Only session description representation differs: embedded HTML vs API text; all other session fields match.",
+    "missing_fields": {
+      "empty_descriptions": 47,
+      "no_speakers": 100,
+      "missing_start_or_end": 0,
+      "unknown_room_references": 0,
+      "tbd_room_sessions": 0,
+      "offsite_placeholder_sessions": 14
+    },
+    "scope_warning": "601 main records include breaks, registration, showcase and co-located umbrella entries; not 601 technical talks. Related datasets are separate and overlap main umbrella events; never blindly concatenate or interpret counts as unique talks."
+  },
+  "access": {
+    "source_ids": [
+      "attend-faq",
+      "schedule",
+      "attend-inclusion-accessibility"
+    ],
+    "badge_required": true,
+    "cncf_hosted_colocated": "All-Access pass required for Monday CNCF-hosted events. No specific co-located event selection required.",
+    "main_only_pass": "Includes Nov 10-12 and Monday Project Lightning Talks, excludes Monday CNCF-hosted co-located events.",
+    "sponsor_hosted": "Separate registrations and eligibility may apply; use exact session descriptions and labels.",
+    "seating": "First come, first served; favorite does not reserve a seat.",
+    "accessibility": "Reserved session seating available. Ask event staff at registration/info desks for elevators and onsite accessibility help. Nursing room location is available from staff; no specific room inferred.",
+    "wifi": null,
+    "wifi_status": "Not found in pages retrieved; no SSID/password inferred.",
+    "maintainer_summit": "Separate registration plus KubeCon registration and eligibility requirements; consult preserved maintainer-summit page. Not a general main-conference session."
+  },
+  "logistics": {
+    "registration_sessions": [
+      "1304040",
+      "1289947",
+      "1289946",
+      "1289943",
+      "1289942"
+    ],
+    "expo_hours_sessions": [
+      "1289738",
+      "1289740",
+      "1289741"
+    ],
+    "entrances": "Venue PDF labels 200 South Main Entrance, West Temple Entrance, badge re-entry, and Hyatt/Salt Palace connection. See PDF; no route geometry inferred.",
+    "map_coverage": "Salt Palace levels 1-3 and Hyatt levels 1-5. Main schedule requires Hyatt levels 2,3,4,5 as well as Salt Palace. L1-L3-only single-building map is insufficient."
+  },
+  "refresh_advice": {
+    "status": "Implementation recommendation, not official polling policy",
+    "text": "Re-fetch official All and GridSmart endpoints before import and during event at a respectful interval; diff stable IDs, start/end and room IDs. Preserve favorites by dataset+id, display snapshot time and timezone, handle removals/cancellations, and refresh map redirect targets. No official refresh SLA found.",
+    "agenda_sync": "Organizer app guide says favorites stored locally by default; sync code supports cross-device favorites and can take up to 5 minutes. Do not scrape user sync codes."
+  },
+  "provenance": {
+    "source_ids": [
+      "schedule",
+      "attend-faq",
+      "attend-venue-travel",
+      "main-api"
+    ],
+    "pack_generated_at": "2026-11-05T15:03:31.635635-06:00",
+    "timestamp_timezone": "America/Chicago"
+  }
+}

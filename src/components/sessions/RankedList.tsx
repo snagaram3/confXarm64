@@ -30,10 +30,10 @@ export function RankedList() {
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
           Find the right talk
         </p>
-        <h2 className="mt-1 font-display text-2xl font-semibold">Your sample ranking</h2>
+        <h2 className="mt-1 font-display text-2xl font-semibold">Your personal ranking</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Elasticsearch hybrid over the seeded catalog — keyword + tag vector, not a live
-          schedule.
+          Elasticsearch hybrid over the official 2026 main schedule. This is your interest
+          fit, not a global popularity score.
           {rankMeta ? ` Last query ${rankMeta.tookMs}ms.` : ""}
         </p>
         <div className="relative mt-3">
@@ -41,9 +41,9 @@ export function RankedList() {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="eBPF, OpenTelemetry, room 255…"
+            placeholder="eBPF, keynote, Hall DE…"
             className="h-11 min-h-11 pl-9"
-            aria-label="Search seeded sessions"
+            aria-label="Search official sessions"
           />
         </div>
       </div>
@@ -126,7 +126,7 @@ function SessionRow({
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1 font-mono text-primary">
           <MapPin className="size-3" />
-          {item.roomId.toUpperCase()} · L{item.floor}
+          {item.roomLabel ?? item.roomId}{item.level != null ? ` · L${item.level}` : ""}
         </span>
         <span>
           {item.start}–{item.end}

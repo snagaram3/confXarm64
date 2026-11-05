@@ -4,18 +4,32 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { fetchHealth, fetchRank, fetchVisitors } from "@/lib/api";
+import {
+  fetchHealth,
+  fetchRank,
+  fetchReminderJobs,
+  fetchReminderStatus,
+  fetchScheduleBootstrap,
+  fetchSessionDetail,
+  fetchVisitors,
+  postReminderCancel,
+  postReminderSchedule,
+  postReminderSubscribe,
+} from "@/lib/api";
 import {
   FEATURED_BOOTH_ID,
   LATE_SESSION_ID,
+  OPENING_KEYNOTE_ID,
   catalog,
-  sessionById,
+  sampleSessionById,
   sessionsInRoom,
   wayfinding,
 } from "@/lib/catalog";
+import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
 import type {
@@ -23,6 +37,7 @@ import type {
   Booth,
   EsHealth,
   Floor,
+  MapSurface,
   Profile,
   Rank,
   RankMeta,
@@ -79,9 +94,73 @@ interface AppStateValue {
   toggleSaved: (sessionId: string) => void;
   sponsorPrefs: Record<string, Rank>;
   setSponsorPref: (boothId: string, pref: Rank | undefined) => void;
+  officialSessions: Session[];
+  scheduleNote: string;
+  featured: {
+    label: string;
+    disclaimer: string;
+    picks: Array<{
+      sessionId: string;
+      title: string;
+      start: string;
+      end: string;
+      roomLabel: string;
+      why: string;
+      speakers: Array<{ fullName: string; tagLine?: string; photo?: string | null }>;
+    }>;
+  } | null;
+  roomAnchors: Array<{
+    id: string;
+    label: string;
+    building: string | null;
+    level: number | null;
+    placed: boolean;
+    nx?: number;
+    ny?: number;
+    reason?: string;
+    roomOrArea?: string;
+  }>;
+  mapSurface: MapSurface;
+  setMapSurface: (surface: MapSurface) => void;
+  timeZone: DisplayTimeZone;
+  setTimeZone: (tz: DisplayTimeZone) => void;
+  bufferMinutes: number;
+  setBufferMinutes: (n: number) => void;
+  plannerIso: string;
+  setPlannerIso: (iso: string) => void;
+  reminderMinutes: 5 | 10 | 15;
+  setReminderMinutes: (n: 5 | 10 | 15) => void;
+  reminderJobs: Array<{ sessionId: string; status: string; minutesBefore: number; fireAt: number }>;
+  pushStatus: {
+    webPushConfigured: boolean;
+    publicKey: string | null;
+    backgroundDelivery: boolean;
+    foregroundOnly: boolean;
+    notice: string;
+  } | null;
+  enablePush: () => Promise<void>;
+  scheduleReminder: (sessionId: string) => Promise<void>;
+  cancelReminder: (sessionId: string) => Promise<void>;
+  resolveSession: (id: string) => Session | undefined;
 }
 
 const SAVED_KEY = "floorwise.savedSessions";
+const TZ_KEY = "floorwise.displayTz";
+const BUF_KEY = "floorwise.bufferMinutes";
+const ATTENDEE_KEY = "floorwise.attendeeId";
+const REMIND_KEY = "floorwise.reminderMinutes";
+
+function attendeeId(): string {
+  try {
+    const existing = localStorage.getItem(ATTENDEE_KEY);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    localStorage.setItem(ATTENDEE_KEY, id);
+    return id;
+  } catch {
+    return "local-attendee";
+  }
+}
 
 function readSaved(): string[] {
   try {
@@ -111,10 +190,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [sponsorPrefs, setSponsorPrefs] = useState<Record<string, Rank>>(readSponsorPrefs);
   const [view, setView] = useState<AppView>("map");
   const [floor, setFloor] = useState<Floor>(2);
-  const [selection, setSelection] = useState<Selection>({
-    kind: "session",
-    id: LATE_SESSION_ID,
-  });
+  const [selection, setSelection] = useState<Selection>(null);
   const [navigating, setNavigating] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [sponsorBoothId, setSponsorBoothId] = useState(FEATURED_BOOTH_ID);
@@ -126,6 +202,65 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [rankError, setRankError] = useState<string | null>(null);
   const [rankMeta, setRankMeta] = useState<RankMeta | null>(null);
   const [esHealth, setEsHealth] = useState<EsHealth | null>(null);
+  const [officialSessions, setOfficialSessions] = useState<Session[]>([]);
+  const [scheduleNote, setScheduleNote] = useState("");
+  const [featured, setFeatured] = useState<AppStateValue["featured"]>(null);
+  const [roomAnchors, setRoomAnchors] = useState<AppStateValue["roomAnchors"]>([]);
+  const [mapSurface, setMapSurface] = useState<MapSurface>("expo");
+  const [timeZone, setTimeZoneState] = useState<DisplayTimeZone>(() => {
+    try {
+      const raw = localStorage.getItem(TZ_KEY);
+      return raw === "America/Chicago" ? raw : CONFERENCE_TZ;
+    } catch {
+      return CONFERENCE_TZ;
+    }
+  });
+  const [bufferMinutes, setBufferMinutesState] = useState(() => {
+    try {
+      const raw = localStorage.getItem(BUF_KEY);
+      if (raw == null || raw === "") return 10;
+      const n = Number(raw);
+      return Number.isFinite(n) && n >= 0 ? n : 10;
+    } catch {
+      return 10;
+    }
+  });
+  const [plannerIso, setPlannerIso] = useState("live");
+  const [reminderMinutes, setReminderMinutesState] = useState<5 | 10 | 15>(() => {
+    try {
+      const n = Number(localStorage.getItem(REMIND_KEY));
+      return n === 5 || n === 15 ? n : 10;
+    } catch {
+      return 10;
+    }
+  });
+  const [reminderJobs, setReminderJobs] = useState<AppStateValue["reminderJobs"]>([]);
+  const [pushStatus, setPushStatus] = useState<AppStateValue["pushStatus"]>(null);
+  const [sessionIndex, setSessionIndex] = useState<Record<string, Session>>({});
+  const foregroundTimers = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchScheduleBootstrap(ac.signal)
+      .then((data) => {
+        setOfficialSessions(data.sessions);
+        setScheduleNote(data.meta.note);
+        setFeatured(data.featured);
+        setRoomAnchors(data.roomAnchors.rooms);
+        const map: Record<string, Session> = {};
+        for (const s of data.sessions) map[s.id] = s;
+        setSessionIndex(map);
+        setSelection((prev) => prev ?? { kind: "session", id: OPENING_KEYNOTE_ID });
+      })
+      .catch(() => undefined);
+    fetchReminderStatus()
+      .then(setPushStatus)
+      .catch(() => undefined);
+    fetchReminderJobs(attendeeId())
+      .then((d) => setReminderJobs(d.jobs))
+      .catch(() => undefined);
+    return () => ac.abort();
+  }, []);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -164,10 +299,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const toggleSaved = useCallback((sessionId: string) => {
     setSavedIds((prev) => {
-      const next = prev.includes(sessionId)
-        ? prev.filter((id) => id !== sessionId)
-        : [...prev, sessionId];
+      const removing = prev.includes(sessionId);
+      const next = removing ? prev.filter((id) => id !== sessionId) : [...prev, sessionId];
       localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+      if (removing) {
+        const timer = foregroundTimers.current.get(sessionId);
+        if (timer) window.clearTimeout(timer);
+        foregroundTimers.current.delete(sessionId);
+        void postReminderCancel(attendeeId(), sessionId)
+          .then(() => fetchReminderJobs(attendeeId()))
+          .then((d) => setReminderJobs(d.jobs))
+          .catch(() => undefined);
+      }
       return next;
     });
   }, []);
@@ -234,24 +377,124 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return map;
   }, [rankedBooths]);
 
-  const selectSession = useCallback((id: string, opts?: { jump?: boolean }) => {
-    const session = sessionById(id);
-    if (!session) return;
-    setSelection({ kind: "session", id });
-    if (opts?.jump !== false) setFloor(session.floor);
+  const resolveSession = useCallback(
+    (id: string) => sessionIndex[id] ?? sampleSessionById(id),
+    [sessionIndex],
+  );
+
+  const setTimeZone = useCallback((tz: DisplayTimeZone) => {
+    setTimeZoneState(tz);
+    localStorage.setItem(TZ_KEY, tz);
   }, []);
+
+  const setBufferMinutes = useCallback((n: number) => {
+    setBufferMinutesState(n);
+    localStorage.setItem(BUF_KEY, String(n));
+  }, []);
+
+  const setReminderMinutes = useCallback((n: 5 | 10 | 15) => {
+    setReminderMinutesState(n);
+    localStorage.setItem(REMIND_KEY, String(n));
+  }, []);
+
+  const enablePush = useCallback(async () => {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return;
+    const status = await fetchReminderStatus();
+    setPushStatus(status);
+    if (!status.publicKey) return;
+    const reg = await navigator.serviceWorker.register("/push-sw.js");
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(status.publicKey),
+    });
+    await postReminderSubscribe(attendeeId(), sub);
+  }, []);
+
+  const scheduleReminder = useCallback(
+    async (sessionId: string) => {
+      const session = resolveSession(sessionId);
+      if (session && !savedIds.includes(sessionId)) toggleSaved(sessionId);
+      const existing = foregroundTimers.current.get(sessionId);
+      if (existing) window.clearTimeout(existing);
+      if ("Notification" in window && Notification.permission === "granted") {
+        const when = session?.startIso
+          ? new Date(session.startIso).getTime() - reminderMinutes * 60_000
+          : 0;
+        if (when > Date.now() && when - Date.now() < 2_147_000_000) {
+          const timer = window.setTimeout(() => {
+            new Notification("Floorwise reminder", { body: session?.title ?? "Upcoming session" });
+            foregroundTimers.current.delete(sessionId);
+          }, Math.max(0, when - Date.now()));
+          foregroundTimers.current.set(sessionId, timer);
+        }
+      }
+      try {
+        await postReminderSchedule(attendeeId(), sessionId, reminderMinutes);
+        const jobs = await fetchReminderJobs(attendeeId());
+        setReminderJobs(jobs.jobs);
+      } catch {
+        /* foreground timer still set when Web Push is off */
+      }
+    },
+    [resolveSession, savedIds, toggleSaved, reminderMinutes],
+  );
+
+  const cancelReminder = useCallback(async (sessionId: string) => {
+    const existing = foregroundTimers.current.get(sessionId);
+    if (existing) window.clearTimeout(existing);
+    foregroundTimers.current.delete(sessionId);
+    await postReminderCancel(attendeeId(), sessionId);
+    const jobs = await fetchReminderJobs(attendeeId());
+    setReminderJobs(jobs.jobs);
+  }, []);
+
+  const selectSession = useCallback(
+    (id: string, opts?: { jump?: boolean }) => {
+      const session = sessionIndex[id] ?? sampleSessionById(id);
+      if (!session) return;
+      setSelection({ kind: "session", id });
+      void fetchSessionDetail(id)
+        .then((d) => {
+          setSessionIndex((prev) => ({ ...prev, [id]: { ...prev[id], ...d.session } }));
+        })
+        .catch(() => undefined);
+      if (opts?.jump !== false) {
+        if (session.dataset === "sample") {
+          setMapSurface("sample");
+          setFloor(session.floor as Floor);
+        } else if (session.track === "Solutions Showcase" || session.roomLabel?.includes("Solutions Showcase")) {
+          setMapSurface("expo");
+        } else {
+          setMapSurface("venue");
+        }
+      }
+    },
+    [sessionIndex],
+  );
 
   const selectBooth = useCallback((id: string, opts?: { jump?: boolean }) => {
     const booth = catalog.booths.find((b) => b.id === id);
     if (!booth) return;
     setSelection({ kind: "booth", id });
     setSponsorBoothId(id);
-    setView("sponsor");
-    if (opts?.jump !== false) setFloor(booth.floor);
+    if (opts?.jump !== false) {
+      setView("sponsor");
+      setMapSurface("expo");
+      setFloor(booth.floor);
+    } else {
+      setMapSurface("expo");
+    }
   }, []);
 
   const selectSpace = useCallback(
     (id: string) => {
+      const official = officialSessions.find((s) => s.roomId === id);
+      if (official) {
+        selectSession(official.id, { jump: false });
+        return;
+      }
       const inRoom = sessionsInRoom(id);
       if (inRoom[0]) {
         selectSession(inRoom[0].id);
@@ -259,7 +502,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
       setSelection({ kind: "space", id });
     },
-    [selectSession],
+    [selectSession, officialSessions],
   );
 
   const clearSelection = useCallback(() => setSelection(null), []);
@@ -334,6 +577,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleSaved,
       sponsorPrefs,
       setSponsorPref,
+      officialSessions,
+      scheduleNote,
+      featured,
+      roomAnchors,
+      mapSurface,
+      setMapSurface,
+      timeZone,
+      setTimeZone,
+      bufferMinutes,
+      setBufferMinutes,
+      plannerIso,
+      setPlannerIso,
+      reminderMinutes,
+      setReminderMinutes,
+      reminderJobs,
+      pushStatus,
+      enablePush,
+      scheduleReminder,
+      cancelReminder,
+      resolveSession,
     }),
     [
       profile,
@@ -369,6 +632,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleSaved,
       sponsorPrefs,
       setSponsorPref,
+      officialSessions,
+      scheduleNote,
+      featured,
+      roomAnchors,
+      mapSurface,
+      timeZone,
+      bufferMinutes,
+      plannerIso,
+      reminderMinutes,
+      reminderJobs,
+      pushStatus,
+      enablePush,
+      scheduleReminder,
+      cancelReminder,
+      resolveSession,
     ],
   );
 
@@ -381,14 +659,17 @@ export function useAppState() {
   return ctx;
 }
 
-export function selectedRoomId(selection: Selection): string | null {
+export function selectedRoomId(selection: Selection, session?: Session | null): string | null {
   if (!selection) return null;
   if (selection.kind === "space") return selection.id;
-  if (selection.kind === "session") {
-    return sessionById(selection.id)?.roomId ?? null;
-  }
-  if (selection.kind === "booth") {
-    return null;
-  }
+  if (selection.kind === "session") return session?.roomId ?? sampleSessionById(selection.id)?.roomId ?? null;
   return null;
+}
+
+function urlBase64ToUint8Array(base64: string): BufferSource {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const raw = atob(base64.replace(/-/g, "+").replace(/_/g, "/") + padding);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i += 1) out[i] = raw.charCodeAt(i);
+  return out;
 }

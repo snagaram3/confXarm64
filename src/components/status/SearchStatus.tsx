@@ -10,7 +10,7 @@ export function SearchStatus() {
       role="status"
       className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground"
     >
-      Ranking the sample catalog in Elasticsearch…
+      Ranking the official 2026 schedule in Elasticsearch…
     </div>
   );
 }

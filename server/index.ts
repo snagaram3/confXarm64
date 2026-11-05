@@ -9,9 +9,14 @@ import { pingCluster, waitForElasticsearch } from "./es.ts";
 import { mountLeadRoutes, sqlitePath } from "./leads-http.ts";
 import { dataDir, LeadsStore } from "./leads-store.ts";
 import { otelStatus } from "./otel.ts";
+import { mountReminderRoutes } from "./reminders-http.ts";
+import { ReminderStore, remindersPath } from "./reminders-store.ts";
 import { seedIndex } from "./seed.ts";
 import { hybridSearch } from "./search.ts";
+import { mountScheduleRoutes } from "./schedule-http.ts";
+import { scheduleMeta, sessionById as officialSessionById } from "./schedule.ts";
 import { isAuthConfigured } from "./sponsor-auth.ts";
+import { isPushConfigured } from "./vapid.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const catalog = JSON.parse(readFileSync(resolve(root, "src/data/catalog.json"), "utf8")) as {
@@ -29,6 +34,7 @@ const catalog = JSON.parse(readFileSync(resolve(root, "src/data/catalog.json"), 
 };
 const leadDataDir = dataDir(root);
 const leadStore = new LeadsStore(sqlitePath(leadDataDir));
+const reminderStore = new ReminderStore(remindersPath(leadDataDir));
 
 const PORT = Number(process.env.PORT ?? 43181);
 const app = express();
@@ -49,6 +55,11 @@ app.get("/api/health", async (_req, res) => {
       lastSeedError,
       sponsorPortal: {
         configured: isAuthConfigured(leadDataDir),
+        store: "sqlite",
+      },
+      schedule: scheduleMeta,
+      reminders: {
+        webPushConfigured: isPushConfigured(leadDataDir),
         store: "sqlite",
       },
     });
@@ -84,7 +95,6 @@ app.post("/api/rank", async (req, res) => {
       hybridSearch({ kind: "session", interests, role, q }),
       hybridSearch({ kind: "booth", interests, role, q }),
     ]);
-    const sessionById = new Map(catalog.sessions.map((s) => [s.id, s]));
     const boothById = new Map(catalog.booths.map((b) => [b.id, b]));
     res.json({
       meta: {
@@ -94,9 +104,11 @@ app.post("/api/rank", async (req, res) => {
       },
       sessions: sessions.hits
         .map((hit) => {
-          const item = sessionById.get(hit.id);
+          const item = officialSessionById.get(hit.id);
           if (!item) return null;
-          return { item, ...hit.explanation };
+          const { descriptionHtml: _omit, ...rest } = item;
+          void _omit;
+          return { item: rest, ...hit.explanation };
         })
         .filter(Boolean),
       booths: booths.hits
@@ -166,6 +178,9 @@ app.post("/api/sponsor/:boothId/visitors", async (req, res) => {
     });
   }
 });
+
+mountScheduleRoutes(app);
+mountReminderRoutes(app, { store: reminderStore, dataDir: leadDataDir });
 
 mountLeadRoutes(app, {
   store: leadStore,

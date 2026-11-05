@@ -31,10 +31,10 @@ export function SponsorView() {
         <p className="text-xs uppercase tracking-wide text-maybe">Sponsor mirror</p>
         <h2 className="font-display text-xl font-semibold">Who’s walking by</h2>
         <p className="text-sm text-muted-foreground">
-          Official exhibitor names and booth numbers from the KCNA26 Expo Hall Map
-          (5 Nov 2026 snapshot). Indoor coordinates were not published — pins are
-          labeled, not geocoded. Seeded Must/Maybe visitors are a demo, not a live
-          beacon. Nearby and Must/Maybe/Meh never create a lead.
+          Official exhibitor names and booth numbers from the KCNA26 Expo Hall Map.
+          Logos sit on PDF-text booth anchors (image-relative, not indoor GPS). Seeded
+          Must/Maybe visitors are a demo, not a live beacon. Nearby and Must/Maybe/Meh
+          never create a lead.
         </p>
         <p className="mt-2 text-sm">
           <a href="/sponsor-portal" className="text-primary underline">
@@ -56,7 +56,9 @@ export function SponsorView() {
           <PrefBot pref={pref} delayMs={0} />
         </div>
         <p className="mt-2 font-mono text-xs text-primary">
-          {booth.locationLabel} · location pin unavailable
+          {booth.pinAvailable
+            ? `Booth ${booth.boothNumber} · on official expo map`
+            : `${booth.locationLabel} · unplaced`}
         </p>
         <p className="mt-2 text-sm">{booth.pitch}</p>
         <p className="mt-2 text-[11px] text-muted-foreground">{booth.exhibitorSource}</p>

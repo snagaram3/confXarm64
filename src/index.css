@@ -156,11 +156,23 @@
   }
 }
 
+@keyframes bot-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
 .bot-bounce {
-  animation-name: bot-bounce;
-  animation-duration: 0.7s;
-  animation-timing-function: cubic-bezier(0.22, 1.4, 0.36, 1);
-  animation-fill-mode: both;
+  animation-name: bot-bounce, bot-idle;
+  animation-duration: 0.7s, 2.8s;
+  animation-timing-function: cubic-bezier(0.22, 1.4, 0.36, 1), ease-in-out;
+  animation-fill-mode: both, none;
+  animation-iteration-count: 1, infinite;
+  animation-delay: var(--bot-delay, 0ms), calc(var(--bot-delay, 0ms) + 0.7s);
   transform-origin: 50% 80%;
 }
 
@@ -173,7 +185,8 @@
 @media (prefers-reduced-motion: reduce) {
   .map-path,
   .you-are-here,
-  .bot-bounce {
+  .bot-bounce,
+  .bot-idle {
     animation: none !important;
   }
 }

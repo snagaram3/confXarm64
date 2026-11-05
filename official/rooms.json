@@ -1,0 +1,1007 @@
+[
+  {
+    "id": "82947",
+    "label": "Salt Palace | Level 1 | Hall DE",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Hall DE",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Hall DE"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82947"
+    }
+  },
+  {
+    "id": "92180",
+    "label": "Hyatt Regency | Level 4 | Regency Ballroom B",
+    "building": "Hyatt Regency",
+    "level": 4,
+    "room_or_area": "Regency Ballroom B",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 4",
+      "Regency Ballroom B"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92180"
+    }
+  },
+  {
+    "id": "82948",
+    "label": "Salt Palace | Level 1 | Grand Ballroom ACE",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Grand Ballroom ACE",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Grand Ballroom ACE"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82948"
+    }
+  },
+  {
+    "id": "82949",
+    "label": "Salt Palace | Level 1 | Grand Ballroom BDF",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Grand Ballroom BDF",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Grand Ballroom BDF"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82949"
+    }
+  },
+  {
+    "id": "82950",
+    "label": "Salt Palace | Level 1 | Grand Ballroom H",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Grand Ballroom H",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Grand Ballroom H"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82950"
+    }
+  },
+  {
+    "id": "82951",
+    "label": "Salt Palace | Level 1 | Grand Ballroom GI",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Grand Ballroom GI",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Grand Ballroom GI"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82951"
+    }
+  },
+  {
+    "id": "82952",
+    "label": "Salt Palace | Level 1 | 151 ",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "151",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "151"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82952"
+    }
+  },
+  {
+    "id": "82953",
+    "label": "Salt Palace | Level 2 | 255 BC",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "255 BC",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "255 BC"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82953"
+    }
+  },
+  {
+    "id": "82954",
+    "label": "Salt Palace | Level 2 | 255 EF",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "255 EF",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "255 EF"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82954"
+    }
+  },
+  {
+    "id": "82955",
+    "label": "Hyatt Regency | Level 2 | Salt Lake Ballroom C",
+    "building": "Hyatt Regency",
+    "level": 2,
+    "room_or_area": "Salt Lake Ballroom C",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 2",
+      "Salt Lake Ballroom C"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82955"
+    }
+  },
+  {
+    "id": "82956",
+    "label": "Hyatt Regency | Level 2 | Salt Lake Ballroom DE",
+    "building": "Hyatt Regency",
+    "level": 2,
+    "room_or_area": "Salt Lake Ballroom DE",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 2",
+      "Salt Lake Ballroom DE"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82956"
+    }
+  },
+  {
+    "id": "82957",
+    "label": "Hyatt Regency | Level 4 | Regency Ballroom B-D",
+    "building": "Hyatt Regency",
+    "level": 4,
+    "room_or_area": "Regency Ballroom B-D",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 4",
+      "Regency Ballroom B-D"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82957"
+    }
+  },
+  {
+    "id": "92181",
+    "label": "Hyatt Regency | Level 4 | Regency Ballroom CD",
+    "building": "Hyatt Regency",
+    "level": 4,
+    "room_or_area": "Regency Ballroom CD",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 4",
+      "Regency Ballroom CD"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92181"
+    }
+  },
+  {
+    "id": "82958",
+    "label": "Hyatt Regency | Level 4 | Regency Ballroom A",
+    "building": "Hyatt Regency",
+    "level": 4,
+    "room_or_area": "Regency Ballroom A",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 4",
+      "Regency Ballroom A"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "82958"
+    }
+  },
+  {
+    "id": "87421",
+    "label": "Salt Palace | Level 2 | 250 A-C",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "250 A-C",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "250 A-C"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87421"
+    }
+  },
+  {
+    "id": "87422",
+    "label": "Salt Palace | Level 2 | 250 D-F",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "250 D-F",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "250 D-F"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87422"
+    }
+  },
+  {
+    "id": "87423",
+    "label": "Salt Palace | Level 2 | 251 A-C",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "251 A-C",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "251 A-C"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87423"
+    }
+  },
+  {
+    "id": "87424",
+    "label": "Salt Palace | Level 2 | 251 D-F",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "251 D-F",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "251 D-F"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87424"
+    }
+  },
+  {
+    "id": "87425",
+    "label": "Salt Palace | Level 2 | 254",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "254",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "254"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87425"
+    }
+  },
+  {
+    "id": "87426",
+    "label": "Salt Palace | Level 2 | 255 A",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "255 A",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "255 A"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87426"
+    }
+  },
+  {
+    "id": "87427",
+    "label": "Salt Palace | Level 2 | 255 D",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "255 D",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "255 D"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87427"
+    }
+  },
+  {
+    "id": "87451",
+    "label": "Salt Palace | Level 1 | Halls A-C, Halls 1-5",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Halls A-C, Halls 1-5",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Halls A-C, Halls 1-5"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87451"
+    }
+  },
+  {
+    "id": "90363",
+    "label": "Salt Palace | Level 1 | Solutions Showcase | Halls 5 | Cosmic Canyon Zone",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Cosmic Canyon Zone",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Solutions Showcase",
+      "Halls 5",
+      "Cosmic Canyon Zone"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "90363"
+    }
+  },
+  {
+    "id": "87503",
+    "label": "Room TBD",
+    "building": null,
+    "level": null,
+    "room_or_area": "Room TBD",
+    "location_hierarchy": [
+      "Room TBD"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": true,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87503"
+    }
+  },
+  {
+    "id": "87690",
+    "label": "Salt Palace | 200 South Entrance (South)",
+    "building": "Salt Palace",
+    "level": null,
+    "room_or_area": "200 South Entrance (South)",
+    "location_hierarchy": [
+      "Salt Palace",
+      "200 South Entrance (South)"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87690"
+    }
+  },
+  {
+    "id": "87691",
+    "label": "Salt Palace | Level 2 | East Registration",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "East Registration",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "East Registration"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "87691"
+    }
+  },
+  {
+    "id": "88637",
+    "label": "Hyatt Regency | Level 5 | Capitol Reef",
+    "building": "Hyatt Regency",
+    "level": 5,
+    "room_or_area": "Capitol Reef",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 5",
+      "Capitol Reef"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "88637"
+    }
+  },
+  {
+    "id": "88756",
+    "label": "Off-Site Location",
+    "building": null,
+    "level": null,
+    "room_or_area": "Off-Site Location",
+    "location_hierarchy": [
+      "Off-Site Location"
+    ],
+    "is_offsite_placeholder": true,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "88756"
+    }
+  },
+  {
+    "id": "90387",
+    "label": "Salt Palace | Level 1 | Grand Ballroom J",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Grand Ballroom J",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Grand Ballroom J"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "90387"
+    }
+  },
+  {
+    "id": "90682",
+    "label": "Salt Palace | Level 1 | Solutions Showcase | Hall 5 | Cosmic Canyon Zone | Project Pavilion",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Project Pavilion",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Solutions Showcase",
+      "Hall 5",
+      "Cosmic Canyon Zone",
+      "Project Pavilion"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "90682"
+    }
+  },
+  {
+    "id": "90804",
+    "label": "Salt Palace | Level 2 | Upper Mezzanine",
+    "building": "Salt Palace",
+    "level": 2,
+    "room_or_area": "Upper Mezzanine",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 2",
+      "Upper Mezzanine"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "90804"
+    }
+  },
+  {
+    "id": "91537",
+    "label": "Salt Palace | Level 1 | Solutions Showcase | Hall 1 | Alpine Overlook Zone | Demo Theater",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Demo Theater",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Solutions Showcase",
+      "Hall 1",
+      "Alpine Overlook Zone",
+      "Demo Theater"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "91537"
+    }
+  },
+  {
+    "id": "92005",
+    "label": "Hyatt Regency Lobby",
+    "building": null,
+    "level": null,
+    "room_or_area": "Hyatt Regency Lobby",
+    "location_hierarchy": [
+      "Hyatt Regency Lobby"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92005"
+    }
+  },
+  {
+    "id": "92006",
+    "label": "Hyatt Regency | Level 3 | Park City",
+    "building": "Hyatt Regency",
+    "level": 3,
+    "room_or_area": "Park City",
+    "location_hierarchy": [
+      "Hyatt Regency",
+      "Level 3",
+      "Park City"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92006"
+    }
+  },
+  {
+    "id": "92007",
+    "label": "Salt Palace | Level 1 | North Grand Ballroom Foyer",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "North Grand Ballroom Foyer",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "North Grand Ballroom Foyer"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92007"
+    }
+  },
+  {
+    "id": "92016",
+    "label": "Salt Palace | Level 1 | Solutions Showcase | Hall 1 | Alpine Overlook Zone | Network Nook",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Network Nook",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Solutions Showcase",
+      "Hall 1",
+      "Alpine Overlook Zone",
+      "Network Nook"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92016"
+    }
+  },
+  {
+    "id": "92096",
+    "label": "Salt Palace | Level 1 | Solutions Showcase | Hall B | Starlight Summit Zone",
+    "building": "Salt Palace",
+    "level": 1,
+    "room_or_area": "Starlight Summit Zone",
+    "location_hierarchy": [
+      "Salt Palace",
+      "Level 1",
+      "Solutions Showcase",
+      "Hall B",
+      "Starlight Summit Zone"
+    ],
+    "is_offsite_placeholder": false,
+    "is_tbd": false,
+    "coordinates": null,
+    "route_graph_node": null,
+    "step_free_route_verified": false,
+    "map_source_ids": [
+      "venue-map",
+      "expo-map"
+    ],
+    "mapping_status": "Label parsed from official schedule; geometric map registration not performed",
+    "provenance": {
+      "source_id": "main-api",
+      "source_url": "https://sessionize.com/api/v2/svi82w6c/view/All",
+      "record_id": "92096"
+    }
+  }
+]

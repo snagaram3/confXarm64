@@ -1,7 +1,9 @@
 export type Rank = "must" | "maybe" | "meh";
 export type Floor = 1 | 2 | 3;
-export type AppView = "map" | "agenda" | "navigate" | "sponsor";
+export type AppView = "map" | "agenda" | "navigate" | "sponsor" | "plan";
+export type MapSurface = "expo" | "venue" | "sample";
 export type SpaceKind = "hall" | "room" | "entrance" | "vertical" | "lobby";
+export type DisplayTimeZone = "America/Denver" | "America/Chicago";
 
 export interface Profile {
   name: string;
@@ -18,19 +20,47 @@ export interface CrowdTake {
   minutesAgo: number;
 }
 
+export interface SessionSpeaker {
+  id: string;
+  fullName: string;
+  tagLine?: string;
+  bio?: string;
+  photo?: string | null;
+  isTopSpeaker?: boolean;
+}
+
 export interface Session {
   id: string;
+  dataset?: "main" | "sample";
   title: string;
   speaker: string;
   company: string;
   roomId: string;
-  floor: Floor;
+  roomLabel?: string;
+  building?: string | null;
+  level?: number | null;
+  floor: number;
   start: string;
   end: string;
+  startIso?: string;
+  endIso?: string;
+  timezone?: string;
   track: string;
   tags: string[];
   abstract: string;
+  descriptionHtml?: string;
+  sessionUrl?: string;
+  speakers?: SessionSpeaker[];
+  sessionTypeLabels?: string[];
   crowdTakes: CrowdTake[];
+  access?: {
+    soldOut: boolean;
+    separateRegistration: boolean;
+    allAccessColocated: boolean;
+    notes: string[];
+  };
+  isServiceSession?: boolean;
+  isPlenum?: boolean;
 }
 
 export interface Visitor {
@@ -51,6 +81,9 @@ export interface Booth {
   boothNumber: string;
   locationLabel: string;
   pinAvailable: boolean;
+  pinNx?: number;
+  pinNy?: number;
+  pinMethod?: string;
   exhibitorSource: string;
   logo: string | null;
   logoSource: string | null;

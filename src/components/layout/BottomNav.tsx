@@ -1,13 +1,14 @@
 import type { AppView } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { Building2, ListOrdered, Map, Navigation } from "lucide-react";
+import { Building2, CalendarDays, ListOrdered, Map, Navigation } from "lucide-react";
 
 const ITEMS: { id: AppView; label: string; icon: typeof Map }[] = [
   { id: "map", label: "Map", icon: Map },
   { id: "agenda", label: "For you", icon: ListOrdered },
-  { id: "navigate", label: "Go", icon: Navigation },
+  { id: "plan", label: "Agenda", icon: CalendarDays },
   { id: "sponsor", label: "Booths", icon: Building2 },
+  { id: "navigate", label: "255", icon: Navigation },
 ];
 
 export function BottomNav() {
@@ -17,7 +18,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
+      className="grid grid-cols-5 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
     >
       {ITEMS.map((item) => {
         const active = view === item.id;

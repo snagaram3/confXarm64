@@ -16,7 +16,12 @@ export function BotIcon({
         "bot-bounce inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary shadow-sm",
         className,
       )}
-      style={style}
+        style={
+          {
+            "--bot-delay": style?.animationDelay ?? "0ms",
+            ...style,
+          } as CSSProperties
+        }
       role="img"
       aria-label={label}
     >

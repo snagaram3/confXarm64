@@ -13,6 +13,7 @@ RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY server ./server
 COPY src/data ./src/data
+COPY official ./official
 ENV PORT=43181
 EXPOSE 43181
 CMD ["npx", "tsx", "server/index.ts"]

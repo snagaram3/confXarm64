@@ -40,7 +40,7 @@ describe("buildSuggestions", () => {
     assert.equal(tips.length, 1);
     assert.equal(tips[0].kind, "status");
     assert.deepEqual(tips[0].actions, ["retry"]);
-    assert.match(tips[0].body, /not a live venue feed/i);
+    assert.match(tips[0].body, /expo map stays available/i);
   });
 
   it("recommends the top Must talk with functional actions", () => {

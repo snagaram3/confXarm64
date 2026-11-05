@@ -1,0 +1,13 @@
+{
+  "edition": "KubeCon + CloudNativeCon North America 2026",
+  "timezone": "America/Denver",
+  "utcOffset": "-07:00",
+  "packGeneratedAt": "2026-11-05T15:03:31.635635-06:00",
+  "ingestedAt": "2026-11-05T23:50:00-00:00",
+  "mainSessions": 601,
+  "mainSpeakers": 715,
+  "mainRooms": 37,
+  "scheduleUrl": "https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/schedule/",
+  "sessionizeAll": "https://sessionize.com/api/v2/svi82w6c/view/All",
+  "note": "Counts include registration, breaks, showcases, and umbrella events \u2014 not 601 technical talks."
+}
