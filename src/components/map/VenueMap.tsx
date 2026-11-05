@@ -1,4 +1,4 @@
-import { catalog, wayfinding } from "@/lib/catalog";
+import { catalog, sessionById, wayfinding } from "@/lib/catalog";
 import { selectedRoomId, useAppState } from "@/state/app-state";
 import { FloorPlan } from "./FloorPlan";
 import { FloorSwitcher } from "./FloorSwitcher";
@@ -36,6 +36,8 @@ export function VenueMap() {
   const youAreHere =
     showPath && step?.floor === floor ? step.youAreHere : undefined;
 
+  const selectedSession =
+    selection?.kind === "session" ? sessionById(selection.id) : undefined;
   const booth = catalog.booths.find((b) => b.id === sponsorBoothId);
   const visitors =
     view === "sponsor" && booth
@@ -53,7 +55,7 @@ export function VenueMap() {
       : [];
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-[#071018]">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border bg-[#efeae1]">
       <FloorPlan
         floor={floor}
         rankByRoom={rankByRoom}
@@ -72,10 +74,19 @@ export function VenueMap() {
           <FloorSwitcher floor={floor} onChange={setFloor} />
         </div>
       </div>
-      <div className="pointer-events-none absolute bottom-3 left-3">
+      <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex flex-wrap items-end justify-between gap-2">
         <div className="pointer-events-auto">
           <MapLegend />
         </div>
+        {selectedSession && selectedSession.floor !== floor && (
+          <button
+            type="button"
+            onClick={() => setFloor(selectedSession.floor)}
+            className="pointer-events-auto min-h-11 rounded-full border border-border bg-card px-3 text-xs font-semibold text-primary shadow-sm"
+          >
+            Room {selectedSession.roomId} is on L{selectedSession.floor}
+          </button>
+        )}
       </div>
     </div>
   );

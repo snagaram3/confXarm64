@@ -1,36 +1,53 @@
+import { SuggestionCard } from "@/components/bot/SuggestionCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LATE_SESSION_ID, wayfinding } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { ArrowDown, ArrowUp, Check, Mountain } from "lucide-react";
+import { ArrowDown, ArrowUp, Check } from "lucide-react";
 
 export function NavigatePanel() {
-  const { stepIndex, nextStep, prevStep, goToStep, stopNav, rankedSessionById } =
+  const { stepIndex, nextStep, prevStep, goToStep, stopNav, rankedSessionById, setFloor, setView } =
     useAppState();
   const steps = wayfinding.steps;
   const step = steps[stepIndex];
   const session = rankedSessionById[LATE_SESSION_ID];
-  const remaining = steps
-    .slice(stepIndex)
-    .reduce((sum, s) => sum + s.durationSec, 0);
+  const remaining = steps.slice(stepIndex).reduce((sum, s) => sum + s.durationSec, 0);
+  const mins = Math.max(1, Math.round(remaining / 60));
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-sky-300">Wayfinding</p>
-          <h2 className="font-display text-xl font-semibold">{wayfinding.title}</h2>
-          <p className="text-sm text-muted-foreground">{wayfinding.from}</p>
-        </div>
-        <Badge variant="path">~{Math.round(remaining / 60)} min left</Badge>
+      <div>
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Scripted walk
+        </p>
+        <h2 className="mt-1 font-display text-2xl font-semibold">{wayfinding.title}</h2>
+        <p className="text-sm text-muted-foreground">{wayfinding.from} · not live positioning</p>
       </div>
 
+      <SuggestionCard
+        suggestion={{
+          id: "nav-timing",
+          kind: "route",
+          title: `About ${mins} min left · now on Level ${step.floor}`,
+          body: step.altitudeHint ?? step.detail,
+          why: "Altitude-aware sample steps. 255 is one floor above 155.",
+          sessionId: LATE_SESSION_ID,
+          actions: ["view"],
+        }}
+        onAction={(action) => {
+          if (action === "view") {
+            setFloor(step.floor);
+            setView("map");
+          }
+        }}
+      />
+
       {session && (
-        <p className="text-sm">
-          Destination talk: <span className="font-medium">{session.item.title}</span>
+        <p className="text-sm leading-relaxed">
+          Destination: <span className="font-medium">{session.item.title}</span>
           {" · "}
-          {session.item.start} in room 255 (Level 2, stacked over 155).
+          {session.item.start} in room 255.
         </p>
       )}
 
@@ -44,20 +61,20 @@ export function NavigatePanel() {
                 type="button"
                 onClick={() => goToStep(i)}
                 className={cn(
-                  "w-full rounded-xl border p-3 text-left transition-colors",
+                  "min-h-11 w-full rounded-2xl border p-3 text-left transition-colors",
                   active
-                    ? "border-sky-400 bg-sky-400/10"
+                    ? "border-primary bg-primary/5"
                     : done
-                      ? "border-border bg-muted/30"
-                      : "border-border bg-card hover:bg-accent/40",
+                      ? "border-border bg-muted/40"
+                      : "border-border bg-card hover:bg-accent/70",
                 )}
               >
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full font-mono text-xs",
+                      "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full font-mono text-xs",
                       active
-                        ? "bg-sky-400 text-slate-900"
+                        ? "bg-primary text-primary-foreground"
                         : done
                           ? "bg-must text-must-fg"
                           : "bg-muted text-muted-foreground",
@@ -73,10 +90,7 @@ export function NavigatePanel() {
                       </p>
                     )}
                     {active && s.altitudeHint && (
-                      <p className="mt-2 inline-flex items-start gap-1.5 rounded-md bg-teal-400/10 px-2 py-1 text-xs text-teal-200">
-                        <Mountain className="mt-0.5 size-3.5 shrink-0" />
-                        {s.altitudeHint}
-                      </p>
+                      <p className="mt-2 text-xs text-primary">{s.altitudeHint}</p>
                     )}
                     <p className="mt-1 font-mono text-[11px] text-muted-foreground">
                       L{s.floor} · {s.durationSec}s
@@ -100,11 +114,14 @@ export function NavigatePanel() {
             <ArrowDown />
           </Button>
         ) : (
-          <Button variant="must" onClick={stopNav} className="flex-1">
-            Arrived at {step.title.includes("255") ? "255" : "destination"}
+          <Button onClick={stopNav} className="flex-1">
+            Arrived at 255
           </Button>
         )}
       </div>
+      <Badge variant="outline" className="w-fit">
+        Sample route
+      </Badge>
     </div>
   );
 }

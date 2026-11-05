@@ -1,49 +1,46 @@
-import { Button } from "@/components/ui/button";
 import { venue } from "@/lib/catalog";
+import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { Navigation, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 export function TopBar() {
-  const { profile, setProfileOpen, startNavTo255, navigating, view, esHealth, rankStatus } =
-    useAppState();
-  const esOk = esHealth?.ok && rankStatus !== "error";
+  const { profile, setProfileOpen, esHealth, rankStatus } = useAppState();
+  const searchReady = esHealth?.ok && rankStatus === "ready";
 
   return (
-    <header className="flex items-center gap-3 border-b border-border bg-card/80 px-3 py-2.5 backdrop-blur sm:px-4">
+    <header className="flex items-center gap-3 px-3 py-3 sm:px-5">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Logo />
         <div className="min-w-0">
-          <p className="font-display text-base font-semibold leading-none tracking-tight sm:text-lg">
-            Floorwise
-          </p>
-          <p className="truncate text-[11px] text-muted-foreground sm:text-xs">
-            {venue.name} · {venue.address}
-          </p>
-          <p
-            className={
-              esOk
-                ? "truncate font-mono text-[10px] text-must"
-                : "truncate font-mono text-[10px] text-maybe"
-            }
-          >
-            {esOk
-              ? `Elasticsearch hybrid · ${esHealth?.elasticsearch?.cluster ?? "floorwise"}`
-              : "Elasticsearch offline — docker compose up -d"}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-display text-lg font-semibold leading-none tracking-tight">
+              Floorwise
+            </p>
+            <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground">
+              Sample catalog
+            </span>
+          </div>
+          <p className="mt-1 truncate text-xs text-muted-foreground">
+            {venue.name} · seeded demo, not a live KubeCon schedule
           </p>
         </div>
       </div>
-      {view !== "navigate" && !navigating && (
-        <Button size="sm" onClick={startNavTo255} className="hidden sm:inline-flex">
-          <Navigation />
-          I’m late for 255
-        </Button>
-      )}
+      <p
+        className={cn(
+          "hidden rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide sm:inline",
+          searchReady
+            ? "border-must/30 bg-must/10 text-must"
+            : "border-border bg-card text-muted-foreground",
+        )}
+      >
+        {searchReady ? "Search ready" : "Search warming"}
+      </p>
       <button
         type="button"
         onClick={() => setProfileOpen(true)}
-        className="flex max-w-[46%] items-center gap-2 rounded-full border border-border bg-muted/50 py-1 pl-1 pr-3 text-left hover:bg-accent"
+        className="flex min-h-11 max-w-[48%] items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-left hover:bg-accent"
       >
-        <span className="flex size-8 items-center justify-center rounded-full bg-primary/20 text-primary">
+        <span className="flex size-9 items-center justify-center rounded-full bg-secondary text-foreground">
           <UserRound className="size-4" />
         </span>
         <span className="min-w-0">
@@ -61,23 +58,19 @@ export function TopBar() {
 
 function Logo() {
   return (
-    <svg
-      viewBox="0 0 32 32"
-      className="size-9 shrink-0"
-      aria-hidden="true"
-    >
-      <rect width="32" height="32" rx="8" fill="#134e4a" />
-      <rect x="6" y="7" width="9" height="6" rx="1.5" fill="#34d399" />
-      <rect x="6" y="15" width="9" height="4.5" rx="1.2" fill="#fbbf24" />
-      <rect x="6" y="21.5" width="9" height="4" rx="1.2" fill="#64748b" />
+    <svg viewBox="0 0 32 32" className="size-9 shrink-0" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="#21554c" />
+      <rect x="7" y="8" width="8" height="5" rx="1.2" fill="#d7eadc" />
+      <rect x="7" y="14.5" width="8" height="4" rx="1.1" fill="#f3e4c4" />
+      <rect x="7" y="20" width="8" height="4" rx="1.1" fill="#e8e4dc" />
       <path
-        d="M18 24 L22 18 L26 12"
+        d="M18 23 L22 17 L26 12"
         fill="none"
-        stroke="#5eead4"
-        strokeWidth="2"
+        stroke="#f6f3ee"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
-      <circle cx="26" cy="11" r="2" fill="#38bdf8" />
+      <circle cx="26" cy="11" r="1.8" fill="#f6f3ee" />
     </svg>
   );
 }

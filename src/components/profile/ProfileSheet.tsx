@@ -25,8 +25,8 @@ export function ProfileSheet() {
         <SheetHeader>
           <SheetTitle>Your floor profile</SheetTitle>
           <SheetDescription>
-            Interests are sent to Elasticsearch. Map colors update from the hybrid
-            rank — Must green, Maybe amber, Meh gray.
+            Interests re-rank the seeded catalog in Elasticsearch. Map colors update
+            to Must, Maybe, and Meh. This is not a live KubeCon feed.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-5 p-6 pt-4">
@@ -90,7 +90,7 @@ export function ProfileSheet() {
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              Live rank ·{" "}
+              Sample rank ·{" "}
               <span className="text-must font-semibold">{mustCount} Must</span>
               {" · "}
               <span className="text-maybe font-semibold">{maybeCount} Maybe</span>

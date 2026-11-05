@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { catalog, LATE_SESSION_ID, spaceById } from "@/lib/catalog";
+import { catalog, LATE_SESSION_ID, sessionById, spaceById } from "@/lib/catalog";
 import { RANK_LABEL } from "@/lib/ranking";
 import { useAppState } from "@/state/app-state";
-import { ArrowUpRight, Navigation } from "lucide-react";
+import { ArrowUpRight, Bookmark, Navigation } from "lucide-react";
 import { CrowdTake } from "./CrowdTake";
 
 export function SessionDetail() {
@@ -11,22 +11,24 @@ export function SessionDetail() {
     selection,
     rankedSessionById,
     rankByBooth,
-    rankedBooths,
     startNavTo255,
     selectBooth,
     setView,
+    savedIds,
+    toggleSaved,
+    rankStatus,
   } = useAppState();
 
   if (selection?.kind === "booth") {
     const booth = catalog.booths.find((b) => b.id === selection.id);
     if (!booth) return <EmptyState />;
-    const rank = rankByBooth[booth.id] ?? "meh";
+    const rank = rankByBooth[booth.id];
     return (
       <div className="flex flex-col gap-3">
-        <Badge variant={rank}>{RANK_LABEL[rank]} booth</Badge>
-        <h2 className="font-display text-xl font-semibold">{booth.sponsor}</h2>
+        {rank ? <Badge variant={rank}>{RANK_LABEL[rank]} booth</Badge> : <Badge variant="outline">Unranked</Badge>}
+        <h2 className="font-display text-2xl font-semibold leading-tight">{booth.sponsor}</h2>
         <p className="text-sm text-muted-foreground">{booth.tagline}</p>
-        <p className="text-sm">{booth.pitch}</p>
+        <p className="text-sm leading-relaxed">{booth.pitch}</p>
         <p className="font-mono text-xs text-primary">
           {booth.hallId.replace("-", " ").toUpperCase()} · Level {booth.floor}
         </p>
@@ -36,7 +38,7 @@ export function SessionDetail() {
             setView("sponsor");
           }}
         >
-          Open sponsor mirror
+          Open booth mirror
           <ArrowUpRight />
         </Button>
       </div>
@@ -49,33 +51,39 @@ export function SessionDetail() {
     return (
       <div className="flex flex-col gap-2">
         <Badge variant="outline">{space.kind}</Badge>
-        <h2 className="font-display text-xl font-semibold">{space.label}</h2>
+        <h2 className="font-display text-2xl font-semibold">{space.label}</h2>
         {space.stack && (
-          <p className="text-sm text-primary">Vertical stack {space.stack}</p>
+          <p className="text-sm text-primary">Vertical stack {space.stack} in this sample map</p>
         )}
         <p className="text-sm text-muted-foreground">
-          No cataloged session in this space right now. Try a numbered room or a
-          Solutions Showcase hall.
+          No seeded session in this space. Try a numbered room or a Solutions Showcase hall.
         </p>
       </div>
     );
   }
 
   const sessionId = selection?.kind === "session" ? selection.id : LATE_SESSION_ID;
+  const item = sessionById(sessionId);
   const row = rankedSessionById[sessionId];
-  if (!row) return <LoadingOrEmpty />;
-  const { item, rank, why, matchedTags, score } = row;
+  if (!item) return <EmptyState />;
+
+  const rank = row?.rank;
   const is255 = item.roomId === "255";
+  const saved = savedIds.includes(item.id);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant={rank}>{RANK_LABEL[rank]}</Badge>
+        {rank ? (
+          <Badge variant={rank}>{RANK_LABEL[rank]}</Badge>
+        ) : (
+          <Badge variant="outline">{rankStatus === "error" ? "Rank pending" : "Unranked"}</Badge>
+        )}
         <Badge variant="outline">{item.track}</Badge>
-        {item.roomId === "255" && <Badge variant="path">Stacked 155/255/355</Badge>}
+        {is255 && <Badge variant="path">Stacked 155/255/355</Badge>}
       </div>
       <div>
-        <h2 className="font-display text-xl font-semibold leading-tight">{item.title}</h2>
+        <h2 className="font-display text-2xl font-semibold leading-tight">{item.title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {item.speaker} · {item.company}
         </p>
@@ -88,38 +96,39 @@ export function SessionDetail() {
         {item.tags.map((tag) => (
           <Badge
             key={tag}
-            variant={matchedTags.some((t) => t.toLowerCase() === tag.toLowerCase()) ? "must" : "outline"}
+            variant={row?.matchedTags.some((t) => t.toLowerCase() === tag.toLowerCase()) ? "must" : "outline"}
           >
             {tag}
           </Badge>
         ))}
       </div>
-      {(rank === "must" || rank === "maybe") && (
-        <p className="rounded-lg border border-must/30 bg-must/10 px-3 py-2 font-mono text-xs text-must">
-          Why this rank · Elasticsearch score {score.toFixed(1)} · {why}
+      {row && (rank === "must" || rank === "maybe") && (
+        <p className="rounded-xl bg-secondary px-3 py-2 text-xs leading-relaxed text-secondary-foreground">
+          Why this rank · Elasticsearch score {row.score.toFixed(1)} · {row.why}
         </p>
       )}
       {item.crowdTakes.length > 0 && (
         <section className="flex flex-col gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Crowd take
+            Seeded crowd take · not a live feed
           </h3>
           {item.crowdTakes.map((take) => (
             <CrowdTake key={take.id} take={take} />
           ))}
         </section>
       )}
-      {is255 && (
-        <Button onClick={startNavTo255}>
-          <Navigation />
-          I’m late — navigate to 255
+      <div className="flex flex-wrap gap-2">
+        {is255 && (
+          <Button onClick={startNavTo255}>
+            <Navigation />
+            Navigate to 255
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => toggleSaved(item.id)}>
+          <Bookmark />
+          {saved ? "Saved" : "Save preference"}
         </Button>
-      )}
-      {!is255 && rankedBooths[0] && item.floor === 1 && (
-        <p className="text-xs text-muted-foreground">
-          Nearby booths are color-coded on Level 1.
-        </p>
-      )}
+      </div>
     </div>
   );
 }
@@ -127,23 +136,7 @@ export function SessionDetail() {
 function EmptyState() {
   return (
     <p className="text-sm text-muted-foreground">
-      Tap a hall or room on the map. Seeded sessions live in 150s / 250s / 350s and
-      Halls A–B.
+      Tap a hall or room on the map. Seeded sessions live in the 150s / 250s / 350s and Halls A–B.
     </p>
   );
-}
-
-function LoadingOrEmpty() {
-  const { rankStatus, rankError } = useAppState();
-  if (rankStatus === "loading") {
-    return <p className="text-sm text-muted-foreground">Ranking sessions in Elasticsearch…</p>;
-  }
-  if (rankStatus === "error") {
-    return (
-      <p className="text-sm text-destructive">
-        {rankError ?? "Elasticsearch is unreachable. Run docker compose up -d."}
-      </p>
-    );
-  }
-  return <EmptyState />;
 }

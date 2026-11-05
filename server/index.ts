@@ -46,8 +46,15 @@ app.get("/api/health", async (_req, res) => {
 });
 
 app.post("/api/rank", async (req, res) => {
+  if (!indexReady) {
+    res.status(503).json({
+      code: "es_not_ready",
+      error: "Elasticsearch is still starting",
+      hint: "The sample map still works. Retry shortly, or run docker compose up -d / npm run es.",
+    });
+    return;
+  }
   try {
-    await ensureIndex();
     const interests = asStringArray(req.body?.interests);
     const role = String(req.body?.role ?? "");
     const q = String(req.body?.q ?? "");
@@ -87,8 +94,15 @@ app.post("/api/rank", async (req, res) => {
 });
 
 app.post("/api/sponsor/:boothId/visitors", async (req, res) => {
+  if (!indexReady) {
+    res.status(503).json({
+      code: "es_not_ready",
+      error: "Elasticsearch is still starting",
+      hint: "Seeded booth visitors will appear after search is ready.",
+    });
+    return;
+  }
   try {
-    await ensureIndex();
     const booth = catalog.booths.find((b) => b.id === req.params.boothId);
     if (!booth) {
       res.status(404).json({ error: "Unknown booth" });

@@ -18,6 +18,8 @@ No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17
 
 Open [http://127.0.0.1:43180](http://127.0.0.1:43180). The API waits for Elasticsearch, seeds `src/data/catalog.json` into the `floorwise` index, and Vite proxies `/api` to it.
 
+The UI is labeled **Sample catalog** — seeded KubeCon-ish talks, not a live official schedule. If Elasticsearch is still starting, the map stays usable and a Floorwise suggestion offers **Retry search** (the client also retries every 5s). You should not see a blank screen.
+
 All-in-one container (optional):
 
 ```bash

@@ -11,6 +11,7 @@
     "seed": "tsx server/seed.ts",
     "start": "tsx server/index.ts",
     "build": "tsc -b && vite build",
+    "test": "tsx --test src/lib/suggestions.test.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

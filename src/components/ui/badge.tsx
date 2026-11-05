@@ -12,7 +12,7 @@ const badgeVariants = cva(
         must: "border-must/40 bg-must/15 text-must",
         maybe: "border-maybe/40 bg-maybe/15 text-maybe",
         meh: "border-meh/40 bg-meh/15 text-meh",
-        path: "border-path/40 bg-sky-400/15 text-sky-300",
+        path: "border-primary/30 bg-primary/10 text-primary",
       },
     },
     defaultVariants: {

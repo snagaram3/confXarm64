@@ -4,7 +4,7 @@ import { RANK_LABEL } from "@/lib/ranking";
 import type { Rank, Ranked, Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { MapPin, Search } from "lucide-react";
+import { Bookmark, MapPin, Search } from "lucide-react";
 
 const ORDER: Rank[] = ["must", "maybe", "meh"];
 
@@ -13,22 +13,27 @@ export function RankedList() {
     rankedSessions,
     selection,
     selectSession,
+    setView,
     profile,
     searchQuery,
     setSearchQuery,
     rankStatus,
-    rankError,
     rankMeta,
+    savedIds,
   } = useAppState();
   const selectedId = selection?.kind === "session" ? selection.id : null;
+  const savedRows = rankedSessions.filter((row) => savedIds.includes(row.item.id));
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <div>
-        <p className="text-xs uppercase tracking-wide text-primary">Find the right talk</p>
-        <h2 className="font-display text-xl font-semibold">Ranked by Elasticsearch</h2>
-        <p className="text-sm text-muted-foreground">
-          Hybrid BM25 + dense_vector cosine over titles, abstracts, and tags.
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Find the right talk
+        </p>
+        <h2 className="mt-1 font-display text-2xl font-semibold">Your sample ranking</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Elasticsearch hybrid over the seeded catalog — keyword + tag vector, not a live
+          schedule.
           {rankMeta ? ` Last query ${rankMeta.tookMs}ms.` : ""}
         </p>
         <div className="relative mt-3">
@@ -37,23 +42,36 @@ export function RankedList() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="eBPF, OpenTelemetry, room 255…"
-            className="pl-9"
-            aria-label="Search sessions"
+            className="h-11 min-h-11 pl-9"
+            aria-label="Search seeded sessions"
           />
         </div>
       </div>
-      {rankStatus === "error" && (
-        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-          {rankError}
-        </p>
-      )}
       {rankStatus === "loading" && rankedSessions.length === 0 && (
         <p className="text-sm text-muted-foreground">Querying Elasticsearch…</p>
       )}
-      {profile.interests.length === 0 && !searchQuery && (
-        <div className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Pick at least one interest — or type a keyword — to pull Must/Maybe ranks from Elasticsearch.
+      {profile.interests.length === 0 && !searchQuery && rankStatus === "ready" && (
+        <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+          Pick an interest in your profile, or type a keyword, to pull Must / Maybe ranks.
         </div>
+      )}
+      {savedRows.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <header className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <Bookmark className="size-3.5" /> Saved
+          </header>
+          {savedRows.map((row) => (
+            <SessionRow
+              key={`saved-${row.item.id}`}
+              row={row}
+              selected={selectedId === row.item.id}
+              onSelect={() => {
+                selectSession(row.item.id);
+                setView("map");
+              }}
+            />
+          ))}
+        </section>
       )}
       {ORDER.map((rank) => {
         const rows = rankedSessions.filter((r) => r.rank === rank);
@@ -69,7 +87,10 @@ export function RankedList() {
                 key={row.item.id}
                 row={row}
                 selected={selectedId === row.item.id}
-                onSelect={() => selectSession(row.item.id)}
+                onSelect={() => {
+                  selectSession(row.item.id);
+                  setView("map");
+                }}
               />
             ))}
           </section>
@@ -94,12 +115,12 @@ function SessionRow({
       type="button"
       onClick={onSelect}
       className={cn(
-        "w-full rounded-xl border p-3 text-left transition-colors",
-        selected ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-accent/60",
+        "min-h-11 w-full rounded-2xl border p-3 text-left transition-colors",
+        selected ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent/70",
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="font-display text-[15px] font-semibold leading-snug">{item.title}</p>
+        <p className="font-display text-[16px] font-semibold leading-snug">{item.title}</p>
         <Badge variant={rank}>{RANK_LABEL[rank]}</Badge>
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
@@ -113,12 +134,7 @@ function SessionRow({
         <span>{item.speaker}</span>
       </p>
       {rank === "must" && (
-        <p className="mt-2 rounded-md bg-must/10 px-2 py-1 font-mono text-[11px] leading-snug text-must">
-          Why this rank · {why}
-        </p>
-      )}
-      {row.highlights[0] && rank !== "must" && (
-        <p className="mt-2 text-[11px] text-muted-foreground">Matched {row.highlights[0]}</p>
+        <p className="mt-2 text-[12px] leading-snug text-foreground/80">Why · {why}</p>
       )}
     </button>
   );

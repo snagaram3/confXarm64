@@ -18,7 +18,7 @@ export function SponsorView() {
         <h2 className="font-display text-xl font-semibold">Who’s walking by</h2>
         <p className="text-sm text-muted-foreground">
           Seeded Must/Maybe visitors near the booth, ranked in Elasticsearch against
-          this booth’s tags — not a live beacon.
+          this booth’s tags. Not a live beacon or indoor location.
         </p>
       </div>
 

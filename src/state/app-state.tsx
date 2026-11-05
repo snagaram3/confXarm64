@@ -73,6 +73,21 @@ interface AppStateValue {
   setSponsorBoothId: (id: string) => void;
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
+  retryRank: () => void;
+  savedIds: string[];
+  toggleSaved: (sessionId: string) => void;
+}
+
+const SAVED_KEY = "floorwise.savedSessions";
+
+function readSaved(): string[] {
+  try {
+    const raw = localStorage.getItem(SAVED_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
 }
 
 const AppStateContext = createContext<AppStateValue | null>(null);
@@ -80,8 +95,10 @@ const AppStateContext = createContext<AppStateValue | null>(null);
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [searchQuery, setSearchQuery] = useState("");
+  const [retryTick, setRetryTick] = useState(0);
+  const [savedIds, setSavedIds] = useState<string[]>(readSaved);
   const [view, setView] = useState<AppView>("map");
-  const [floor, setFloor] = useState<Floor>(1);
+  const [floor, setFloor] = useState<Floor>(2);
   const [selection, setSelection] = useState<Selection>({
     kind: "session",
     id: LATE_SESSION_ID,
@@ -120,7 +137,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ac.abort();
       window.clearTimeout(timer);
     };
-  }, [profile, searchQuery]);
+  }, [profile, searchQuery, retryTick]);
+
+  useEffect(() => {
+    if (rankStatus !== "error") return;
+    const id = window.setInterval(() => setRetryTick((n) => n + 1), 5000);
+    return () => window.clearInterval(id);
+  }, [rankStatus]);
+
+  const retryRank = useCallback(() => {
+    setRankStatus("loading");
+    setRetryTick((n) => n + 1);
+  }, []);
+
+  const toggleSaved = useCallback((sessionId: string) => {
+    setSavedIds((prev) => {
+      const next = prev.includes(sessionId)
+        ? prev.filter((id) => id !== sessionId)
+        : [...prev, sessionId];
+      localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -272,6 +310,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setSponsorBoothId,
       profileOpen,
       setProfileOpen,
+      retryRank,
+      savedIds,
+      toggleSaved,
     }),
     [
       profile,
@@ -302,6 +343,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       goToStep,
       sponsorBoothId,
       profileOpen,
+      retryRank,
+      savedIds,
+      toggleSaved,
     ],
   );
 

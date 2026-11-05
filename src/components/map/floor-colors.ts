@@ -1,17 +1,17 @@
 import type { Rank, SpaceKind } from "@/lib/types";
 
 export const RANK_FILL: Record<Rank, { fill: string; stroke: string; label: string }> = {
-  must: { fill: "#14532d", stroke: "#34d399", label: "#ecfdf5" },
-  maybe: { fill: "#78350f", stroke: "#fbbf24", label: "#fffbeb" },
-  meh: { fill: "#1e293b", stroke: "#64748b", label: "#cbd5e1" },
+  must: { fill: "#d7eadc", stroke: "#246b45", label: "#1c1917" },
+  maybe: { fill: "#f3e4c4", stroke: "#9a6b16", label: "#1c1917" },
+  meh: { fill: "#e8e4dc", stroke: "#8a847a", label: "#3f3a34" },
 };
 
 export const KIND_FILL: Record<SpaceKind, { fill: string; stroke: string; label: string }> = {
-  hall: { fill: "#152536", stroke: "#2a4a66", label: "#b8c9d9" },
-  room: { fill: "#152536", stroke: "#2a4a66", label: "#d7e6f2" },
-  lobby: { fill: "#0f1e2c", stroke: "#1e3a52", label: "#7c93a8" },
-  vertical: { fill: "#0c2a3a", stroke: "#22d3ee", label: "#a5f3fc" },
-  entrance: { fill: "#134e4a", stroke: "#5eead4", label: "#ccfbf1" },
+  hall: { fill: "#efeae1", stroke: "#cfc6b8", label: "#3f3a34" },
+  room: { fill: "#f7f3ec", stroke: "#cfc6b8", label: "#1c1917" },
+  lobby: { fill: "#f3eee6", stroke: "#ddd4c6", label: "#6f6a62" },
+  vertical: { fill: "#e4eee9", stroke: "#21554c", label: "#21554c" },
+  entrance: { fill: "#dce8e4", stroke: "#21554c", label: "#21554c" },
 };
 
 export function spacePaint(kind: SpaceKind, rank?: Rank) {

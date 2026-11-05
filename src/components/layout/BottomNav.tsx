@@ -5,9 +5,9 @@ import { Building2, ListOrdered, Map, Navigation } from "lucide-react";
 
 const ITEMS: { id: AppView; label: string; icon: typeof Map }[] = [
   { id: "map", label: "Map", icon: Map },
-  { id: "agenda", label: "Agenda", icon: ListOrdered },
+  { id: "agenda", label: "For you", icon: ListOrdered },
   { id: "navigate", label: "Go", icon: Navigation },
-  { id: "sponsor", label: "Sponsor", icon: Building2 },
+  { id: "sponsor", label: "Booths", icon: Building2 },
 ];
 
 export function BottomNav() {
@@ -15,7 +15,10 @@ export function BottomNav() {
     useAppState();
 
   return (
-    <nav className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]">
+    <nav
+      aria-label="Primary"
+      className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
+    >
       {ITEMS.map((item) => {
         const active = view === item.id;
         const Icon = item.icon;
@@ -23,6 +26,7 @@ export function BottomNav() {
           <button
             key={item.id}
             type="button"
+            aria-current={active ? "page" : undefined}
             onClick={() => {
               if (item.id === "navigate") {
                 if (!navigating) startNavTo255();
@@ -36,7 +40,7 @@ export function BottomNav() {
               setView(item.id);
             }}
             className={cn(
-              "flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium",
+              "flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
               active ? "text-primary" : "text-muted-foreground hover:text-foreground",
             )}
           >
