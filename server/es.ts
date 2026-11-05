@@ -2,7 +2,7 @@ import { Client } from "@elastic/elasticsearch";
 
 export const INDEX = process.env.ELASTICSEARCH_INDEX ?? "floorwise";
 export const READY_WAIT_MS = Number(process.env.ELASTICSEARCH_READY_TIMEOUT_MS ?? 120_000);
-const ES_URL = (process.env.ELASTICSEARCH_URL ?? "http://127.0.0.1:9200").replace(/\/$/, "");
+const ES_URL = (process.env.ELASTICSEARCH_URL ?? "http://127.0.0.1:19200").replace(/\/$/, "");
 
 export const es = new Client({
   node: ES_URL,

@@ -16,15 +16,20 @@ git checkout cursor/minimalist-map-ui-cde4
 git pull --ff-only origin cursor/minimalist-map-ui-cde4
 ```
 
-Do **not** run `docker compose down -v`, `docker volume rm`, or any data-dir wipe. Existing Elasticsearch volumes are kept.
+Do **not** run `docker compose down -v`, `docker volume rm`, or any data-dir wipe. Do **not** stop or repair any other Elasticsearch/Kibana container (including a pre-existing `:9200` cluster). Floorwise uses its own container `floorwise-es` and volume `floorwise_esdata`.
 
 ## Run (Docker Elasticsearch)
 
-Cluster health is **`http://127.0.0.1:9200/_cluster/health`** (not Kibana, not `:9200/` alone). Yellow or green is ready; red is not.
+Floorwise publishes Elasticsearch on **loopback :19200** so it does not bind host `:9200` or `:9300`. In-container HTTP remains `:9200`. The host-side API default is `http://127.0.0.1:19200`. The Compose `app` service (optional `--profile full`) must keep `ELASTICSEARCH_URL=http://elasticsearch:9200` — that is container DNS, not the host port.
+
+Cluster health is **`http://127.0.0.1:19200/_cluster/health`**. Expect `"cluster_name" : "floorwise"`. Yellow or green is ready. A red `docker-cluster` on `:9200` is a different process; leave it alone.
+
+Do not add a `docker-compose.override.yml` that publishes `9200:9200` — Compose **appends** `ports` lists and would fight the existing container.
 
 ```bash
+docker compose config | grep -E 'published|target|floorwise_esdata|ELASTICSEARCH_URL'
 docker compose up -d elasticsearch
-curl -sS "http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=90s&pretty"
+curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=90s&pretty"
 npm install
 npm run dev
 ```
@@ -36,17 +41,17 @@ curl -sS http://127.0.0.1:43181/api/health
 curl -sS http://127.0.0.1:43180/api/health
 ```
 
-Open [http://127.0.0.1:43180](http://127.0.0.1:43180). First boot can sit on **red** while Elasticsearch forms the cluster. The API now waits up to **120s** for yellow/green (the old 20s wait is what printed `not ready after 20000ms (red)`). Compose healthchecks also wait for yellow, not a bare HTTP 200 on a red cluster.
+Open [http://127.0.0.1:43180](http://127.0.0.1:43180). First boot can sit on **red** while Elasticsearch forms the cluster. The API waits up to **120s** for yellow/green. Compose healthchecks wait for yellow inside the container (`127.0.0.1:9200`).
 
-If `/_cluster/health` is still red after that window, inspect it — do not delete the volume:
+If Floorwise (`:19200`) is still red after that window, inspect that endpoint only — do not delete the volume and do not touch `:9200`:
 
 ```bash
-curl -sS "http://127.0.0.1:9200/_cluster/health?pretty"
-curl -sS "http://127.0.0.1:9200/_cat/shards?v"
+curl -sS "http://127.0.0.1:19200/_cluster/health?pretty"
+curl -sS "http://127.0.0.1:19200/_cat/shards?v"
 docker compose logs elasticsearch --tail 80
 ```
 
-No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17 tarball and starts it on `:9200` (and now refuses to treat a red cluster as already running), then `npm run dev`.
+No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17 tarball and starts it on loopback `:19200`, then `npm run dev`.
 
 All-in-one container (optional):
 
@@ -54,7 +59,7 @@ All-in-one container (optional):
 docker compose --profile full up --build
 ```
 
-That serves the built app at `:43180`, with Elasticsearch on `:9200`.
+That serves the built app at `:43180`. Elasticsearch is still published on host `:19200`; the app container talks to `http://elasticsearch:9200`.
 
 ## Under-3-minute demo
 

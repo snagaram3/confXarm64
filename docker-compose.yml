@@ -14,7 +14,10 @@ services:
       cluster.routing.allocation.disk.threshold_enabled: "false"
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
-      - "9200:9200"
+      # Host 19200 avoids a pre-existing :9200 Elasticsearch. Do not add a
+      # compose override that also publishes 9200 — Compose appends port lists.
+      # In-container HTTP stays 9200. Transport 9300 is not published.
+      - "${ES_HOST_PORT:-19200}:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:
@@ -36,6 +39,7 @@ services:
       elasticsearch:
         condition: service_healthy
     environment:
+      # Container-internal DNS; not the host-published 19200 port.
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_INDEX: floorwise
       PORT: "43181"
@@ -48,3 +52,4 @@ services:
 
 volumes:
   esdata:
+    name: floorwise_esdata

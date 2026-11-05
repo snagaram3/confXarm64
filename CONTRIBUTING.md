@@ -2,7 +2,7 @@
 
 ## PR checklist (Gitar / human)
 
-- [ ] `docker compose up -d elasticsearch` then wait for yellow at `http://127.0.0.1:9200/_cluster/health` (do not delete volumes) then `npm run dev` still ranks via Elasticsearch
+- [ ] `docker compose up -d elasticsearch` then wait for yellow at `http://127.0.0.1:19200/_cluster/health` (do not delete volumes or stop other ES containers) then `npm run dev` still ranks via Elasticsearch
 - [ ] Room 255 wayfinding (altitude steps + path) is intact
 - [ ] Changing profile interests recolors Must / Maybe / Meh on the map
 - [ ] Crowd take still appears on a Must session pin
@@ -15,7 +15,8 @@ Paste this list into the Gitar (Sonar) review if the bot asks for project-specif
 ## Local loop
 
 ```bash
-docker compose up -d
+docker compose up -d elasticsearch
+curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=90s&pretty"
 npm install
 npm run dev
 ```

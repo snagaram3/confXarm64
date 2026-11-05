@@ -50,7 +50,7 @@ app.post("/api/rank", async (req, res) => {
     res.status(503).json({
       code: "es_not_ready",
       error: "Elasticsearch is still starting",
-      hint: "The sample map still works. Retry shortly, or run docker compose up -d / npm run es.",
+      hint: "The sample map still works. Retry shortly, or run docker compose up -d elasticsearch (host :19200) / npm run es.",
     });
     return;
   }
@@ -88,7 +88,7 @@ app.post("/api/rank", async (req, res) => {
   } catch (err) {
     res.status(503).json({
       error: err instanceof Error ? err.message : String(err),
-      hint: "Start Elasticsearch with docker compose up -d, then retry.",
+      hint: "Start Floorwise Elasticsearch with docker compose up -d elasticsearch (published on :19200), then retry. Do not use an unrelated cluster on :9200.",
     });
   }
 });
