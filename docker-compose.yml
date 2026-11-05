@@ -46,10 +46,15 @@ services:
       OTEL_SERVICE_NAME: floorwise-api
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      FLOORWISE_DATA_DIR: /app/data
     ports:
       - "43180:43181"
+    volumes:
+      - leadsdata:/app/data
     profiles: ["full"]
 
 volumes:
   esdata:
     name: floorwise_esdata
+  leadsdata:
+    name: floorwise_leads

@@ -7,7 +7,9 @@
 - [ ] Changing profile interests recolors Must / Maybe / Meh on the map
 - [ ] Crowd take still appears on a Must session pin
 - [ ] Sponsor mirror still shows Must/Maybe visitors for Elastic
-- [ ] No new secrets committed; Dash0/OTel env stays in `.env`
+- [ ] Connect / share my details requires an explicit consent checkbox and does not fire from Must/Maybe/Meh
+- [ ] `/sponsor-portal` is tenant-scoped; demo dashboard stays read-only sample data
+- [ ] No new secrets committed; `data/`, Dash0/OTel env, and sponsor-secret files stay gitignored
 - [ ] `npm run build` is green
 
 Paste this list into the Gitar (Sonar) review if the bot asks for project-specific criteria. See `.gitar.md`.
@@ -27,4 +29,4 @@ The API waits for Elasticsearch, seeds `src/data/catalog.json` into the `floorwi
 
 - Rank the catalog in the browser.
 - Require a Dash0 key for the UI to render.
-- Add AR, beacons, or accounts.
+- Add AR, beacons, CRM sends, or production identity. Local exhibitor portal secrets stay in gitignored `data/` files.

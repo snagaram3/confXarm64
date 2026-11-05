@@ -61,6 +61,28 @@ docker compose --profile full up --build
 
 That serves the built app at `:43180`. Elasticsearch is still published on host `:19200`; the app container talks to `http://elasticsearch:9200`.
 
+## Exhibitor lead portal (local MVP)
+
+A separate Floorwise-hosted surface — not an official sponsor site, organizer login, or CNCF form.
+
+- Attendee connect: [http://127.0.0.1:43180/connect/elastic](http://127.0.0.1:43180/connect/elastic) (any catalog exhibitor id). Copy the `?from=link` URL for booth signage.
+- Sponsor portal: [http://127.0.0.1:43180/sponsor-portal](http://127.0.0.1:43180/sponsor-portal)
+- Read-only sample dashboard (synthetic `@example.com` / `@example.org` rows, not the real store): [http://127.0.0.1:43180/sponsor-portal/demo](http://127.0.0.1:43180/sponsor-portal/demo)
+
+Must / Maybe / Meh, nearby visitors, and search fit **never** create a lead. The connect form requires an unchecked contact-consent box. Consent wording, version (`floorwise-lead-v1`), timestamp, exhibitor, and source are stored with the row.
+
+Leads live in gitignored SQLite (`data/leads.sqlite` by default), not the public Elasticsearch catalog. Session cookies are httpOnly. There is **no** default password.
+
+Provision a sponsor-scoped secret on the machine that runs the API (fail-closed until this exists):
+
+```bash
+npm run sponsor:provision -- elastic
+```
+
+The plaintext secret is written once to a gitignored file under `data/` (path printed; the value is not). Open that file locally and sign in at `/sponsor-portal`. Pass `--rotate` to replace a secret. Do not commit `data/`, `sponsor-credentials.json`, or `sponsor-secret-*.txt`.
+
+This is a **local MVP**, not production identity or privacy posture: file-backed scrypt hashes, cookie sessions, and SQLite on disk. Do not expose the lead database or `:43181` on a public network.
+
 ## Under-3-minute demo
 
 Sample profile is already **Staff Platform Engineer · Kubernetes · observability · platform engineering · eBPF · OpenTelemetry**.
@@ -105,6 +127,6 @@ kubectl -n floorwise port-forward svc/floorwise 43180:80
 
 ## What is in / out
 
-**In:** Salt Palace L1–L3 sample map, profile → Must/Maybe/Meh for talks, scripted wayfinding to 255, crowd takes, official exhibitor slice with logos + user prefs, Elasticsearch ranking.
+**In:** Salt Palace L1–L3 sample map, profile → Must/Maybe/Meh for talks, scripted wayfinding to 255, crowd takes, official exhibitor slice with logos + user prefs, Elasticsearch ranking, opted-in exhibitor leads with a scoped portal.
 
-**Out:** Full KCNA26 schedule import, invented booth coordinates, ARKit/ARCore, beacons, live heatmaps, full auth, wiping Docker volumes.
+**Out:** Full KCNA26 schedule import, invented booth coordinates, ARKit/ARCore, beacons, live heatmaps, production SSO, CRM/email sends, wiping Docker volumes, harvesting contacts from Must/Maybe/Meh or nearby.

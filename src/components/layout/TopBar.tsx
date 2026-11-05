@@ -25,9 +25,15 @@ export function TopBar() {
           </p>
         </div>
       </div>
+      <a
+        href="/sponsor-portal"
+        className="hidden min-h-11 items-center rounded-full border border-border px-3 text-xs font-medium text-primary hover:bg-accent sm:inline-flex"
+      >
+        Exhibitor portal
+      </a>
       <p
         className={cn(
-          "hidden rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide sm:inline",
+          "hidden rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide lg:inline",
           searchReady
             ? "border-must/30 bg-must/10 text-must"
             : "border-border bg-card text-muted-foreground",

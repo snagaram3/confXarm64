@@ -16,6 +16,10 @@ uploads
 .env
 .env.*
 !.env.example
+/data/
+*.sqlite
+sponsor-secret-*.txt
+sponsor-credentials.json
 
 # Editor directories and files
 .vscode/*

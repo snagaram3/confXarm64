@@ -6,15 +6,29 @@ import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express from "express";
 import { pingCluster, waitForElasticsearch } from "./es.ts";
+import { mountLeadRoutes, sqlitePath } from "./leads-http.ts";
+import { dataDir, LeadsStore } from "./leads-store.ts";
 import { otelStatus } from "./otel.ts";
 import { seedIndex } from "./seed.ts";
 import { hybridSearch } from "./search.ts";
+import { isAuthConfigured } from "./sponsor-auth.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const catalog = JSON.parse(readFileSync(resolve(root, "src/data/catalog.json"), "utf8")) as {
   sessions: Array<{ id: string }>;
-  booths: Array<{ id: string; visitors: Array<{ id: string; metersAway: number }> }>;
+  booths: Array<{
+    id: string;
+    sponsor: string;
+    tagline: string;
+    boothNumber: string;
+    logo: string | null;
+    logoOnDark?: boolean;
+    tags: string[];
+    visitors: Array<{ id: string; metersAway: number }>;
+  }>;
 };
+const leadDataDir = dataDir(root);
+const leadStore = new LeadsStore(sqlitePath(leadDataDir));
 
 const PORT = Number(process.env.PORT ?? 43181);
 const app = express();
@@ -33,6 +47,10 @@ app.get("/api/health", async (_req, res) => {
       otel: otelStatus,
       indexReady,
       lastSeedError,
+      sponsorPortal: {
+        configured: isAuthConfigured(leadDataDir),
+        store: "sqlite",
+      },
     });
   } catch (err) {
     res.status(503).json({
@@ -41,6 +59,10 @@ app.get("/api/health", async (_req, res) => {
       otel: otelStatus,
       indexReady,
       lastSeedError,
+      sponsorPortal: {
+        configured: isAuthConfigured(leadDataDir),
+        store: "sqlite",
+      },
     });
   }
 });
@@ -143,6 +165,12 @@ app.post("/api/sponsor/:boothId/visitors", async (req, res) => {
       error: err instanceof Error ? err.message : String(err),
     });
   }
+});
+
+mountLeadRoutes(app, {
+  store: leadStore,
+  dataDir: leadDataDir,
+  booths: catalog.booths,
 });
 
 app.post("/api/otlp/v1/traces", async (req, res) => {

@@ -1,3 +1,4 @@
+import { ConnectCta } from "@/components/sponsor/ConnectCta";
 import { PrefBot } from "@/components/sponsor/PrefBot";
 import { PrefPicker } from "@/components/sponsor/PrefPicker";
 import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
@@ -33,44 +34,14 @@ export function SponsorView() {
           Official exhibitor names and booth numbers from the KCNA26 Expo Hall Map
           (5 Nov 2026 snapshot). Indoor coordinates were not published — pins are
           labeled, not geocoded. Seeded Must/Maybe visitors are a demo, not a live
-          beacon.
+          beacon. Nearby and Must/Maybe/Meh never create a lead.
         </p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {catalog.booths.map((b, i) => {
-          const active = b.id === booth.id;
-          const cardPref = sponsorPrefs[b.id];
-          return (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => {
-                setSponsorBoothId(b.id);
-                selectBooth(b.id);
-              }}
-              className={cn(
-                "flex min-h-11 items-center gap-3 rounded-xl border px-3 py-2 text-left",
-                active
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:bg-accent",
-              )}
-            >
-              <span className="relative shrink-0">
-                <SponsorLogo booth={b} className="size-10" />
-                <span className="absolute -right-1.5 -top-1.5">
-                  <PrefBot pref={cardPref} delayMs={i * 70} size="sm" showLabel={false} />
-                </span>
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium leading-tight">{b.sponsor}</span>
-                <span className="block font-mono text-[11px] text-muted-foreground">
-                  Booth {b.boothNumber} · {prefLabel(cardPref)}
-                </span>
-              </span>
-            </button>
-          );
-        })}
+        <p className="mt-2 text-sm">
+          <a href="/sponsor-portal" className="text-primary underline">
+            Exhibitor lead portal
+          </a>
+          <span className="text-muted-foreground"> · Floorwise-hosted, not a sponsor site</span>
+        </p>
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
@@ -101,12 +72,62 @@ export function SponsorView() {
             <Badge variant="outline">Search fit pending</Badge>
           )}
         </div>
+        <div className="mt-4 border-t border-border pt-3">
+          <ConnectCta booth={booth} />
+        </div>
         {booth.visitors.length > 0 && (
           <p className="mt-2 font-mono text-xs text-muted-foreground">
             Seeded demo · {mustNearby.length} Must/Maybe visitors in the catalog, not
             live indoor location
           </p>
         )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Official exhibitors
+        </h3>
+        {catalog.booths.map((b, i) => {
+          const active = b.id === booth.id;
+          const cardPref = sponsorPrefs[b.id];
+          return (
+            <div
+              key={b.id}
+              className={cn(
+                "flex items-stretch gap-1 rounded-xl border",
+                active ? "border-primary bg-primary/10" : "border-border bg-card",
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setSponsorBoothId(b.id);
+                  selectBooth(b.id);
+                }}
+                className="flex min-h-11 min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left hover:bg-accent/60"
+              >
+                <span className="relative shrink-0">
+                  <SponsorLogo booth={b} className="size-10" />
+                  <span className="absolute -right-1.5 -top-1.5">
+                    <PrefBot pref={cardPref} delayMs={i * 70} size="sm" showLabel={false} />
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium leading-tight">{b.sponsor}</span>
+                  <span className="block font-mono text-[11px] text-muted-foreground">
+                    Booth {b.boothNumber} · {prefLabel(cardPref)}
+                  </span>
+                </span>
+              </button>
+              <a
+                href={`/connect/${b.id}`}
+                className="inline-flex min-h-11 shrink-0 items-center px-3 text-xs font-medium text-primary underline"
+              >
+                Connect
+              </a>
+            </div>
+          );
+        })}
       </div>
 
       <section className="flex flex-col gap-2">
