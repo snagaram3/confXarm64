@@ -5,15 +5,25 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-if curl -fsS http://127.0.0.1:9200 >/dev/null 2>&1; then
-  echo "Elasticsearch already running on :9200"
+if curl -fsS "http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=2s" >/dev/null 2>&1; then
+  echo "Elasticsearch already yellow/green on :9200"
+  curl -sS "http://127.0.0.1:9200/_cluster/health?pretty"
   exit 0
 fi
 
 if command -v docker >/dev/null 2>&1; then
   echo "Starting Elasticsearch with docker compose…"
   docker compose up -d elasticsearch
-  exit 0
+  echo "Waiting for cluster yellow/green at http://127.0.0.1:9200/_cluster/health …"
+  for i in $(seq 1 36); do
+    if curl -fsS "http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=5s" >/dev/null 2>&1; then
+      curl -sS "http://127.0.0.1:9200/_cluster/health?pretty"
+      exit 0
+    fi
+    sleep 2
+  done
+  echo "Elasticsearch did not reach yellow/green in time. Check docker compose logs elasticsearch — do not delete volumes."
+  exit 1
 fi
 
 ES_VERSION="${ES_VERSION:-8.17.0}"
@@ -35,7 +45,9 @@ exec "$ES_HOME/bin/elasticsearch" \
   -E cluster.name=floorwise \
   -E xpack.security.enabled=false \
   -E xpack.security.http.ssl.enabled=false \
+  -E xpack.ml.enabled=false \
   -E ingest.geoip.downloader.enabled=false \
+  -E cluster.routing.allocation.disk.threshold_enabled=false \
   -E node.store.allow_mmap=false \
   -E network.host=127.0.0.1 \
   -E http.port=9200 \

@@ -2,7 +2,7 @@
 
 ## PR checklist (Gitar / human)
 
-- [ ] `docker compose up -d` then `npm run dev` still ranks via Elasticsearch
+- [ ] `docker compose up -d elasticsearch` then wait for yellow at `http://127.0.0.1:9200/_cluster/health` (do not delete volumes) then `npm run dev` still ranks via Elasticsearch
 - [ ] Room 255 wayfinding (altitude steps + path) is intact
 - [ ] Changing profile interests recolors Must / Maybe / Meh on the map
 - [ ] Crowd take still appears on a Must session pin

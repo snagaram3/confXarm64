@@ -1,47 +1,28 @@
-import { catalog, venue } from "@/lib/catalog";
+import { venue } from "@/lib/catalog";
 import type { Floor, Rank, Space } from "@/lib/types";
 import { spacePaint } from "./floor-colors";
-
-interface VisitorDot {
-  id: string;
-  x: number;
-  y: number;
-  rank: Rank;
-  label: string;
-}
 
 interface FloorPlanProps {
   floor: Floor;
   rankByRoom: Record<string, Rank>;
-  rankByBooth: Record<string, Rank>;
   selectedRoomId: string | null;
-  selectedBoothId: string | null;
   pathPoints?: [number, number][];
   youAreHere?: [number, number];
-  visitors?: VisitorDot[];
-  showBooths?: boolean;
   onSelectSpace: (id: string) => void;
-  onSelectBooth: (id: string) => void;
 }
 
 export function FloorPlan({
   floor,
   rankByRoom,
-  rankByBooth,
   selectedRoomId,
-  selectedBoothId,
   pathPoints,
   youAreHere,
-  visitors = [],
-  showBooths = true,
   onSelectSpace,
-  onSelectBooth,
 }: FloorPlanProps) {
   const { w, h } = venue.viewBox;
   const spaces = venue.spaces.filter((s) => s.floor === floor);
   const hallsAndRooms = spaces.filter((s) => s.kind === "hall" || s.kind === "room");
   const other = spaces.filter((s) => s.kind !== "hall" && s.kind !== "room");
-  const booths = showBooths ? catalog.booths.filter((b) => b.floor === floor) : [];
   const pathD = pathPoints && pathPoints.length > 1 ? toPath(pathPoints) : null;
 
   return (
@@ -109,51 +90,17 @@ export function FloorPlan({
         />
       ))}
 
-      {booths.map((booth) => {
-        const paint = spacePaint("hall", rankByBooth[booth.id]);
-        const selected = selectedBoothId === booth.id;
-        return (
-          <g
-            key={booth.id}
-            role="button"
-            tabIndex={0}
-            className="cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectBooth(booth.id);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onSelectBooth(booth.id);
-              }
-            }}
-          >
-            <rect
-              x={booth.x}
-              y={booth.y}
-              width={booth.w}
-              height={booth.h}
-              rx="6"
-              fill={paint.fill}
-              stroke={selected ? "#21554c" : paint.stroke}
-              strokeWidth={selected ? 3 : 1.5}
-              filter={selected ? "url(#glow)" : undefined}
-            />
-            <text
-              x={booth.x + booth.w / 2}
-              y={booth.y + booth.h / 2 + 4}
-              textAnchor="middle"
-              fill={paint.label}
-              fontSize="11"
-              fontFamily="Fraunces, serif"
-              fontWeight="600"
-            >
-              {booth.sponsor}
-            </text>
-          </g>
-        );
-      })}
+      {floor === 1 && (
+        <text
+          x="250"
+          y="88"
+          fill="#6f6a62"
+          fontSize="11"
+          fontFamily="Source Sans 3, sans-serif"
+        >
+          Solutions Showcase · official booth pins not geocoded
+        </text>
+      )}
 
       {pathD && (
         <>
@@ -161,20 +108,6 @@ export function FloorPlan({
           <path d={pathD} className="map-path" />
         </>
       )}
-
-      {visitors.map((v) => (
-        <g key={v.id}>
-          <circle
-            cx={v.x}
-            cy={v.y}
-            r="9"
-            fill={spacePaint("room", v.rank).stroke}
-            stroke="#f7f3ec"
-            strokeWidth="2"
-          />
-          <title>{v.label}</title>
-        </g>
-      ))}
 
       {youAreHere && (
         <g>

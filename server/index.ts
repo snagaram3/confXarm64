@@ -183,7 +183,7 @@ if (existsSync(dist)) {
 
 async function ensureIndex() {
   if (indexReady) return;
-  await waitForElasticsearch(20_000);
+  await waitForElasticsearch();
   const seeded = await seedIndex();
   indexReady = true;
   lastSeedError = null;

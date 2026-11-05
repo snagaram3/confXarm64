@@ -1,4 +1,5 @@
-import { catalog, sessionById, wayfinding } from "@/lib/catalog";
+import { SponsorPinLayer } from "@/components/map/SponsorPinLayer";
+import { sessionById, wayfinding } from "@/lib/catalog";
 import { selectedRoomId, useAppState } from "@/state/app-state";
 import { FloorPlan } from "./FloorPlan";
 import { FloorSwitcher } from "./FloorSwitcher";
@@ -9,7 +10,6 @@ export function VenueMap() {
     floor,
     setFloor,
     rankByRoom,
-    rankByBooth,
     selection,
     selectSpace,
     selectBooth,
@@ -17,7 +17,7 @@ export function VenueMap() {
     stepIndex,
     view,
     sponsorBoothId,
-    rankedVisitors,
+    sponsorPrefs,
   } = useAppState();
 
   const roomId = selectedRoomId(selection);
@@ -38,37 +38,24 @@ export function VenueMap() {
 
   const selectedSession =
     selection?.kind === "session" ? sessionById(selection.id) : undefined;
-  const booth = catalog.booths.find((b) => b.id === sponsorBoothId);
-  const visitors =
-    view === "sponsor" && booth
-      ? rankedVisitors.map((row, i) => {
-          const angle = (i / Math.max(rankedVisitors.length, 1)) * Math.PI * 1.6 - 0.4;
-          const dist = 28 + row.item.metersAway * 1.4;
-          return {
-            id: row.item.id,
-            x: booth.x + booth.w / 2 + Math.cos(angle) * dist,
-            y: booth.y + booth.h / 2 + Math.sin(angle) * dist,
-            rank: row.rank,
-            label: `${row.item.name} · ${row.rank} · ${row.item.metersAway}m`,
-          };
-        })
-      : [];
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border bg-[#efeae1]">
       <FloorPlan
         floor={floor}
         rankByRoom={rankByRoom}
-        rankByBooth={rankByBooth}
         selectedRoomId={roomId}
-        selectedBoothId={selectedBooth}
         pathPoints={pathPoints}
         youAreHere={youAreHere}
-        visitors={visitors}
-        showBooths={floor === 1}
         onSelectSpace={selectSpace}
-        onSelectBooth={selectBooth}
       />
+      {floor === 1 && (
+        <SponsorPinLayer
+          selectedId={selectedBooth}
+          prefs={sponsorPrefs}
+          onSelect={selectBooth}
+        />
+      )}
       <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
         <div className="pointer-events-auto">
           <FloorSwitcher floor={floor} onChange={setFloor} />

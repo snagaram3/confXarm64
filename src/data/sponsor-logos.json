@@ -1,0 +1,16 @@
+{
+  "snapshot": "2026-11-05",
+  "expoMap": "https://events.linuxfoundation.org/kcna26-expo-map",
+  "note": "Logos are company assets or Wikimedia copies of those assets. Radar has no obtained mark; the UI uses a monogram. Indoor booth coordinates were not published.",
+  "files": {
+    "elastic": "https://www.elastic.co/favicon.svg",
+    "grafana": "https://commons.wikimedia.org/wiki/File:Grafana_logo.svg",
+    "datadog": "https://corp.dd-static.net/img/dd_logo_n_70x75.png",
+    "isovalent": "https://isovalent.com/ (Sanity CDN mark)",
+    "dash0": "https://www.dash0.com/shared/logo_colors.svg",
+    "suse": "https://www.suse.com/contentassets/0930538af48946f1b5d336ea20d7523d/suse-white-logo-green.svg",
+    "hashicorp": "https://commons.wikimedia.org/wiki/File:HashiCorp_horizontal_logo.svg",
+    "docker": "https://commons.wikimedia.org/wiki/File:Docker_(container_engine)_logo.svg",
+    "azure": "https://commons.wikimedia.org/wiki/File:Microsoft_Azure.svg"
+  }
+}

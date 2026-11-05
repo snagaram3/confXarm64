@@ -1,7 +1,10 @@
+import { PrefBot } from "@/components/sponsor/PrefBot";
+import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { catalog, LATE_SESSION_ID, sessionById, spaceById } from "@/lib/catalog";
 import { RANK_LABEL } from "@/lib/ranking";
+import { prefLabel } from "@/lib/sponsor-prefs";
 import { useAppState } from "@/state/app-state";
 import { ArrowUpRight, Bookmark, Navigation } from "lucide-react";
 import { CrowdTake } from "./CrowdTake";
@@ -10,10 +13,9 @@ export function SessionDetail() {
   const {
     selection,
     rankedSessionById,
-    rankByBooth,
+    sponsorPrefs,
     startNavTo255,
     selectBooth,
-    setView,
     savedIds,
     toggleSaved,
     rankStatus,
@@ -22,22 +24,21 @@ export function SessionDetail() {
   if (selection?.kind === "booth") {
     const booth = catalog.booths.find((b) => b.id === selection.id);
     if (!booth) return <EmptyState />;
-    const rank = rankByBooth[booth.id];
+    const pref = sponsorPrefs[booth.id];
     return (
       <div className="flex flex-col gap-3">
-        {rank ? <Badge variant={rank}>{RANK_LABEL[rank]} booth</Badge> : <Badge variant="outline">Unranked</Badge>}
+        <div className="flex items-center gap-3">
+          <SponsorLogo booth={booth} className="size-12" />
+          <PrefBot pref={pref} />
+        </div>
+        <Badge variant={pref ?? "outline"}>{prefLabel(pref)}</Badge>
         <h2 className="font-display text-2xl font-semibold leading-tight">{booth.sponsor}</h2>
         <p className="text-sm text-muted-foreground">{booth.tagline}</p>
         <p className="text-sm leading-relaxed">{booth.pitch}</p>
         <p className="font-mono text-xs text-primary">
-          {booth.hallId.replace("-", " ").toUpperCase()} · Level {booth.floor}
+          {booth.locationLabel} · location pin unavailable
         </p>
-        <Button
-          onClick={() => {
-            selectBooth(booth.id);
-            setView("sponsor");
-          }}
-        >
+        <Button onClick={() => selectBooth(booth.id)}>
           Open booth mirror
           <ArrowUpRight />
         </Button>

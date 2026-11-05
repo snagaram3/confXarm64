@@ -7,20 +7,26 @@ services:
       cluster.name: floorwise
       xpack.security.enabled: "false"
       xpack.security.http.ssl.enabled: "false"
+      xpack.ml.enabled: "false"
       xpack.license.self_generated.type: trial
       ingest.geoip.downloader.enabled: "false"
       node.store.allow_mmap: "false"
+      cluster.routing.allocation.disk.threshold_enabled: "false"
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS 'http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=5s' || exit 1",
+        ]
       interval: 10s
-      timeout: 5s
+      timeout: 8s
       retries: 30
-      start_period: 40s
+      start_period: 60s
     mem_limit: 1.5g
 
   app:

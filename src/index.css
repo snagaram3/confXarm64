@@ -157,7 +157,10 @@
 }
 
 .bot-bounce {
-  animation: bot-bounce 0.7s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  animation-name: bot-bounce;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.22, 1.4, 0.36, 1);
+  animation-fill-mode: both;
   transform-origin: 50% 80%;
 }
 

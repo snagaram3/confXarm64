@@ -22,7 +22,8 @@ type Catalog = {
     id: string;
     sponsor: string;
     tagline: string;
-    hallId: string;
+    locationLabel?: string;
+    boothNumber?: string;
     floor: number;
     tags: string[];
     pitch: string;
@@ -105,7 +106,7 @@ export async function seedIndex(): Promise<{ documents: number }> {
     ops.push({
       kind: "booth",
       id: booth.id,
-      roomId: booth.hallId,
+      roomId: booth.locationLabel ?? booth.boothNumber ?? booth.id,
       floor: booth.floor,
       title: `${booth.sponsor} ${booth.tagline}`,
       abstract: booth.pitch,

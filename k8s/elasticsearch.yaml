@@ -50,6 +50,10 @@ spec:
               value: "false"
             - name: ingest.geoip.downloader.enabled
               value: "false"
+            - name: xpack.ml.enabled
+              value: "false"
+            - name: cluster.routing.allocation.disk.threshold_enabled
+              value: "false"
             - name: node.store.allow_mmap
               value: "false"
             - name: ES_JAVA_OPTS
@@ -63,7 +67,8 @@ spec:
               cpu: "1"
           readinessProbe:
             httpGet:
-              path: /_cluster/health
+              path: /_cluster/health?wait_for_status=yellow&timeout=1s
               port: 9200
-            initialDelaySeconds: 20
+            initialDelaySeconds: 25
             periodSeconds: 10
+            failureThreshold: 18

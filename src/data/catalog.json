@@ -33,21 +33,26 @@
       "start": "11:05",
       "end": "11:40",
       "track": "Observability",
-      "tags": ["eBPF", "observability", "Kubernetes", "platform engineering"],
+      "tags": [
+        "eBPF",
+        "observability",
+        "Kubernetes",
+        "platform engineering"
+      ],
       "abstract": "Live-debug a noisy neighbor with Cilium Hubble and eBPF. How platform teams ship OpenTelemetry-grade signals without sidecars.",
       "crowdTakes": [
         {
           "id": "ct-255-1",
           "author": "Priya Shah",
-          "role": "SRE · Shopify",
+          "role": "SRE \u00b7 Shopify",
           "photo": "/crowd/priya.svg",
-          "take": "Standing room. Sit along the back wall — Hubble demo is live right now.",
+          "take": "Standing room. Sit along the back wall \u2014 Hubble demo is live right now.",
           "minutesAgo": 4
         },
         {
           "id": "ct-255-2",
           "author": "Chris Okonkwo",
-          "role": "Platform · Adobe",
+          "role": "Platform \u00b7 Adobe",
           "photo": "/crowd/chris.svg",
           "take": "They just showed dropping sidecars. If you care about eBPF, do not skip this.",
           "minutesAgo": 9
@@ -64,13 +69,17 @@
       "start": "13:20",
       "end": "13:55",
       "track": "Observability",
-      "tags": ["OpenTelemetry", "observability", "tracing"],
+      "tags": [
+        "OpenTelemetry",
+        "observability",
+        "tracing"
+      ],
       "abstract": "A no-slide-ware path: auto-instrument a Kubernetes service, sample traces, and get a useful dashboard before the coffee gets cold.",
       "crowdTakes": [
         {
           "id": "ct-251-1",
           "author": "Jonah Reed",
-          "role": "SRE · Datadog",
+          "role": "SRE \u00b7 Datadog",
           "photo": "/crowd/jonah.svg",
           "take": "Room is filling early. Grab an aisle seat if you want to see the collector config.",
           "minutesAgo": 18
@@ -87,13 +96,17 @@
       "start": "14:15",
       "end": "14:50",
       "track": "Platform",
-      "tags": ["Kubernetes", "GitOps", "platform engineering"],
+      "tags": [
+        "Kubernetes",
+        "GitOps",
+        "platform engineering"
+      ],
       "abstract": "One repo, forty clusters, zero snowflake YAML. Promotion gates, drift, and what actually breaks when you add a second region.",
       "crowdTakes": [
         {
           "id": "ct-355-1",
           "author": "Sam Ortiz",
-          "role": "Staff Platform · Airbnb",
+          "role": "Staff Platform \u00b7 Airbnb",
           "photo": "/crowd/sam.svg",
           "take": "They posted the GitOps promotion diagram in the hallway. Worth the climb to L3.",
           "minutesAgo": 41
@@ -110,13 +123,16 @@
       "start": "16:00",
       "end": "16:45",
       "track": "Platform",
-      "tags": ["platform engineering", "Kubernetes"],
+      "tags": [
+        "platform engineering",
+        "Kubernetes"
+      ],
       "abstract": "Bring a golden-path war story. Facilitated office hours for people who own the paved road, not just walk it.",
       "crowdTakes": [
         {
           "id": "ct-351-1",
           "author": "Riley Chen",
-          "role": "DevEx · Stripe",
+          "role": "DevEx \u00b7 Stripe",
           "photo": "/crowd/riley.svg",
           "take": "Small room, good questions. They are talking IDP scorecards, not product pitches.",
           "minutesAgo": 120
@@ -133,13 +149,17 @@
       "start": "09:00",
       "end": "09:45",
       "track": "Keynote",
-      "tags": ["Kubernetes", "CNCF", "keynote"],
+      "tags": [
+        "Kubernetes",
+        "CNCF",
+        "keynote"
+      ],
       "abstract": "Annual state of the union: project graduations, WASM, and why platform engineering is no longer a side quest.",
       "crowdTakes": [
         {
           "id": "ct-halla-1",
           "author": "Dee Patel",
-          "role": "Advocate · CNCF",
+          "role": "Advocate \u00b7 CNCF",
           "photo": "/crowd/dee.svg",
           "take": "Hall A is packed. Overflow screens in Hall B if you just need the talk.",
           "minutesAgo": 6
@@ -156,13 +176,16 @@
       "start": "15:10",
       "end": "15:45",
       "track": "Runtime",
-      "tags": ["WASM", "Kubernetes"],
-      "abstract": "What spin, wasmCloud, and containerd-wasmshims can actually run in a cluster this year — and what still cannot.",
+      "tags": [
+        "WASM",
+        "Kubernetes"
+      ],
+      "abstract": "What spin, wasmCloud, and containerd-wasmshims can actually run in a cluster this year \u2014 and what still cannot.",
       "crowdTakes": [
         {
           "id": "ct-250-1",
           "author": "Priya Shah",
-          "role": "SRE · Shopify",
+          "role": "SRE \u00b7 Shopify",
           "photo": "/crowd/priya.svg",
           "take": "Half the room is here for cold-start numbers. They have them.",
           "minutesAgo": 55
@@ -179,13 +202,17 @@
       "start": "11:05",
       "end": "11:40",
       "track": "App Delivery",
-      "tags": ["Helm", "Kubernetes", "beginner"],
+      "tags": [
+        "Helm",
+        "Kubernetes",
+        "beginner"
+      ],
       "abstract": "Values files, library charts, and the three tests that stop a 2am rollback. Directly under the 255 talk.",
       "crowdTakes": [
         {
           "id": "ct-155-1",
           "author": "Chris Okonkwo",
-          "role": "Platform · Adobe",
+          "role": "Platform \u00b7 Adobe",
           "photo": "/crowd/chris.svg",
           "take": "Fine intro. If you already ship charts, go upstairs to 255 instead.",
           "minutesAgo": 3
@@ -202,13 +229,17 @@
       "start": "13:20",
       "end": "13:55",
       "track": "AI",
-      "tags": ["AI/ML", "Kubernetes", "GPU"],
+      "tags": [
+        "AI/ML",
+        "Kubernetes",
+        "GPU"
+      ],
       "abstract": "Gang scheduling, KV-cache, and not lighting your GPU nodes on fire. A practical inference stack.",
       "crowdTakes": [
         {
           "id": "ct-252-1",
           "author": "Dee Patel",
-          "role": "Advocate · CNCF",
+          "role": "Advocate \u00b7 CNCF",
           "photo": "/crowd/dee.svg",
           "take": "GPU talk, GPU crowd. Line for the door already.",
           "minutesAgo": 22
@@ -225,13 +256,17 @@
       "start": "10:15",
       "end": "10:50",
       "track": "FinOps",
-      "tags": ["FinOps", "cost", "platform engineering"],
+      "tags": [
+        "FinOps",
+        "cost",
+        "platform engineering"
+      ],
       "abstract": "Show finance the unit cost of a golden path. Rightsizing that platform teams will actually keep.",
       "crowdTakes": [
         {
           "id": "ct-152-1",
           "author": "Riley Chen",
-          "role": "DevEx · Stripe",
+          "role": "DevEx \u00b7 Stripe",
           "photo": "/crowd/riley.svg",
           "take": "Less spreadsheet, more 'here is what idle nodes cost us last Tuesday.'",
           "minutesAgo": 80
@@ -248,13 +283,17 @@
       "start": "10:15",
       "end": "10:50",
       "track": "Security",
-      "tags": ["security", "Sigstore", "supply chain"],
+      "tags": [
+        "security",
+        "Sigstore",
+        "supply chain"
+      ],
       "abstract": "Keyless signing, provenance, and policy that does not page you because someone rebuilt a base image.",
       "crowdTakes": [
         {
           "id": "ct-253-1",
           "author": "Sam Ortiz",
-          "role": "Staff Platform · Airbnb",
+          "role": "Staff Platform \u00b7 Airbnb",
           "photo": "/crowd/sam.svg",
           "take": "Good if you own the pipeline. Skip if you only consume images.",
           "minutesAgo": 95
@@ -271,13 +310,16 @@
       "start": "12:00",
       "end": "12:40",
       "track": "Community",
-      "tags": ["CNCF", "community"],
+      "tags": [
+        "CNCF",
+        "community"
+      ],
       "abstract": "Five-minute pitches from maintainers. Sit near a power outlet; this is a snack-and-wander slot.",
       "crowdTakes": [
         {
           "id": "ct-hallb-1",
           "author": "Jonah Reed",
-          "role": "SRE · Datadog",
+          "role": "SRE \u00b7 Datadog",
           "photo": "/crowd/jonah.svg",
           "take": "Hall B is loud. Fine for grazing, bad for taking notes.",
           "minutesAgo": 12
@@ -294,13 +336,17 @@
       "start": "15:10",
       "end": "15:45",
       "track": "Networking",
-      "tags": ["service mesh", "Istio", "networking"],
+      "tags": [
+        "service mesh",
+        "Istio",
+        "networking"
+      ],
       "abstract": "A decision talk, not a feature dump. Sidecar vs sidecarless, and when Gateway API is enough.",
       "crowdTakes": [
         {
           "id": "ct-354-1",
           "author": "Chris Okonkwo",
-          "role": "Platform · Adobe",
+          "role": "Platform \u00b7 Adobe",
           "photo": "/crowd/chris.svg",
           "take": "They started with 'maybe you don't.' Refreshing. Room 354, L3.",
           "minutesAgo": 33
@@ -312,14 +358,21 @@
     {
       "id": "elastic",
       "sponsor": "Elastic",
-      "tagline": "Search · Observability · Security",
-      "hallId": "hall-2",
+      "tagline": "Search \u00b7 Observability \u00b7 Security",
       "floor": 1,
-      "x": 678,
-      "y": 236,
-      "w": 108,
-      "h": 56,
-      "tags": ["observability", "OpenTelemetry", "search", "Elasticsearch"],
+      "boothNumber": "196",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 196",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/elastic.svg",
+      "logoSource": "Official Elastic favicon mark, https://www.elastic.co/favicon.svg",
+      "logoOnDark": false,
+      "tags": [
+        "observability",
+        "OpenTelemetry",
+        "search",
+        "Elasticsearch"
+      ],
       "pitch": "Find the right signal in the cluster noise. Elasticsearch-backed session search is the prize-track story.",
       "visitors": [
         {
@@ -327,7 +380,13 @@
           "name": "Alex Rivera",
           "role": "Staff Platform Engineer",
           "company": "Nile",
-          "interests": ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"],
+          "interests": [
+            "Kubernetes",
+            "observability",
+            "platform engineering",
+            "eBPF",
+            "OpenTelemetry"
+          ],
           "photo": "/crowd/alex.svg",
           "metersAway": 12
         },
@@ -336,7 +395,11 @@
           "name": "Priya Shah",
           "role": "SRE",
           "company": "Shopify",
-          "interests": ["observability", "OpenTelemetry", "Kubernetes"],
+          "interests": [
+            "observability",
+            "OpenTelemetry",
+            "Kubernetes"
+          ],
           "photo": "/crowd/priya.svg",
           "metersAway": 8
         },
@@ -345,7 +408,11 @@
           "name": "Jordan Kim",
           "role": "Staff Platform Engineer",
           "company": "GitHub",
-          "interests": ["platform engineering", "observability", "Kubernetes"],
+          "interests": [
+            "platform engineering",
+            "observability",
+            "Kubernetes"
+          ],
           "photo": "/crowd/riley.svg",
           "metersAway": 22
         },
@@ -354,7 +421,10 @@
           "name": "Sam Okonkwo",
           "role": "Frontend Engineer",
           "company": "Figma",
-          "interests": ["AI/ML", "WASM"],
+          "interests": [
+            "AI/ML",
+            "WASM"
+          ],
           "photo": "/crowd/sam.svg",
           "metersAway": 5
         },
@@ -363,7 +433,10 @@
           "name": "Pat Nguyen",
           "role": "Security Engineer",
           "company": "Chainguard",
-          "interests": ["security", "Sigstore"],
+          "interests": [
+            "security",
+            "Sigstore"
+          ],
           "photo": "/crowd/chris.svg",
           "metersAway": 18
         }
@@ -373,13 +446,19 @@
       "id": "grafana",
       "sponsor": "Grafana Labs",
       "tagline": "LGTM stack on the show floor",
-      "hallId": "hall-c",
       "floor": 1,
-      "x": 86,
-      "y": 336,
-      "w": 108,
-      "h": 48,
-      "tags": ["observability", "OpenTelemetry", "Grafana"],
+      "boothNumber": "214",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 214",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/grafana.svg",
+      "logoSource": "Wikimedia Commons File:Grafana_logo.svg, sourced from grafana.com",
+      "logoOnDark": false,
+      "tags": [
+        "observability",
+        "OpenTelemetry",
+        "Grafana"
+      ],
       "pitch": "Dashboards, traces, and a live OpenTelemetry collector you can kick.",
       "visitors": [
         {
@@ -387,7 +466,10 @@
           "name": "Elena Voss",
           "role": "SRE",
           "company": "Grafana Labs",
-          "interests": ["OpenTelemetry", "observability"],
+          "interests": [
+            "OpenTelemetry",
+            "observability"
+          ],
           "photo": "/crowd/dee.svg",
           "metersAway": 3
         },
@@ -396,7 +478,11 @@
           "name": "Alex Rivera",
           "role": "Staff Platform Engineer",
           "company": "Nile",
-          "interests": ["Kubernetes", "observability", "OpenTelemetry"],
+          "interests": [
+            "Kubernetes",
+            "observability",
+            "OpenTelemetry"
+          ],
           "photo": "/crowd/alex.svg",
           "metersAway": 30
         }
@@ -404,15 +490,21 @@
     },
     {
       "id": "isovalent",
-      "sponsor": "Isovalent",
-      "tagline": "eBPF · Cilium · Hubble",
-      "hallId": "hall-b",
+      "sponsor": "Isovalent at Cisco",
+      "tagline": "eBPF \u00b7 Cilium \u00b7 Hubble",
       "floor": 1,
-      "x": 86,
-      "y": 210,
-      "w": 108,
-      "h": 48,
-      "tags": ["eBPF", "Kubernetes", "observability"],
+      "boothNumber": "112",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 112",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/isovalent.svg",
+      "logoSource": "Official Isovalent mark from isovalent.com (Sanity CDN)",
+      "logoOnDark": false,
+      "tags": [
+        "eBPF",
+        "Kubernetes",
+        "observability"
+      ],
       "pitch": "Network + observability in the kernel. Same story as room 255, on the floor.",
       "visitors": [
         {
@@ -420,7 +512,10 @@
           "name": "Mina Park",
           "role": "Developer Advocate",
           "company": "Isovalent",
-          "interests": ["eBPF", "Kubernetes"],
+          "interests": [
+            "eBPF",
+            "Kubernetes"
+          ],
           "photo": "/crowd/jonah.svg",
           "metersAway": 2
         }
@@ -430,13 +525,19 @@
       "id": "datadog",
       "sponsor": "Datadog",
       "tagline": "APM for the rest of the week",
-      "hallId": "hall-1",
       "floor": 1,
-      "x": 498,
-      "y": 236,
-      "w": 108,
-      "h": 56,
-      "tags": ["observability", "APM", "Kubernetes"],
+      "boothNumber": "152",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 152",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/datadog.png",
+      "logoSource": "Official Datadog mark, https://corp.dd-static.net/img/dd_logo_n_70x75.png",
+      "logoOnDark": false,
+      "tags": [
+        "observability",
+        "APM",
+        "Kubernetes"
+      ],
       "pitch": "Watch a live Kubernetes cluster get noisy, then get quiet.",
       "visitors": [
         {
@@ -444,7 +545,10 @@
           "name": "Jonah Reed",
           "role": "SRE",
           "company": "Datadog",
-          "interests": ["observability", "Kubernetes"],
+          "interests": [
+            "observability",
+            "Kubernetes"
+          ],
           "photo": "/crowd/jonah.svg",
           "metersAway": 4
         }
@@ -452,23 +556,32 @@
     },
     {
       "id": "suse",
-      "sponsor": "SUSE Rancher",
-      "tagline": "Multi-cluster management",
-      "hallId": "hall-a",
+      "sponsor": "SUSE",
+      "tagline": "Enterprise Linux and cloud native",
       "floor": 1,
-      "x": 86,
-      "y": 84,
-      "w": 108,
-      "h": 48,
-      "tags": ["Kubernetes", "platform engineering", "GitOps"],
-      "pitch": "Rancher, Helm, and a paved road for the clusters you already have.",
+      "boothNumber": "107",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 107",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/suse.svg",
+      "logoSource": "Official SUSE wordmark from suse.com brand asset",
+      "logoOnDark": true,
+      "tags": [
+        "Kubernetes",
+        "platform engineering",
+        "GitOps"
+      ],
+      "pitch": "Official Solutions Showcase exhibitor. Not a geocoded hall pin.",
       "visitors": [
         {
           "id": "v-luis",
           "name": "Luis Mendes",
           "role": "Staff Platform Engineer",
           "company": "SUSE",
-          "interests": ["Kubernetes", "Helm"],
+          "interests": [
+            "Kubernetes",
+            "Helm"
+          ],
           "photo": "/crowd/chris.svg",
           "metersAway": 6
         }
@@ -476,15 +589,21 @@
     },
     {
       "id": "hashicorp",
-      "sponsor": "HashiCorp",
-      "tagline": "Terraform · Vault · Nomad",
-      "hallId": "hall-3",
+      "sponsor": "HashiCorp, an IBM Company",
+      "tagline": "Terraform \u00b7 Vault \u00b7 Nomad",
       "floor": 1,
-      "x": 482,
-      "y": 400,
-      "w": 84,
-      "h": 48,
-      "tags": ["platform engineering", "infrastructure", "security"],
+      "boothNumber": "225",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 225",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/hashicorp.svg",
+      "logoSource": "Wikimedia Commons File:HashiCorp_horizontal_logo.svg",
+      "logoOnDark": false,
+      "tags": [
+        "platform engineering",
+        "infrastructure",
+        "security"
+      ],
       "pitch": "Golden modules and a Vault demo that does not require a whiteboard.",
       "visitors": [
         {
@@ -492,11 +611,90 @@
           "name": "Maya Solano",
           "role": "Platform Engineer",
           "company": "HashiCorp",
-          "interests": ["platform engineering", "security"],
+          "interests": [
+            "platform engineering",
+            "security"
+          ],
           "photo": "/crowd/riley.svg",
           "metersAway": 9
         }
       ]
+    },
+    {
+      "id": "dash0",
+      "sponsor": "Dash0",
+      "tagline": "OpenTelemetry-native observability",
+      "floor": 1,
+      "boothNumber": "134",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 134",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/dash0.svg",
+      "logoSource": "Official Dash0 mark, https://www.dash0.com/shared/logo_colors.svg",
+      "logoOnDark": false,
+      "tags": [
+        "observability",
+        "OpenTelemetry"
+      ],
+      "pitch": "Official Solutions Showcase exhibitor. Indoor coordinates were not published.",
+      "visitors": []
+    },
+    {
+      "id": "radar",
+      "sponsor": "Radar",
+      "tagline": "Listed on the official expo directory",
+      "floor": 1,
+      "boothNumber": "365",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 365",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": null,
+      "logoSource": null,
+      "logoOnDark": false,
+      "tags": [
+        "platform engineering"
+      ],
+      "pitch": "Name and booth number from the KCNA26 Expo Hall Map. No official logo asset was obtained; monogram is used.",
+      "visitors": []
+    },
+    {
+      "id": "docker",
+      "sponsor": "Docker",
+      "tagline": "Containers on the show floor",
+      "floor": 1,
+      "boothNumber": "141",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 141",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/docker.svg",
+      "logoSource": "Wikimedia Commons File:Docker_(container_engine)_logo.svg",
+      "logoOnDark": false,
+      "tags": [
+        "Kubernetes",
+        "platform engineering"
+      ],
+      "pitch": "Official Solutions Showcase exhibitor. Pin location is not geocoded.",
+      "visitors": []
+    },
+    {
+      "id": "azure",
+      "sponsor": "Microsoft Azure",
+      "tagline": "Kubernetes on Azure",
+      "floor": 1,
+      "boothNumber": "117",
+      "locationLabel": "Solutions Showcase \u00b7 Booth 117",
+      "pinAvailable": false,
+      "exhibitorSource": "KCNA26 Expo Hall Map PDF (events.linuxfoundation.org/kcna26-expo-map), retrieved 2026-11-05",
+      "logo": "/sponsors/azure.svg",
+      "logoSource": "Wikimedia Commons File:Microsoft_Azure.svg, sourced from azure.microsoft.com",
+      "logoOnDark": false,
+      "tags": [
+        "Kubernetes",
+        "platform engineering",
+        "AI/ML"
+      ],
+      "pitch": "Official Solutions Showcase exhibitor. Pin location is not geocoded.",
+      "visitors": []
     }
   ]
 }

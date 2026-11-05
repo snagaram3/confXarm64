@@ -17,6 +17,7 @@ import {
   wayfinding,
 } from "@/lib/catalog";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
+import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
 import type {
   AppView,
   Booth,
@@ -76,6 +77,8 @@ interface AppStateValue {
   retryRank: () => void;
   savedIds: string[];
   toggleSaved: (sessionId: string) => void;
+  sponsorPrefs: Record<string, Rank>;
+  setSponsorPref: (boothId: string, pref: Rank | undefined) => void;
 }
 
 const SAVED_KEY = "floorwise.savedSessions";
@@ -90,6 +93,14 @@ function readSaved(): string[] {
   }
 }
 
+function readSponsorPrefs(): Record<string, Rank> {
+  try {
+    return parseSponsorPrefs(localStorage.getItem(PREF_STORAGE_KEY));
+  } catch {
+    return {};
+  }
+}
+
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
@@ -97,6 +108,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [retryTick, setRetryTick] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(readSaved);
+  const [sponsorPrefs, setSponsorPrefs] = useState<Record<string, Rank>>(readSponsorPrefs);
   const [view, setView] = useState<AppView>("map");
   const [floor, setFloor] = useState<Floor>(2);
   const [selection, setSelection] = useState<Selection>({
@@ -160,8 +172,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setSponsorPref = useCallback((boothId: string, pref: Rank | undefined) => {
+    setSponsorPrefs((prev) => {
+      const next = { ...prev };
+      if (!pref) delete next[boothId];
+      else next[boothId] = pref;
+      localStorage.setItem(PREF_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     const ac = new AbortController();
+    setRankedVisitors([]);
     fetchVisitors(sponsorBoothId, ac.signal)
       .then((res) => setRankedVisitors(res.visitors))
       .catch(() => setRankedVisitors([]));
@@ -223,6 +246,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (!booth) return;
     setSelection({ kind: "booth", id });
     setSponsorBoothId(id);
+    setView("sponsor");
     if (opts?.jump !== false) setFloor(booth.floor);
   }, []);
 
@@ -233,14 +257,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         selectSession(inRoom[0].id);
         return;
       }
-      const booth = catalog.booths.find((b) => b.hallId === id);
-      if (booth) {
-        selectBooth(booth.id);
-        return;
-      }
       setSelection({ kind: "space", id });
     },
-    [selectBooth, selectSession],
+    [selectSession],
   );
 
   const clearSelection = useCallback(() => setSelection(null), []);
@@ -313,6 +332,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       retryRank,
       savedIds,
       toggleSaved,
+      sponsorPrefs,
+      setSponsorPref,
     }),
     [
       profile,
@@ -346,6 +367,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       retryRank,
       savedIds,
       toggleSaved,
+      sponsorPrefs,
+      setSponsorPref,
     ],
   );
 
@@ -365,7 +388,7 @@ export function selectedRoomId(selection: Selection): string | null {
     return sessionById(selection.id)?.roomId ?? null;
   }
   if (selection.kind === "booth") {
-    return catalog.booths.find((b) => b.id === selection.id)?.hallId ?? null;
+    return null;
   }
   return null;
 }
