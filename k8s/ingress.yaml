@@ -1,0 +1,22 @@
+# Optional. Apply if your cluster has an ingress controller.
+# kubectl apply -f k8s/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: floorwise
+  namespace: floorwise
+  labels:
+    app.kubernetes.io/name: floorwise
+    app.kubernetes.io/part-of: floorwise
+spec:
+  rules:
+    - host: floorwise.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: floorwise
+                port:
+                  number: 80

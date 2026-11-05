@@ -1,0 +1,152 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-must: var(--must);
+  --color-must-fg: var(--must-fg);
+  --color-maybe: var(--maybe);
+  --color-maybe-fg: var(--maybe-fg);
+  --color-meh: var(--meh);
+  --color-meh-fg: var(--meh-fg);
+  --color-path: var(--path);
+
+  --radius-sm: 0.35rem;
+  --radius-md: 0.55rem;
+  --radius-lg: 0.85rem;
+  --radius-xl: 1.15rem;
+}
+
+:root {
+  --background: #071018;
+  --foreground: #e7eef6;
+  --card: #0d1b27;
+  --card-foreground: #e7eef6;
+  --popover: #102132;
+  --popover-foreground: #e7eef6;
+  --primary: #5eead4;
+  --primary-foreground: #042f2e;
+  --secondary: #163044;
+  --secondary-foreground: #d7e6f2;
+  --muted: #122333;
+  --muted-foreground: #8aa0b5;
+  --accent: #1b3a52;
+  --accent-foreground: #e7eef6;
+  --destructive: #f87171;
+  --border: #1e3a52;
+  --input: #1e3a52;
+  --ring: #5eead4;
+  --must: #34d399;
+  --must-fg: #06281c;
+  --maybe: #fbbf24;
+  --maybe-fg: #3b2504;
+  --meh: #64748b;
+  --meh-fg: #0b1220;
+  --path: #38bdf8;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    margin: 0;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(56, 189, 248, 0.08), transparent 50%),
+      radial-gradient(900px 500px at -10% 110%, rgba(52, 211, 153, 0.07), transparent 45%);
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+.map-path {
+  fill: none;
+  stroke: var(--path);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.85));
+  stroke-dasharray: 18 12;
+  animation: path-march 1.1s linear infinite;
+}
+
+.map-path-ghost {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.28);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes path-march {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+.you-are-here {
+  animation: pulse-here 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-here {
+  0%,
+  100% {
+    r: 9;
+    opacity: 1;
+  }
+  50% {
+    r: 14;
+    opacity: 0.55;
+  }
+}
+
+.rank-must {
+  color: var(--must);
+}
+.rank-maybe {
+  color: var(--maybe);
+}
+.rank-meh {
+  color: var(--meh);
+}

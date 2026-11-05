@@ -1,0 +1,76 @@
+{
+  "id": "room-255",
+  "destinationRoomId": "255",
+  "title": "To room 255",
+  "from": "West Temple entrance · Level 1",
+  "floorsInvolved": [1, 2],
+  "polylineByFloor": {
+    "1": [
+      [1048, 360],
+      [980, 360],
+      [920, 360],
+      [920, 220],
+      [920, 100],
+      [810, 100]
+    ],
+    "2": [
+      [810, 100],
+      [860, 100],
+      [920, 98]
+    ]
+  },
+  "steps": [
+    {
+      "id": "enter",
+      "floor": 1,
+      "title": "Enter on West Temple",
+      "detail": "East doors, Level 1. 200 South is the other entrance — ignore it. You’re in the East Lobby with the 150s corridor on your right.",
+      "altitudeHint": "You are on Level 1. Room 255 is one level up.",
+      "durationSec": 40,
+      "youAreHere": [1048, 360]
+    },
+    {
+      "id": "north",
+      "floor": 1,
+      "title": "Walk north along the 150s",
+      "detail": "Keep rooms 150–154 on your right. Head toward the 155 stack at the northeast corner — that’s the column under 255.",
+      "durationSec": 70,
+      "youAreHere": [920, 280]
+    },
+    {
+      "id": "stack",
+      "floor": 1,
+      "title": "Find the 155 / 255 / 355 stack",
+      "detail": "Room 155 is the lower room in this vertical stack. 255 sits directly above it on the mezzanine. Do not enter 155.",
+      "altitudeHint": "Same column, different altitude. You still need +1 floor.",
+      "durationSec": 25,
+      "youAreHere": [920, 100]
+    },
+    {
+      "id": "up",
+      "floor": 1,
+      "title": "Take the east escalators up",
+      "detail": "Escalators are in the East Lobby, immediately west of 155. Ride up one level to the mezzanine. Elevators behind the escalators work too.",
+      "altitudeHint": "Going from Level 1 → Level 2. 255 is not on this floor.",
+      "durationSec": 45,
+      "youAreHere": [810, 100]
+    },
+    {
+      "id": "arrive",
+      "floor": 2,
+      "title": "You’re on the mezzanine",
+      "detail": "Step off. Room 255 is immediately to your right — same footprint as 155 below. Look for the stacked 155/255/355 plaque.",
+      "altitudeHint": "Now on Level 2. 355 is still above you; 155 is directly below.",
+      "durationSec": 20,
+      "youAreHere": [860, 100]
+    },
+    {
+      "id": "enter-255",
+      "floor": 2,
+      "title": "Slide into 255",
+      "detail": "Doors on the west wall. Talk is already in progress — enter along the back row. Crowd take: standing room, sit along the rear.",
+      "durationSec": 15,
+      "youAreHere": [920, 98]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+uploads
+*.md
+k8s
+.gitar
+.env
+.env.*
+terminals

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: floorwise
+  labels:
+    app.kubernetes.io/name: floorwise
+    app.kubernetes.io/part-of: floorwise

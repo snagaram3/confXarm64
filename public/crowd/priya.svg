@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Priya">
+  <rect width="80" height="80" fill="#1b2f4a"/>
+  <circle cx="40" cy="78" r="28" fill="#7c3aed"/>
+  <circle cx="40" cy="33" r="14" fill="#c9845a"/>
+  <path d="M22 34c2-20 34-20 36 0v8c-6 10-30 10-36 0z" fill="#111827"/>
+  <circle cx="34" cy="34" r="1.6" fill="#111827"/>
+  <circle cx="46" cy="34" r="1.6" fill="#111827"/>
+  <path d="M35 41c3 2.4 7 2.4 10 0" fill="none" stroke="#7c4a2b" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

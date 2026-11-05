@@ -1,0 +1,502 @@
+{
+  "interests": [
+    "Kubernetes",
+    "observability",
+    "platform engineering",
+    "eBPF",
+    "OpenTelemetry",
+    "security",
+    "GitOps",
+    "WASM",
+    "FinOps",
+    "service mesh",
+    "AI/ML",
+    "storage"
+  ],
+  "roles": [
+    "Staff Platform Engineer",
+    "SRE",
+    "CNCF Ambassador",
+    "Security Engineer",
+    "Frontend Engineer",
+    "Data Engineer",
+    "Developer Advocate"
+  ],
+  "sessions": [
+    {
+      "id": "ebpf-obs",
+      "title": "eBPF Observability for Platform Teams",
+      "speaker": "Mina Park",
+      "company": "Isovalent",
+      "roomId": "255",
+      "floor": 2,
+      "start": "11:05",
+      "end": "11:40",
+      "track": "Observability",
+      "tags": ["eBPF", "observability", "Kubernetes", "platform engineering"],
+      "abstract": "Live-debug a noisy neighbor with Cilium Hubble and eBPF. How platform teams ship OpenTelemetry-grade signals without sidecars.",
+      "crowdTakes": [
+        {
+          "id": "ct-255-1",
+          "author": "Priya Shah",
+          "role": "SRE · Shopify",
+          "photo": "/crowd/priya.svg",
+          "take": "Standing room. Sit along the back wall — Hubble demo is live right now.",
+          "minutesAgo": 4
+        },
+        {
+          "id": "ct-255-2",
+          "author": "Chris Okonkwo",
+          "role": "Platform · Adobe",
+          "photo": "/crowd/chris.svg",
+          "take": "They just showed dropping sidecars. If you care about eBPF, do not skip this.",
+          "minutesAgo": 9
+        }
+      ]
+    },
+    {
+      "id": "otel-prod",
+      "title": "OpenTelemetry from Zero to Production",
+      "speaker": "Elena Voss",
+      "company": "Grafana Labs",
+      "roomId": "251",
+      "floor": 2,
+      "start": "13:20",
+      "end": "13:55",
+      "track": "Observability",
+      "tags": ["OpenTelemetry", "observability", "tracing"],
+      "abstract": "A no-slide-ware path: auto-instrument a Kubernetes service, sample traces, and get a useful dashboard before the coffee gets cold.",
+      "crowdTakes": [
+        {
+          "id": "ct-251-1",
+          "author": "Jonah Reed",
+          "role": "SRE · Datadog",
+          "photo": "/crowd/jonah.svg",
+          "take": "Room is filling early. Grab an aisle seat if you want to see the collector config.",
+          "minutesAgo": 18
+        }
+      ]
+    },
+    {
+      "id": "gitops-scale",
+      "title": "Multi-cluster GitOps at Scale",
+      "speaker": "Aisha Rahman",
+      "company": "Weaveworks alumni",
+      "roomId": "355",
+      "floor": 3,
+      "start": "14:15",
+      "end": "14:50",
+      "track": "Platform",
+      "tags": ["Kubernetes", "GitOps", "platform engineering"],
+      "abstract": "One repo, forty clusters, zero snowflake YAML. Promotion gates, drift, and what actually breaks when you add a second region.",
+      "crowdTakes": [
+        {
+          "id": "ct-355-1",
+          "author": "Sam Ortiz",
+          "role": "Staff Platform · Airbnb",
+          "photo": "/crowd/sam.svg",
+          "take": "They posted the GitOps promotion diagram in the hallway. Worth the climb to L3.",
+          "minutesAgo": 41
+        }
+      ]
+    },
+    {
+      "id": "platform-oh",
+      "title": "Platform Engineering Office Hours",
+      "speaker": "Jordan Kim",
+      "company": "CNCF TAG App Delivery",
+      "roomId": "351",
+      "floor": 3,
+      "start": "16:00",
+      "end": "16:45",
+      "track": "Platform",
+      "tags": ["platform engineering", "Kubernetes"],
+      "abstract": "Bring a golden-path war story. Facilitated office hours for people who own the paved road, not just walk it.",
+      "crowdTakes": [
+        {
+          "id": "ct-351-1",
+          "author": "Riley Chen",
+          "role": "DevEx · Stripe",
+          "photo": "/crowd/riley.svg",
+          "take": "Small room, good questions. They are talking IDP scorecards, not product pitches.",
+          "minutesAgo": 120
+        }
+      ]
+    },
+    {
+      "id": "keynote-cncf",
+      "title": "The State of Cloud Native 2026",
+      "speaker": "CNCF TOC",
+      "company": "CNCF",
+      "roomId": "hall-a",
+      "floor": 1,
+      "start": "09:00",
+      "end": "09:45",
+      "track": "Keynote",
+      "tags": ["Kubernetes", "CNCF", "keynote"],
+      "abstract": "Annual state of the union: project graduations, WASM, and why platform engineering is no longer a side quest.",
+      "crowdTakes": [
+        {
+          "id": "ct-halla-1",
+          "author": "Dee Patel",
+          "role": "Advocate · CNCF",
+          "photo": "/crowd/dee.svg",
+          "take": "Hall A is packed. Overflow screens in Hall B if you just need the talk.",
+          "minutesAgo": 6
+        }
+      ]
+    },
+    {
+      "id": "wasm-k8s",
+      "title": "WASM on Kubernetes Without the Hype",
+      "speaker": "Noah Blake",
+      "company": "Fermyon",
+      "roomId": "250",
+      "floor": 2,
+      "start": "15:10",
+      "end": "15:45",
+      "track": "Runtime",
+      "tags": ["WASM", "Kubernetes"],
+      "abstract": "What spin, wasmCloud, and containerd-wasmshims can actually run in a cluster this year — and what still cannot.",
+      "crowdTakes": [
+        {
+          "id": "ct-250-1",
+          "author": "Priya Shah",
+          "role": "SRE · Shopify",
+          "photo": "/crowd/priya.svg",
+          "take": "Half the room is here for cold-start numbers. They have them.",
+          "minutesAgo": 55
+        }
+      ]
+    },
+    {
+      "id": "helm-haunt",
+      "title": "Helm Charts That Don't Haunt You",
+      "speaker": "Luis Mendes",
+      "company": "SUSE Rancher",
+      "roomId": "155",
+      "floor": 1,
+      "start": "11:05",
+      "end": "11:40",
+      "track": "App Delivery",
+      "tags": ["Helm", "Kubernetes", "beginner"],
+      "abstract": "Values files, library charts, and the three tests that stop a 2am rollback. Directly under the 255 talk.",
+      "crowdTakes": [
+        {
+          "id": "ct-155-1",
+          "author": "Chris Okonkwo",
+          "role": "Platform · Adobe",
+          "photo": "/crowd/chris.svg",
+          "take": "Fine intro. If you already ship charts, go upstairs to 255 instead.",
+          "minutesAgo": 3
+        }
+      ]
+    },
+    {
+      "id": "llm-k8s",
+      "title": "Running LLMs on Kubernetes",
+      "speaker": "Hana Ito",
+      "company": "NVIDIA",
+      "roomId": "252",
+      "floor": 2,
+      "start": "13:20",
+      "end": "13:55",
+      "track": "AI",
+      "tags": ["AI/ML", "Kubernetes", "GPU"],
+      "abstract": "Gang scheduling, KV-cache, and not lighting your GPU nodes on fire. A practical inference stack.",
+      "crowdTakes": [
+        {
+          "id": "ct-252-1",
+          "author": "Dee Patel",
+          "role": "Advocate · CNCF",
+          "photo": "/crowd/dee.svg",
+          "take": "GPU talk, GPU crowd. Line for the door already.",
+          "minutesAgo": 22
+        }
+      ]
+    },
+    {
+      "id": "cost-opt",
+      "title": "Cost Optimization Without Shame",
+      "speaker": "Maya Solano",
+      "company": "Kubecost",
+      "roomId": "152",
+      "floor": 1,
+      "start": "10:15",
+      "end": "10:50",
+      "track": "FinOps",
+      "tags": ["FinOps", "cost", "platform engineering"],
+      "abstract": "Show finance the unit cost of a golden path. Rightsizing that platform teams will actually keep.",
+      "crowdTakes": [
+        {
+          "id": "ct-152-1",
+          "author": "Riley Chen",
+          "role": "DevEx · Stripe",
+          "photo": "/crowd/riley.svg",
+          "take": "Less spreadsheet, more 'here is what idle nodes cost us last Tuesday.'",
+          "minutesAgo": 80
+        }
+      ]
+    },
+    {
+      "id": "sigstore",
+      "title": "Securing the Supply Chain with Sigstore",
+      "speaker": "Pat Nguyen",
+      "company": "Chainguard",
+      "roomId": "253",
+      "floor": 2,
+      "start": "10:15",
+      "end": "10:50",
+      "track": "Security",
+      "tags": ["security", "Sigstore", "supply chain"],
+      "abstract": "Keyless signing, provenance, and policy that does not page you because someone rebuilt a base image.",
+      "crowdTakes": [
+        {
+          "id": "ct-253-1",
+          "author": "Sam Ortiz",
+          "role": "Staff Platform · Airbnb",
+          "photo": "/crowd/sam.svg",
+          "take": "Good if you own the pipeline. Skip if you only consume images.",
+          "minutesAgo": 95
+        }
+      ]
+    },
+    {
+      "id": "lightning",
+      "title": "CNCF Project Lightning Talks",
+      "speaker": "Various",
+      "company": "CNCF",
+      "roomId": "hall-b",
+      "floor": 1,
+      "start": "12:00",
+      "end": "12:40",
+      "track": "Community",
+      "tags": ["CNCF", "community"],
+      "abstract": "Five-minute pitches from maintainers. Sit near a power outlet; this is a snack-and-wander slot.",
+      "crowdTakes": [
+        {
+          "id": "ct-hallb-1",
+          "author": "Jonah Reed",
+          "role": "SRE · Datadog",
+          "photo": "/crowd/jonah.svg",
+          "take": "Hall B is loud. Fine for grazing, bad for taking notes.",
+          "minutesAgo": 12
+        }
+      ]
+    },
+    {
+      "id": "mesh-need",
+      "title": "Service Mesh: Do You Even Need One?",
+      "speaker": "Gita Narayanan",
+      "company": "Buoyant",
+      "roomId": "354",
+      "floor": 3,
+      "start": "15:10",
+      "end": "15:45",
+      "track": "Networking",
+      "tags": ["service mesh", "Istio", "networking"],
+      "abstract": "A decision talk, not a feature dump. Sidecar vs sidecarless, and when Gateway API is enough.",
+      "crowdTakes": [
+        {
+          "id": "ct-354-1",
+          "author": "Chris Okonkwo",
+          "role": "Platform · Adobe",
+          "photo": "/crowd/chris.svg",
+          "take": "They started with 'maybe you don't.' Refreshing. Room 354, L3.",
+          "minutesAgo": 33
+        }
+      ]
+    }
+  ],
+  "booths": [
+    {
+      "id": "elastic",
+      "sponsor": "Elastic",
+      "tagline": "Search · Observability · Security",
+      "hallId": "hall-2",
+      "floor": 1,
+      "x": 678,
+      "y": 236,
+      "w": 108,
+      "h": 56,
+      "tags": ["observability", "OpenTelemetry", "search", "Elasticsearch"],
+      "pitch": "Find the right signal in the cluster noise. Elasticsearch-backed session search is the prize-track story.",
+      "visitors": [
+        {
+          "id": "v-alex",
+          "name": "Alex Rivera",
+          "role": "Staff Platform Engineer",
+          "company": "Nile",
+          "interests": ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"],
+          "photo": "/crowd/alex.svg",
+          "metersAway": 12
+        },
+        {
+          "id": "v-priya",
+          "name": "Priya Shah",
+          "role": "SRE",
+          "company": "Shopify",
+          "interests": ["observability", "OpenTelemetry", "Kubernetes"],
+          "photo": "/crowd/priya.svg",
+          "metersAway": 8
+        },
+        {
+          "id": "v-jordan",
+          "name": "Jordan Kim",
+          "role": "Staff Platform Engineer",
+          "company": "GitHub",
+          "interests": ["platform engineering", "observability", "Kubernetes"],
+          "photo": "/crowd/riley.svg",
+          "metersAway": 22
+        },
+        {
+          "id": "v-sam",
+          "name": "Sam Okonkwo",
+          "role": "Frontend Engineer",
+          "company": "Figma",
+          "interests": ["AI/ML", "WASM"],
+          "photo": "/crowd/sam.svg",
+          "metersAway": 5
+        },
+        {
+          "id": "v-pat",
+          "name": "Pat Nguyen",
+          "role": "Security Engineer",
+          "company": "Chainguard",
+          "interests": ["security", "Sigstore"],
+          "photo": "/crowd/chris.svg",
+          "metersAway": 18
+        }
+      ]
+    },
+    {
+      "id": "grafana",
+      "sponsor": "Grafana Labs",
+      "tagline": "LGTM stack on the show floor",
+      "hallId": "hall-c",
+      "floor": 1,
+      "x": 86,
+      "y": 336,
+      "w": 108,
+      "h": 48,
+      "tags": ["observability", "OpenTelemetry", "Grafana"],
+      "pitch": "Dashboards, traces, and a live OpenTelemetry collector you can kick.",
+      "visitors": [
+        {
+          "id": "v-elena",
+          "name": "Elena Voss",
+          "role": "SRE",
+          "company": "Grafana Labs",
+          "interests": ["OpenTelemetry", "observability"],
+          "photo": "/crowd/dee.svg",
+          "metersAway": 3
+        },
+        {
+          "id": "v-alex2",
+          "name": "Alex Rivera",
+          "role": "Staff Platform Engineer",
+          "company": "Nile",
+          "interests": ["Kubernetes", "observability", "OpenTelemetry"],
+          "photo": "/crowd/alex.svg",
+          "metersAway": 30
+        }
+      ]
+    },
+    {
+      "id": "isovalent",
+      "sponsor": "Isovalent",
+      "tagline": "eBPF · Cilium · Hubble",
+      "hallId": "hall-b",
+      "floor": 1,
+      "x": 86,
+      "y": 210,
+      "w": 108,
+      "h": 48,
+      "tags": ["eBPF", "Kubernetes", "observability"],
+      "pitch": "Network + observability in the kernel. Same story as room 255, on the floor.",
+      "visitors": [
+        {
+          "id": "v-mina",
+          "name": "Mina Park",
+          "role": "Developer Advocate",
+          "company": "Isovalent",
+          "interests": ["eBPF", "Kubernetes"],
+          "photo": "/crowd/jonah.svg",
+          "metersAway": 2
+        }
+      ]
+    },
+    {
+      "id": "datadog",
+      "sponsor": "Datadog",
+      "tagline": "APM for the rest of the week",
+      "hallId": "hall-1",
+      "floor": 1,
+      "x": 498,
+      "y": 236,
+      "w": 108,
+      "h": 56,
+      "tags": ["observability", "APM", "Kubernetes"],
+      "pitch": "Watch a live Kubernetes cluster get noisy, then get quiet.",
+      "visitors": [
+        {
+          "id": "v-jonah",
+          "name": "Jonah Reed",
+          "role": "SRE",
+          "company": "Datadog",
+          "interests": ["observability", "Kubernetes"],
+          "photo": "/crowd/jonah.svg",
+          "metersAway": 4
+        }
+      ]
+    },
+    {
+      "id": "suse",
+      "sponsor": "SUSE Rancher",
+      "tagline": "Multi-cluster management",
+      "hallId": "hall-a",
+      "floor": 1,
+      "x": 86,
+      "y": 84,
+      "w": 108,
+      "h": 48,
+      "tags": ["Kubernetes", "platform engineering", "GitOps"],
+      "pitch": "Rancher, Helm, and a paved road for the clusters you already have.",
+      "visitors": [
+        {
+          "id": "v-luis",
+          "name": "Luis Mendes",
+          "role": "Staff Platform Engineer",
+          "company": "SUSE",
+          "interests": ["Kubernetes", "Helm"],
+          "photo": "/crowd/chris.svg",
+          "metersAway": 6
+        }
+      ]
+    },
+    {
+      "id": "hashicorp",
+      "sponsor": "HashiCorp",
+      "tagline": "Terraform · Vault · Nomad",
+      "hallId": "hall-3",
+      "floor": 1,
+      "x": 482,
+      "y": 400,
+      "w": 84,
+      "h": 48,
+      "tags": ["platform engineering", "infrastructure", "security"],
+      "pitch": "Golden modules and a Vault demo that does not require a whiteboard.",
+      "visitors": [
+        {
+          "id": "v-maya",
+          "name": "Maya Solano",
+          "role": "Platform Engineer",
+          "company": "HashiCorp",
+          "interests": ["platform engineering", "security"],
+          "photo": "/crowd/riley.svg",
+          "metersAway": 9
+        }
+      ]
+    }
+  ]
+}
