@@ -30,6 +30,7 @@ import {
   wayfinding,
 } from "@/lib/catalog";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
+import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
 import type {
@@ -142,6 +143,10 @@ interface AppStateValue {
   scheduleReminder: (sessionId: string) => Promise<void>;
   cancelReminder: (sessionId: string) => Promise<void>;
   resolveSession: (id: string) => Session | undefined;
+  motionPref: MotionPref;
+  setMotionPref: (pref: MotionPref) => void;
+  mapFocus: { id: string; token: number } | null;
+  requestMapFocus: (id: string) => void;
 }
 
 const SAVED_KEY = "floorwise.savedSessions";
@@ -238,6 +243,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [pushStatus, setPushStatus] = useState<AppStateValue["pushStatus"]>(null);
   const [sessionIndex, setSessionIndex] = useState<Record<string, Session>>({});
   const foregroundTimers = useRef<Map<string, number>>(new Map());
+  const [motionPref, setMotionPrefState] = useState<MotionPref>(readMotionPref);
+  const [mapFocus, setMapFocus] = useState<{ id: string; token: number } | null>(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.motion = motionEnabled(motionPref) ? "full" : "reduced";
+  }, [motionPref]);
+
+  const setMotionPref = useCallback((pref: MotionPref) => {
+    setMotionPrefState(pref);
+    try {
+      localStorage.setItem(MOTION_KEY, pref);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const requestMapFocus = useCallback((id: string) => {
+    setMapFocus({ id, token: Date.now() });
+  }, []);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -468,10 +492,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           setMapSurface("expo");
         } else {
           setMapSurface("venue");
+          requestMapFocus(session.roomId);
         }
+        setView("map");
       }
     },
-    [sessionIndex],
+    [sessionIndex, requestMapFocus],
   );
 
   const selectBooth = useCallback((id: string, opts?: { jump?: boolean }) => {
@@ -483,10 +509,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setView("sponsor");
       setMapSurface("expo");
       setFloor(booth.floor);
+      requestMapFocus(id);
     } else {
       setMapSurface("expo");
     }
-  }, []);
+  }, [requestMapFocus]);
 
   const selectSpace = useCallback(
     (id: string) => {
@@ -597,6 +624,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       scheduleReminder,
       cancelReminder,
       resolveSession,
+      motionPref,
+      setMotionPref,
+      mapFocus,
+      requestMapFocus,
     }),
     [
       profile,
@@ -647,6 +678,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       scheduleReminder,
       cancelReminder,
       resolveSession,
+      motionPref,
+      setMotionPref,
+      mapFocus,
+      requestMapFocus,
     ],
   );
 

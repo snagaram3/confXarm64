@@ -13,7 +13,7 @@ export function BotIcon({
   return (
     <span
       className={cn(
-        "bot-bounce inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary shadow-sm",
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary shadow-sm",
         className,
       )}
         style={

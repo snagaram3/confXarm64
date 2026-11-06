@@ -23,14 +23,14 @@ Floorwise publishes Elasticsearch on **loopback :19200** so it does not bind hos
 Cluster health is **`http://127.0.0.1:19200/_cluster/health`**. Expect `"cluster_name" : "floorwise"`. Yellow or green is ready. A red `docker-cluster` on `:9200` is a different process; leave it alone.
 
 ```bash
-docker compose config | grep -E 'published|target|floorwise_esdata|ELASTICSEARCH_URL'
-docker compose up -d elasticsearch
+docker compose -p floorwise config | grep -E 'published|target|floorwise_esdata|ELASTICSEARCH_URL'
+docker compose -p floorwise up -d elasticsearch
 curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=90s&pretty"
 npm install
-npm run vapid:provision
-npm run sponsor:provision -- elastic
 npm run dev
 ```
+
+Use `-p floorwise` so Compose reuses `floorwise-es` / `floorwise_esdata` instead of a new `floorwise2` project when the folder is named `floorwise 2`. Host ES URL stays `http://127.0.0.1:19200`. Skip `vapid:provision` / `sponsor:provision` if those gitignored keys already exist.
 
 Then in another terminal:
 

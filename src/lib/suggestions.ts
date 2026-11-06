@@ -11,6 +11,8 @@ export interface Suggestion {
   body: string;
   why: string;
   sessionId?: string;
+  boothId?: string;
+  rank?: Rank;
   actions: SuggestionAction[];
 }
 
@@ -20,6 +22,7 @@ export interface SuggestionInput {
   mustSessions: Ranked<Session>[];
   lateSession: Ranked<Session> | undefined;
   remainingSec: number;
+  mustBooth?: { id: string; sponsor: string; boothNumber: string };
 }
 
 export function buildSuggestions(input: SuggestionInput): Suggestion[] {
@@ -52,6 +55,7 @@ export function buildSuggestions(input: SuggestionInput): Suggestion[] {
         ? `Matches your interests: ${top.matchedTags.join(", ")}.`
         : top.why,
       sessionId: top.item.id,
+      rank: "must",
       actions: room === "255" ? ["view", "navigate", "save"] : ["view", "save"],
     });
   }
@@ -66,6 +70,19 @@ export function buildSuggestions(input: SuggestionInput): Suggestion[] {
       why: "255 stacks over 155. Sample route only — no beacons or AR.",
       sessionId: LATE_SESSION_ID,
       actions: ["navigate", "view"],
+    });
+  }
+
+  if (out.length < 2 && input.mustBooth) {
+    out.push({
+      id: `booth-${input.mustBooth.id}`,
+      kind: "recommendation",
+      title: `Must go · ${input.mustBooth.sponsor}`,
+      body: `Booth ${input.mustBooth.boothNumber} on the expo floor. Your visit preference, not a crowd count.`,
+      why: "You marked this exhibitor Must go.",
+      boothId: input.mustBooth.id,
+      rank: "must",
+      actions: ["view"],
     });
   }
 

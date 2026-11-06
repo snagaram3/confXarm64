@@ -15,11 +15,13 @@ export function PrefBot({
   delayMs = 0,
   size = "md",
   showLabel = true,
+  attention = false,
 }: {
   pref?: Rank;
   delayMs?: number;
   size?: "sm" | "md";
   showLabel?: boolean;
+  attention?: boolean;
 }) {
   const tone = pref ?? "unrated";
   const label = PREF_LABEL[tone];
@@ -30,6 +32,7 @@ export function PrefBot({
         className={cn(
           TONE[tone],
           size === "sm" ? "size-7 [&_svg]:size-[16px]" : "size-9",
+          attention ? "bot-attention" : "bot-still",
         )}
         style={{ animationDelay: `${delayMs}ms` }}
         label={`${label} bot`}

@@ -1,6 +1,7 @@
 import { ImageFloorMap } from "@/components/map/ImageFloorMap";
 import { MapSwitcher } from "@/components/map/MapSwitcher";
 import { catalog } from "@/lib/catalog";
+import { motionEnabled } from "@/lib/motion";
 import { useAppState } from "@/state/app-state";
 import { FloorPlan } from "./FloorPlan";
 import { FloorSwitcher } from "./FloorSwitcher";
@@ -27,15 +28,19 @@ export function VenueMap() {
     view,
     sponsorBoothId,
     sponsorPrefs,
-    setSponsorPref,
     mapSurface,
     setMapSurface,
     officialSessions,
     roomAnchors,
     resolveSession,
+    mapFocus,
+    rankedBooths,
+    rankedSessions,
+    motionPref,
   } = useAppState();
   const [building, setBuilding] = useState<(typeof BUILDINGS)[number]>("all");
   const [level, setLevel] = useState<(typeof LEVELS)[number]>("all");
+  const motion = motionEnabled(motionPref);
 
   const roomId = selectedRoomId(
     selection,
@@ -53,6 +58,10 @@ export function VenueMap() {
   const pathPoints = showPath ? wayfinding.polylineByFloor[String(floor)] : undefined;
   const youAreHere = showPath && step?.floor === floor ? step.youAreHere : undefined;
 
+  const mustBooth =
+    catalog.booths.find((b) => sponsorPrefs[b.id] === "must") ??
+    rankedBooths.find((b) => b.rank === "must")?.item;
+
   const expoPins = catalog.booths
     .filter((b) => b.pinAvailable && b.pinNx != null && b.pinNy != null)
     .map((b) => ({
@@ -62,6 +71,7 @@ export function VenueMap() {
       label: `${b.sponsor}, booth ${b.boothNumber}`,
       booth: b,
       pref: sponsorPrefs[b.id],
+      recommended: mustBooth?.id === b.id,
     }));
   const unplacedBooths = catalog.booths.filter((b) => !b.pinAvailable);
 
@@ -77,14 +87,17 @@ export function VenueMap() {
           ny: r.ny as number,
           label: r.label,
           sublabel: r.roomOrArea ?? r.label,
+          recommended: rankedSessions[0]?.item.roomId === r.id,
         })),
-    [roomAnchors, building, level],
+    [roomAnchors, building, level, rankedSessions],
   );
 
   const unplaced = (roomAnchors ?? []).filter((r) => !r.placed);
+  const recommendedExpo = mustBooth?.id ?? null;
+  const recommendedVenue = rankedSessions[0]?.item.roomId ?? null;
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border bg-[#efeae1]">
+    <div className="absolute inset-0 flex min-h-0 min-w-0 flex-col overflow-hidden bg-[#efeae1]">
       {mapSurface === "expo" && (
         <ImageFloorMap
           src="/maps/expo-floorplan.png"
@@ -92,9 +105,11 @@ export function VenueMap() {
           pins={expoPins}
           selectedId={selectedBooth}
           onSelect={(id) => selectBooth(id, { jump: false })}
-          onOpenDetails={(id) => selectBooth(id)}
-          onPrefChange={setSponsorPref}
-          credit="Official expo.pdf · booth numbers registered from PDF text · image-relative anchors, not indoor GPS"
+          credit="Official expo.pdf · image-relative PDF anchors, not indoor GPS"
+          motion={motion}
+          focusId={mapFocus?.id}
+          focusToken={mapFocus?.token}
+          recommendedId={recommendedExpo}
         />
       )}
       {mapSurface === "venue" && (
@@ -109,15 +124,19 @@ export function VenueMap() {
               if (talk) selectSession(talk.id, { jump: false });
               else selectSpace(id);
             }}
-            credit="Official venue.pdf · pins on verified labels only · Hyatt talks stay on Hyatt, not sample room 255"
+            credit="Official venue.pdf · verified labels only · Hyatt stays on Hyatt"
+            motion={motion}
+            focusId={mapFocus?.id}
+            focusToken={mapFocus?.token}
+            recommendedId={recommendedVenue}
           />
-          <div className="pointer-events-none absolute left-3 top-14 z-20 flex max-w-[min(92vw,28rem)] flex-wrap gap-1">
+          <div className="pointer-events-none absolute left-2 top-14 z-20 flex max-w-[min(92vw,28rem)] flex-wrap gap-1">
             {BUILDINGS.map((b) => (
               <button
                 key={b}
                 type="button"
                 className={cn(
-                  "pointer-events-auto rounded-full border px-2 py-1 text-[11px] font-semibold",
+                  "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
                   building === b
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card/95 text-muted-foreground",
@@ -132,7 +151,7 @@ export function VenueMap() {
                 key={String(lv)}
                 type="button"
                 className={cn(
-                  "pointer-events-auto rounded-full border px-2 py-1 text-[11px] font-semibold",
+                  "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
                   level === lv
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card/95 text-muted-foreground",
@@ -144,11 +163,11 @@ export function VenueMap() {
             ))}
           </div>
           {unplaced.length > 0 && (
-            <details className="absolute bottom-10 left-3 z-20 max-w-sm rounded-xl border border-border bg-card/95 p-2 text-xs shadow-sm">
+            <details className="absolute bottom-10 left-2 z-20 max-w-[min(90vw,16rem)] rounded-xl border border-border bg-card/95 p-2 text-xs shadow-sm">
               <summary className="cursor-pointer font-semibold">
                 {unplaced.length} rooms unplaced
               </summary>
-              <ul className="mt-1 max-h-32 overflow-auto text-muted-foreground">
+              <ul className="mt-1 max-h-28 overflow-auto text-muted-foreground">
                 {unplaced.map((r) => (
                   <li key={r.id}>
                     {r.label} — {r.reason}
@@ -169,7 +188,7 @@ export function VenueMap() {
           onSelectSpace={selectSpace}
         />
       )}
-      <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex flex-wrap justify-center gap-2 px-3">
+      <div className="pointer-events-none absolute inset-x-0 top-2 z-20 flex flex-wrap justify-center gap-2 px-2">
         <div className="pointer-events-auto">
           <MapSwitcher value={mapSurface} onChange={setMapSurface} />
         </div>
@@ -179,7 +198,7 @@ export function VenueMap() {
           </div>
         )}
       </div>
-      <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex flex-wrap items-end justify-between gap-2">
+      <div className="pointer-events-none absolute bottom-3 left-2 right-14 flex flex-wrap items-end justify-between gap-2">
         {mapSurface === "sample" && (
           <div className="pointer-events-auto">
             <MapLegend />

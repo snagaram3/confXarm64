@@ -28,6 +28,8 @@ export function SessionDetail() {
     setMapSurface,
     scheduleNote,
     pushStatus,
+    requestMapFocus,
+    setView,
   } = useAppState();
 
   if (selection?.kind === "booth") {
@@ -166,7 +168,18 @@ export function SessionDetail() {
             `npm run vapid:provision`, HTTPS or localhost, and an explicit Enable notifications tap.
           </p>
         )}
-        <Button variant="outline" onClick={() => setMapSurface(isSample ? "sample" : item.building === "Hyatt Regency" ? "venue" : "venue")}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setView("map");
+            if (isSample) setMapSurface("sample");
+            else if (item.track === "Solutions Showcase") setMapSurface("expo");
+            else {
+              setMapSurface("venue");
+              requestMapFocus(item.roomId);
+            }
+          }}
+        >
           Show on map
         </Button>
       </div>
