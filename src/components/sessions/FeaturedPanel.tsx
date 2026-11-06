@@ -9,13 +9,13 @@ export function FeaturedPanel() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs uppercase tracking-wide text-maybe">Keynote picks</p>
+        <p className="text-xs uppercase tracking-wide text-primary">Keynote picks</p>
         <h2 className="font-display text-2xl font-semibold">{featured.label}</h2>
         <p className="text-sm text-muted-foreground">{featured.disclaimer}</p>
       </div>
       {featured.picks.map((pick) => (
         <article key={pick.sessionId} className="rounded-2xl border border-border bg-card p-4">
-          <Badge variant="maybe">Keynote pick</Badge>
+          <Badge variant="highlight">Keynote pick</Badge>
           <h3 className="mt-2 font-display text-lg font-semibold leading-tight">{pick.title}</h3>
           <p className="text-xs text-muted-foreground">
             {formatInZone(pick.start, timeZone)} · {pick.roomLabel}

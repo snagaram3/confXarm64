@@ -32,6 +32,11 @@
   --color-meh: var(--meh);
   --color-meh-fg: var(--meh-fg);
   --color-path: var(--path);
+  --color-cta: var(--cta);
+  --color-cta-fg: var(--cta-fg);
+  --color-highlight: var(--highlight);
+  --color-highlight-fg: var(--highlight-fg);
+  --color-map-canvas: var(--map-canvas);
 
   --radius-sm: 0.4rem;
   --radius-md: 0.65rem;
@@ -40,31 +45,40 @@
 }
 
 :root {
-  --background: #f3efe8;
-  --foreground: #1c1917;
-  --card: #fbf8f3;
-  --card-foreground: #1c1917;
-  --popover: #fffcf7;
-  --popover-foreground: #1c1917;
-  --primary: #21554c;
-  --primary-foreground: #f6f3ee;
-  --secondary: #ebe4d8;
-  --secondary-foreground: #2a2622;
-  --muted: #ece6dc;
-  --muted-foreground: #5c574e;
-  --accent: #e7dfd2;
-  --accent-foreground: #1c1917;
+  /* SOURCE: live KCNA 2026 --event-color-1/2. See docs/design-palette.md */
+  --primary: #113e82;
+  --primary-foreground: #fefefe;
+  --cta: #d62293;
+  --cta-fg: #ffffff;
+  --highlight: #ffee88;
+  --highlight-fg: #0b0f1f;
+  --peach: #fde1cb;
+  --ring: #113e82;
+  --path: #113e82;
+  /* ADJUSTED surfaces (not official event hexes) */
+  --background: #f3f6fb;
+  --foreground: #0b0f1f;
+  --card: #ffffff;
+  --card-foreground: #0b0f1f;
+  --popover: #ffffff;
+  --popover-foreground: #0b0f1f;
+  --secondary: #e6ecf5;
+  --secondary-foreground: #1a2744;
+  --muted: #e8eef6;
+  --muted-foreground: #4a5568;
+  --accent: #d9e3f2;
+  --accent-foreground: #0b0f1f;
   --destructive: #b42318;
-  --border: #e0d8cc;
-  --input: #d9d0c4;
-  --ring: #21554c;
-  --must: #246b45;
+  --border: #c5d0e0;
+  --input: #b7c4d6;
+  --map-canvas: #dce5f2;
+  /* Preference ranks — not event navy/pink */
+  --must: #176b3a;
   --must-fg: #f4fbf6;
-  --maybe: #9a6b16;
+  --maybe: #8a5f12;
   --maybe-fg: #fffaf0;
-  --meh: #6f6a62;
+  --meh: #5d626a;
   --meh-fg: #f7f5f1;
-  --path: #21554c;
 }
 
 @layer base {
@@ -116,7 +130,7 @@
 
 .map-path-ghost {
   fill: none;
-  stroke: rgba(33, 85, 76, 0.18);
+  stroke: color-mix(in srgb, var(--path) 18%, transparent);
   stroke-width: 10;
   stroke-linecap: round;
   stroke-linejoin: round;

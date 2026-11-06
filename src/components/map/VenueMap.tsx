@@ -97,7 +97,7 @@ export function VenueMap() {
   const recommendedVenue = rankedSessions[0]?.item.roomId ?? null;
 
   return (
-    <div className="absolute inset-0 flex min-h-0 min-w-0 flex-col overflow-hidden bg-[#efeae1]">
+    <div className="absolute inset-0 flex min-h-0 min-w-0 flex-col overflow-hidden bg-map-canvas">
       {mapSurface === "expo" && (
         <ImageFloorMap
           src="/maps/expo-floorplan.png"

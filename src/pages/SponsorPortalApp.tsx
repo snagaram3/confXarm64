@@ -236,7 +236,7 @@ function DemoDashboard() {
 
 function PortalShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-[100svh] bg-background">
+    <div className="min-h-[100svh] border-t-[3px] border-primary bg-background">
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-6">{children}</div>
     </div>
   );
@@ -333,7 +333,7 @@ function LoginForm({
         />
       </div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" disabled={busy}>
+      <Button type="submit" variant="cta" disabled={busy}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>
       <a href="/sponsor-portal/demo" className="text-sm text-primary underline">

@@ -45,6 +45,10 @@ No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17
 
 This cloud preview may point `ELASTICSEARCH_URL` at a local tarball on `:9200`. Mac / other hosts should keep **19200**.
 
+## Palette
+
+Event-inspired colors sampled from the live [KubeCon + CloudNativeCon North America 2026](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/) site (navy `#113e82`, CTA pink `#d62293`, schedule gold `#ffee88`). Surfaces and contrast tints are Floorwise adjustments, not official brand hexes. Must/Maybe/Meh stay their own greens/amber/gray so they are not confused with event navy. See `docs/design-palette.md`. This is not an LF/CNCF app.
+
 ## What you get
 
 1. **Expo map** — official `expo.pdf` rendered as a zoom/pan floorplan. Catalog exhibitor logos sit on PDF-text booth numbers (image-relative anchors, not indoor GPS). Tap a logo for a clamped popover, Must/Maybe/Meh bots, and booth actions. Unplaced exhibitors (if any) are listed with a reason instead of an invented pin.

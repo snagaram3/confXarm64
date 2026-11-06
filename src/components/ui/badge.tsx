@@ -14,6 +14,8 @@ const badgeVariants = cva(
         meh: "border-meh/40 bg-meh/15 text-meh",
         unrated: "border-border bg-card text-muted-foreground",
         path: "border-primary/30 bg-primary/10 text-primary",
+        highlight: "border-highlight-fg/15 bg-highlight text-highlight-fg",
+        cta: "border-cta/30 bg-cta/15 text-cta",
       },
     },
     defaultVariants: {

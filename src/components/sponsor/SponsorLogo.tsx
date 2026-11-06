@@ -20,7 +20,7 @@ export function SponsorLogo({
     <span
       className={cn(
         "inline-flex items-center justify-center overflow-hidden rounded-md",
-        booth.logoOnDark ? "bg-[#0C322C] p-1" : "bg-card p-1",
+        booth.logoOnDark ? "bg-primary p-1" : "bg-card p-1",
         className,
       )}
     >

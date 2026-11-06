@@ -20,7 +20,7 @@ export function AppShell() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <div className="flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] flex-col overflow-x-clip overflow-y-hidden bg-background">
+    <div className="flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] flex-col overflow-x-clip overflow-y-hidden border-t-[3px] border-primary bg-background">
       <TopBar />
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

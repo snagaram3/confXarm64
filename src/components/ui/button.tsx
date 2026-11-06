@@ -15,6 +15,7 @@ const buttonVariants = cva(
         destructive: "bg-destructive text-background hover:bg-destructive/90",
         must: "bg-must text-must-fg hover:bg-must/90",
         maybe: "bg-maybe text-maybe-fg hover:bg-maybe/90",
+        cta: "bg-cta text-cta-fg hover:bg-cta/90",
       },
       size: {
         default: "h-11 min-h-11 px-4 py-2",

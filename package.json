@@ -11,7 +11,7 @@
     "seed": "tsx server/seed.ts",
     "start": "tsx server/index.ts",
     "build": "tsc -b && vite build",
-    "test": "tsx --test src/lib/*.test.ts server/*.test.ts",
+    "test": "tsx --test src/lib/*.test.ts src/theme/*.test.ts server/*.test.ts",
     "sponsor:provision": "tsx scripts/provision-sponsor.ts",
     "vapid:provision": "tsx scripts/provision-vapid.ts",
     "lint": "oxlint",

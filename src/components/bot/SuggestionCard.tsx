@@ -28,7 +28,7 @@ export function SuggestionCard({
       className={cn(
         "fw-motion rec-enter flex gap-3 rounded-2xl border p-3",
         featured
-          ? "border-must/40 bg-must/10 shadow-md"
+          ? "border-primary/25 bg-primary/5 shadow-md"
           : "border-border bg-card shadow-sm",
       )}
       style={{ animationDelay: `${index * 90}ms` }}
@@ -36,7 +36,7 @@ export function SuggestionCard({
       <BotIcon className={featured ? "bot-attention bg-must text-must" : "bot-still"} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-must">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
             {featured ? "Next up for you" : "Floorwise suggestion"}
           </p>
           {suggestion.rank && (

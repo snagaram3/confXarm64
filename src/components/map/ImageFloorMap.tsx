@@ -87,7 +87,7 @@ export function ImageFloorMap({
         onKeyDown={pan.onKeyDown}
       >
         {!loaded && !failed && (
-          <div className="absolute inset-0 animate-pulse bg-[#e7dfd2]" aria-hidden="true" />
+          <div className="absolute inset-0 animate-pulse bg-map-canvas" aria-hidden="true" />
         )}
         {failed && (
           <p className="absolute inset-0 flex items-center justify-center p-6 text-sm text-muted-foreground">

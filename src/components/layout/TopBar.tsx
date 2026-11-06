@@ -73,18 +73,18 @@ export function TopBar() {
 function Logo() {
   return (
     <svg viewBox="0 0 32 32" className="size-9 shrink-0" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#21554c" />
+      <rect width="32" height="32" rx="9" fill="#113e82" />
       <rect x="7" y="8" width="8" height="5" rx="1.2" fill="#d7eadc" />
       <rect x="7" y="14.5" width="8" height="4" rx="1.1" fill="#f3e4c4" />
-      <rect x="7" y="20" width="8" height="4" rx="1.1" fill="#e8e4dc" />
+      <rect x="7" y="20" width="8" height="4" rx="1.1" fill="#e4e6ea" />
       <path
         d="M18 23 L22 17 L26 12"
         fill="none"
-        stroke="#f6f3ee"
+        stroke="#fefefe"
         strokeWidth="1.8"
         strokeLinecap="round"
       />
-      <circle cx="26" cy="11" r="1.8" fill="#f6f3ee" />
+      <circle cx="26" cy="11" r="1.8" fill="#fefefe" />
     </svg>
   );
 }
