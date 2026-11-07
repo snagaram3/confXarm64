@@ -1,3 +1,4 @@
+import "./load-env.ts";
 import "./otel.ts";
 
 import { existsSync, readFileSync } from "node:fs";
@@ -6,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express from "express";
 import { pingCluster, waitForElasticsearch } from "./es.ts";
+import { noteRequest } from "./tools/local-stats.ts";
+import { mountToolRoutes } from "./tools-http.ts";
 import { mountLeadRoutes, sqlitePath } from "./leads-http.ts";
 import { dataDir, LeadsStore } from "./leads-store.ts";
 import { otelStatus } from "./otel.ts";
@@ -40,6 +43,13 @@ const PORT = Number(process.env.PORT ?? 43181);
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    if (req.path.startsWith("/api")) noteRequest(res.statusCode, Date.now() - start);
+  });
+  next();
+});
 
 let indexReady = false;
 let lastSeedError: string | null = null;
@@ -181,6 +191,7 @@ app.post("/api/sponsor/:boothId/visitors", async (req, res) => {
 
 mountScheduleRoutes(app);
 mountReminderRoutes(app, { store: reminderStore, dataDir: leadDataDir });
+mountToolRoutes(app);
 
 mountLeadRoutes(app, {
   store: leadStore,

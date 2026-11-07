@@ -1,6 +1,6 @@
 export type Rank = "must" | "maybe" | "meh";
 export type Floor = 1 | 2 | 3;
-export type AppView = "map" | "agenda" | "navigate" | "sponsor" | "plan";
+export type AppView = "map" | "agenda" | "navigate" | "sponsor" | "plan" | "tools";
 export type MapSurface = "expo" | "venue" | "sample";
 export type SpaceKind = "hall" | "room" | "entrance" | "vertical" | "lobby";
 export type DisplayTimeZone = "America/Denver" | "America/Chicago";

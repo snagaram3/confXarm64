@@ -57,8 +57,9 @@ Event-inspired colors sampled from the live [KubeCon + CloudNativeCon North Amer
 4. **Personal agenda** — add/remove, per-day timeline, upcoming/ongoing/finished, next-session countdown, overlap warnings, planning-buffer gaps labeled as estimates. Display timezone: conference America/Denver or America/Chicago. Stored only in this browser. Optional ICS download; Floorwise never writes to a real calendar.
 5. **Keynote picks** — curated from the official Keynote Sessions track. Names, titles, photos, and bios come from the published schedule. Not a popularity ranking.
 6. **Reminders** — opt-in per session, default 10 minutes (5/10/15). Browser permission is requested only from **Enable notifications**. Background Web Push needs VAPID keys (`npm run vapid:provision`, gitignored `data/vapid.json`), a supported browser, HTTPS or localhost, and a running API. Until VAPID exists, in-tab / foreground notifications are clearly labeled.
+7. **Tools** — TopBar **Tools** (not a sixth bottom-nav item) opens `/tools/dash0` with tabs for Sonar, Dash0, Radar, and Elasticsearch. Each tab shows real adapter state (connected / needs setup / empty / error), refresh, and source/time. Deep links: `/tools/sonar`, `/tools/dash0`, `/tools/radar`, `/tools/elasticsearch`. Dash0 includes a labeled **synthetic** participant dashboard on the SAMPLE catalog; Live attendance is explicitly unavailable. See `docs/tools.md`.
 
-Sample 12-talk catalog + scripted 255 route remain on the **Sample schematic** surface and are labeled SAMPLE. They are not merged into the official Elasticsearch catalog.
+Sample 12-talk catalog + scripted 255 route remain on the **Sample schematic** surface and are labeled SAMPLE. They are not merged into the official Elasticsearch catalog. Synthetic Tools dashboard people are fictional `@example.test` records, not live hall counts.
 
 ## Reminders (local Web Push)
 
@@ -116,6 +117,6 @@ npm run build
 
 ## What is in / out
 
-**In:** Official 2026 main schedule + speakers + rooms, PDF-anchored expo logos, verified venue room pins, personal agenda, keynote picks, opt-in Web Push reminders, sponsor lead portal, Elasticsearch ranking, sample 255 schematic (labeled).
+**In:** Official 2026 main schedule + speakers + rooms, PDF-anchored expo logos, verified venue room pins, personal agenda, keynote picks, opt-in Web Push reminders, sponsor lead portal, Elasticsearch ranking, sample 255 schematic (labeled), Tools adapters (Sonar / Dash0 / Radar / Elasticsearch) with a labeled synthetic Dash0 engagement demo.
 
-**Out:** Surveyed indoor coordinates, step-free routing, live crowd counts, invented celebrity attendees, popularity rankings, merging colocated feeds into the main catalog, email/SMS/CRM, writing to a real calendar, public deployment, wiping Docker volumes, harvesting contacts from Must/Maybe/Meh.
+**Out:** Surveyed indoor coordinates, step-free routing, live crowd counts presented as fact, invented celebrity attendees, popularity rankings, merging colocated feeds into the main catalog, email/SMS/CRM, writing to a real calendar, public deployment, wiping Docker volumes, harvesting contacts from Must/Maybe/Meh, uploading source to Sonar without your own token, sending synthetic series to Dash0 unless `FLOORWISE_SYNTHETIC_OTEL=1`.

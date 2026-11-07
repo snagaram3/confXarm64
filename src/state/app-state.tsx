@@ -33,6 +33,7 @@ import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
+import { parseToolsPath } from "@/lib/tools";
 import type {
   AppView,
   Booth,
@@ -193,7 +194,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [retryTick, setRetryTick] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(readSaved);
   const [sponsorPrefs, setSponsorPrefs] = useState<Record<string, Rank>>(readSponsorPrefs);
-  const [view, setView] = useState<AppView>("map");
+  const [view, setView] = useState<AppView>(() =>
+    parseToolsPath(window.location.pathname) ? "tools" : "map",
+  );
   const [floor, setFloor] = useState<Floor>(2);
   const [selection, setSelection] = useState<Selection>(null);
   const [navigating, setNavigating] = useState(false);

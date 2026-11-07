@@ -39,6 +39,9 @@ export function BottomNav() {
                 setFloor(1);
               }
               setView(item.id);
+              if (window.location.pathname.startsWith("/tools")) {
+                window.history.pushState({}, "", "/");
+              }
             }}
             className={cn(
               "flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium",

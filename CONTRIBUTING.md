@@ -9,7 +9,8 @@
 - [ ] Sponsor mirror still shows Must/Maybe visitors for Elastic
 - [ ] Connect / share my details requires an explicit consent checkbox and does not fire from Must/Maybe/Meh
 - [ ] `/sponsor-portal` is tenant-scoped; demo dashboard stays read-only sample data
-- [ ] No new secrets committed; `data/`, Dash0/OTel env, and sponsor-secret files stay gitignored
+- [ ] Tools tabs (Sonar, Dash0, Radar, Elasticsearch) load; missing keys show Needs setup; synthetic Dash0 dashboard stays labeled and is not mixed into Live
+- [ ] No new secrets committed; `data/`, Dash0/OTel env, Sonar/Radar tokens, and sponsor-secret files stay gitignored
 - [ ] `npm run build` is green
 
 Paste this list into the Gitar (Sonar) review if the bot asks for project-specific criteria. See `.gitar.md`.

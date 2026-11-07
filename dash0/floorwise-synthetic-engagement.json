@@ -1,0 +1,166 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "floorwise-synthetic-engagement",
+    "dash0Extensions": {
+      "id": "floorwise-synthetic-engagement"
+    }
+  },
+  "spec": {
+    "display": {
+      "name": "Floorwise synthetic engagement (SAMPLE)",
+      "description": "Importable Perses dashboard for OPTIONAL aggregate gauges named floorwise.synthetic.* tagged floorwise.synthetic=true. These series exist only if FLOORWISE_SYNTHETIC_OTEL=1. They are not live KCNA attendance and must not be mixed with production service metrics. Floorwise does not auto-import this file."
+    },
+    "duration": "6h",
+    "refreshInterval": "1m",
+    "panels": {
+      "participants": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Synthetic participants",
+            "description": "Gauge floorwise.synthetic.participants. SAMPLE demo only."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum({otel_metric_name=\"floorwise.synthetic.participants\", floorwise_synthetic=\"true\"})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "active_now": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Synthetic active at demo clock",
+            "description": "Join evidence at the labeled demo clock — not GPS."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum({otel_metric_name=\"floorwise.synthetic.active_now\", floorwise_synthetic=\"true\"})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "observed_full": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Observed full-session dwell (synthetic)",
+            "description": "90% dwell rule on SAMPLE sessions. Intentions are a different metric."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum({otel_metric_name=\"floorwise.synthetic.observed_full\", floorwise_synthetic=\"true\"})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "topic_interest": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Topic interest (synthetic)",
+            "description": "Split by topic attribute. No participant names or emails."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {}
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (topic) ({otel_metric_name=\"floorwise.synthetic.topic_interest\", floorwise_synthetic=\"true\"})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": { "$ref": "#/spec/panels/participants" }
+            },
+            {
+              "x": 8,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": { "$ref": "#/spec/panels/active_now" }
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": { "$ref": "#/spec/panels/observed_full" }
+            },
+            {
+              "x": 0,
+              "y": 6,
+              "width": 24,
+              "height": 10,
+              "content": { "$ref": "#/spec/panels/topic_interest" }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

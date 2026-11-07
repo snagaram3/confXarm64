@@ -1,9 +1,11 @@
+import { toolsPath } from "@/lib/tools";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { UserRound } from "lucide-react";
 
 export function TopBar() {
-  const { profile, setProfileOpen, esHealth, rankStatus, motionPref, setMotionPref } = useAppState();
+  const { profile, setProfileOpen, esHealth, rankStatus, motionPref, setMotionPref, view, setView } =
+    useAppState();
   const searchReady = esHealth?.ok && rankStatus === "ready";
 
   return (
@@ -26,7 +28,22 @@ export function TopBar() {
       </div>
       <button
         type="button"
-        className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-border px-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:bg-accent sm:px-3"
+        className={cn(
+          "inline-flex min-h-11 shrink-0 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wide sm:px-3",
+          view === "tools"
+            ? "border-primary bg-primary text-primary-foreground"
+            : "border-border text-muted-foreground hover:bg-accent",
+        )}
+        onClick={() => {
+          setView("tools");
+          window.history.pushState({}, "", toolsPath("dash0"));
+        }}
+      >
+        Tools
+      </button>
+      <button
+        type="button"
+        className="hidden min-h-11 shrink-0 items-center rounded-full border border-border px-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:bg-accent sm:inline-flex sm:px-3"
         onClick={() => setMotionPref(motionPref === "full" ? "reduced" : "full")}
         aria-pressed={motionPref === "full"}
         title="Motion: full respects OS reduced-motion. Reduced skips camera flight and pin pops."

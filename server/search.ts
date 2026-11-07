@@ -1,6 +1,8 @@
 import type { estypes } from "@elastic/elasticsearch";
+import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { embed } from "./embed.ts";
 import { es, INDEX } from "./es.ts";
+import { noteRank } from "./tools/local-stats.ts";
 
 export type Rank = "must" | "maybe" | "meh";
 
@@ -95,6 +97,46 @@ function explain(
 }
 
 export async function hybridSearch(opts: {
+  kind: "session" | "booth" | "visitor";
+  interests: string[];
+  role?: string;
+  q?: string;
+  boothId?: string;
+  size?: number;
+}): Promise<{ hits: RankHit[]; took: number }> {
+  const tracer = trace.getTracer("floorwise-search");
+  return tracer.startActiveSpan("floorwise.hybridSearch", async (span) => {
+    span.setAttribute("floorwise.search.kind", opts.kind);
+    try {
+      const result = await runHybridSearch(opts);
+      span.setAttribute("floorwise.search.hits", result.hits.length);
+      span.setAttribute("floorwise.search.took_ms", result.took);
+      const ctx = span.spanContext();
+      noteRank(
+        {
+          tookMs: result.took,
+          hitCount: result.hits.length,
+          top: result.hits.slice(0, 5).map((h) => ({
+            id: h.id,
+            score: h.explanation.score,
+            rank: h.explanation.rank,
+          })),
+          at: new Date().toISOString(),
+        },
+        ctx.traceId && ctx.traceId !== "00000000000000000000000000000000" ? ctx.traceId : null,
+      );
+      return result;
+    } catch (err) {
+      span.recordException(err as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR });
+      throw err;
+    } finally {
+      span.end();
+    }
+  });
+}
+
+async function runHybridSearch(opts: {
   kind: "session" | "booth" | "visitor";
   interests: string[];
   role?: string;
