@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { interpolateNav } from "./nav-playback.ts";
+import { WORLD_FLOOR_GAP } from "./map-3d-world.ts";
 import { SOUTH_ENTRANCE_ID } from "./map-query.ts";
 import { VENUE_CONNECTORS } from "./venue-connectors.ts";
 import { SCHEMATIC_ROOMS, rectCenter } from "./venue-schematic.ts";
@@ -15,6 +16,7 @@ import {
   heroStepAt,
   isHeroDemoId,
   shouldAutoplayHero,
+  heroJourneyBox,
   southToL2Keyframes,
 } from "./south-to-l2.ts";
 
@@ -30,6 +32,10 @@ describe("South Entrance → L2 illustrative journey", () => {
     assert.ok(frames.length >= 8);
     assert.equal(frames[0]?.floor, 1);
     assert.equal(frames[frames.length - 1]?.floor, 2);
+    for (const frame of frames.filter((item) => item.kind === "walk")) {
+      const floorBase = (frame.floor - 1) * WORLD_FLOOR_GAP;
+      assert.ok(frame.y - floorBase >= 3, `walk ribbon y=${frame.y} must sit above schematic room masses`);
+    }
     assert.ok(frames.some((f) => f.kind === "vertical"));
     assert.match(frames.find((f) => f.kind === "vertical")!.label, /DEMO floor change/i);
     assert.match(HERO_JOURNEY_DISCLAIMER, /not verified onsite navigation/i);
@@ -66,6 +72,11 @@ describe("South Entrance → L2 illustrative journey", () => {
     assert.equal(heroHighlightId(0.2), HERO_ORIGIN_ID);
     assert.equal(heroHighlightId(0.8), HERO_DESTINATION_ID);
     assert.equal(heroStepAt(0.5).highlightId, HERO_SHAFT_ID);
+    const phoneBox = heroJourneyBox(SCHEMATIC_ROOMS, true);
+    const wideBox = heroJourneyBox(SCHEMATIC_ROOMS, false);
+    assert.ok(phoneBox.max.x - phoneBox.min.x < 40);
+    assert.ok(phoneBox.max.y - phoneBox.min.y > WORLD_FLOOR_GAP);
+    assert.ok(wideBox.max.x - wideBox.min.x >= phoneBox.max.x - phoneBox.min.x);
   });
 
   it("autoplays only on a fresh normal-motion 3D venue visit", () => {

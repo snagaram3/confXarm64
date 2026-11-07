@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 import type { VenueLayer } from "@/lib/types";
 
-const LAYERS: { id: VenueLayer; label: string }[] = [
-  { id: "schematic", label: "Schematic" },
-  { id: "official", label: "Official PDF" },
+const LAYERS: { id: VenueLayer; label: string; short: string }[] = [
+  { id: "schematic", label: "Schematic", short: "Schematic" },
+  { id: "official", label: "Official PDF", short: "PDF" },
 ];
 
 export function VenueLayerSwitcher({
@@ -21,13 +21,15 @@ export function VenueLayerSwitcher({
           type="button"
           role="tab"
           aria-selected={value === layer.id}
+          aria-label={layer.label}
           onClick={() => onChange(layer.id)}
           className={cn(
             "min-h-10 rounded-full px-2.5 text-[11px] font-semibold sm:min-h-11 sm:px-3 sm:text-xs",
             value === layer.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent",
           )}
         >
-          {layer.label}
+          <span className="sm:hidden">{layer.short}</span>
+          <span className="hidden sm:inline">{layer.label}</span>
         </button>
       ))}
     </div>

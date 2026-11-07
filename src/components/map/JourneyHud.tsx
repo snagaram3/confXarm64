@@ -217,45 +217,42 @@ export function JourneyHud({
 
       {showJourneyBar ? (
       <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-white/12 bg-[#0b0f1f]/90 px-3 py-2 text-white shadow-[0_12px_40px_rgba(11,15,31,0.35)] backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.08em] text-highlight">
-              Illustrative — not verified onsite
-            </p>
-            <p className="truncate font-display text-[14px] font-semibold leading-tight sm:text-[15px]">
-              {hero ? <span className="sm:hidden">South → L2</span> : null}
-              {hero ? <span className="hidden sm:inline">{HERO_JOURNEY_TITLE}</span> : sample ? "SAMPLE walk to 255" : "Salt Palace + Hyatt"}
-            </p>
-            <p className="hidden truncate text-[11px] text-white/70 sm:block">
-              {hero ? step.label : sample ? sampleNavDisclaimer(stepFree) : "Tap a room or booth · no verified indoor graph"}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-wrap justify-end gap-1">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase leading-snug tracking-[0.05em] text-highlight sm:text-[11px]">
+            Illustrative — not verified onsite
+          </p>
+          <p className="font-display text-[14px] font-semibold leading-snug sm:text-[15px]">
+            {hero ? HERO_JOURNEY_TITLE : sample ? "SAMPLE walk to 255" : "Salt Palace + Hyatt"}
+          </p>
+          <p className="mt-0.5 text-[12px] leading-snug text-white/80">
+            {hero ? step.label : sample ? sampleNavDisclaimer(stepFree) : "Tap a room or booth · no verified indoor graph"}
+          </p>
+        </div>
+        <div className="mt-2 flex w-full flex-wrap items-center gap-1">
             {reducedMotion && hero ? (
               <>
-                <Button type="button" variant="outline" className="h-10 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(-1)} aria-label="Previous journey step">
+                <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(-1)} aria-label="Previous journey step">
                   <ChevronLeft className="size-4" />
                 </Button>
-                <Button type="button" variant="outline" className="h-10 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(1)} aria-label="Next journey step">
+                <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(1)} aria-label="Next journey step">
                   <ChevronRight className="size-4" />
                 </Button>
               </>
             ) : navPlaying ? (
-              <Button type="button" variant="outline" className="h-10 gap-1 border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={onPause} aria-label={hero ? "Pause illustrative journey" : "Pause SAMPLE walkthrough"}>
+              <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 gap-1 border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={onPause} aria-label={hero ? "Pause illustrative journey" : "Pause SAMPLE walkthrough"}>
                 <Pause className="size-3.5" /> Pause
               </Button>
             ) : (
-              <Button type="button" className="h-10 gap-1 bg-cta text-cta-fg hover:bg-cta/90" onClick={onPlay} aria-label={hero ? "Play illustrative journey" : sample ? "Play SAMPLE walkthrough" : "Play illustrative journey"}>
+              <Button type="button" className="h-10 min-h-10 flex-1 gap-1 bg-cta text-cta-fg hover:bg-cta/90" onClick={onPlay} aria-label={hero ? "Play illustrative journey" : sample ? "Play SAMPLE walkthrough" : "Play illustrative journey"}>
                 <Play className="size-3.5" /> {navProgress > 0 && navProgress < 1 ? "Resume" : "Play"}
               </Button>
             )}
-            <Button type="button" variant="ghost" className="h-10 gap-1 text-white hover:bg-white/10" onClick={onReplay} aria-label="Replay journey">
+            <Button type="button" variant="ghost" className="h-10 min-h-10 flex-1 gap-1 text-white hover:bg-white/10" onClick={onReplay} aria-label="Replay journey">
               <RotateCcw className="size-3.5" /> Replay
             </Button>
-            <Button type="button" variant="ghost" className="h-10 gap-1 text-white hover:bg-white/10" onClick={onExplore} aria-label="Explore the map">
+            <Button type="button" variant="ghost" className="h-10 min-h-10 flex-1 gap-1 text-white hover:bg-white/10" onClick={onExplore} aria-label="Explore the map">
               <Compass className="size-3.5" /> Explore
             </Button>
-          </div>
         </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15" aria-hidden>
           <div className="h-full rounded-full bg-highlight transition-[width] duration-200" style={{ width: `${Math.round(navProgress * 100)}%` }} />

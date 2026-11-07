@@ -49,6 +49,9 @@ describe("3D camera framing", () => {
     assert.ok(sp.max.x - sp.min.x < 140);
     const pose = isometricPose(sp, 1.6, 46);
     assert.ok(Number.isFinite(pose.position.y) && pose.position.y > pose.target.y);
+    const phoneHero = isometricPose(sp, 0.46, 42, "hero", true);
+    const desktopHero = isometricPose(sp, 1.6, 42, "hero", false);
+    assert.ok(phoneHero.position.y - phoneHero.target.y > desktopHero.position.y - desktopHero.target.y);
   });
 
   it("frames Hyatt on its own sheet without pulling Salt Palace into the box", () => {

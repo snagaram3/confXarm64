@@ -508,7 +508,7 @@ export function VenueMap() {
       ) : (
         flatLayers
       )}
-      <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex flex-nowrap justify-start gap-2 overflow-x-auto px-2 lg:justify-center">
+      <div className="pointer-events-auto absolute inset-x-0 top-1 z-30 flex flex-wrap justify-start gap-1 px-2 lg:top-2 lg:flex-nowrap lg:justify-center lg:gap-2">
         <div className="pointer-events-auto">
           <MapSwitcher
             value={mapSurface}

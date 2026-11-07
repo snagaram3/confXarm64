@@ -1,10 +1,10 @@
 import type { MapSurface } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const SURFACES: { id: MapSurface; label: string }[] = [
-  { id: "venue", label: "Venue" },
-  { id: "expo", label: "Expo floor" },
-  { id: "sample", label: "Sample schematic" },
+const SURFACES: { id: MapSurface; label: string; short: string }[] = [
+  { id: "venue", label: "Venue", short: "Venue" },
+  { id: "expo", label: "Expo floor", short: "Expo" },
+  { id: "sample", label: "Sample schematic", short: "Sample" },
 ];
 
 export function MapSwitcher({
@@ -22,13 +22,15 @@ export function MapSwitcher({
           type="button"
           role="tab"
           aria-selected={value === s.id}
+          aria-label={s.label}
           onClick={() => onChange(s.id)}
           className={cn(
             "min-h-10 rounded-full px-2.5 text-[11px] font-semibold sm:min-h-11 sm:px-3 sm:text-xs",
             value === s.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent",
           )}
         >
-          {s.label}
+          <span className="sm:hidden">{s.short}</span>
+          <span className="hidden sm:inline">{s.label}</span>
         </button>
       ))}
     </div>

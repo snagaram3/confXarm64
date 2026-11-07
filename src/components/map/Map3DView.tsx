@@ -15,7 +15,7 @@ import {
   type WorldBox,
   type WorldPoint,
 } from "@/lib/map-3d-world";
-import { HERO_ORIGIN_ID, HERO_DESTINATION_ID, HERO_SHAFT_LABEL, heroShaftWorld } from "@/lib/south-to-l2";
+import { HERO_ORIGIN_ID, HERO_DESTINATION_ID, heroJourneyBox, heroShaftWorld } from "@/lib/south-to-l2";
 import { PORTALS, SHEETS, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -79,7 +79,9 @@ export default function Map3DView({
   followActive?: boolean;
   onUserInteract?: () => void;
 }) {
-  const [compact, setCompact] = useState(false);
+  const [compact, setCompact] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 639px)").matches : false,
+  );
   useEffect(() => {
     const query = window.matchMedia("(max-width: 639px)");
     const update = () => setCompact(query.matches);
@@ -90,7 +92,7 @@ export default function Map3DView({
   const hero = journeyMode === "hero";
 
   return (
-    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[3.35rem] pb-[7.25rem] sm:pb-[7.5rem] lg:pt-14 lg:pb-24">
+    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[6.6rem] pb-[9.75rem] sm:pb-[8.5rem] lg:pt-14 lg:pb-28">
       <Canvas
         camera={{ fov: CAMERA_FOV, near: 0.1, far: 5000, position: [48, 72, 96] }}
         dpr={[1, 1.75]}
@@ -117,7 +119,7 @@ export default function Map3DView({
               onSelect={onSelect}
               reducedMotion={reducedMotion}
               resetToken={resetToken}
-              compact={compact || hero}
+              compact={compact}
               onSheet={onSheet}
               navPath={hero ? navPath : undefined}
               navMarker={hero ? navMarker ?? null : null}
@@ -203,12 +205,15 @@ function SchematicScene({
     return ids;
   }, [rooms, focusSheet, selectedId, recommendedId, compact, hero]);
   const box = useMemo(() => {
-    const base = focusWorldBox({ focusSheet, rooms, selectedId: hero ? null : selectedId });
-    if (hero && !compact) {
-      base.max.x += HERO_L2_SHIFT;
-      base.center.x += HERO_L2_SHIFT * 0.5;
+    if (hero) {
+      const base = heroJourneyBox(rooms, compact);
+      if (!compact) {
+        base.max.x += HERO_L2_SHIFT;
+        base.center.x += HERO_L2_SHIFT * 0.5;
+      }
+      return base;
     }
-    return base;
+    return focusWorldBox({ focusSheet, rooms, selectedId });
   }, [focusSheet, rooms, selectedId, hero, compact]);
   const shaft = heroShaftWorld();
 
@@ -218,9 +223,10 @@ function SchematicScene({
         box={box}
         resetToken={resetToken}
         reducedMotion={reducedMotion}
-        followPoint={followActive ? shiftHeroPoint(navMarker ?? null, hero && !compact) : null}
+        followPoint={hero || !followActive ? null : navMarker ?? null}
         onUserInteract={onUserInteract}
         profile={hero ? "hero" : "default"}
+        compact={compact}
       />
       {SHEETS.filter((sheet) => visibleSheets.includes(sheet.id)).map((sheet) => {
         const sheetRooms = rooms.filter((room) => room.sheet === sheet.id);
@@ -241,7 +247,11 @@ function SchematicScene({
               />
             </mesh>
             <Html
-              position={[plate.center.x, plate.center.y + (focused ? 3.6 : 7.4), plate.center.z - plate.depth * 0.46]}
+              position={[
+                plate.center.x - (hero ? plate.width * 0.3 : 0),
+                plate.center.y + (hero ? (sheet.id === "salt-l2" ? 2.8 : 5.8) : focused ? 3.6 : 7.4),
+                plate.center.z - plate.depth * (hero ? 0.44 : 0.46),
+              ]}
               center
               sprite
               zIndexRange={[12, 0]}
@@ -264,8 +274,10 @@ function SchematicScene({
                 selected={room.id === selectedId}
                 recommended={room.id === recommendedId}
                 dimmed={!showFloor}
-                showLabel={labelIds.has(room.id) && (hero ? room.id === selectedId || room.id === HERO_ORIGIN_ID || room.id === HERO_DESTINATION_ID || room.kind === "entrance" : true) && (focused || hero)}
+                showLabel={labelIds.has(room.id) && (hero ? room.id === selectedId : true) && (focused || hero)}
                 onSelect={onSelect}
+                hero={hero}
+                labelText={hero ? heroRoomCaption(room) : undefined}
               />
             ))}
           </group>
@@ -309,34 +321,45 @@ function shiftHeroPoint(point: WorldPoint | null, hero: boolean): WorldPoint | n
   return { ...point, x: point.x + HERO_L2_SHIFT };
 }
 
+function heroRoomCaption(room: SchematicRoom): string {
+  if (room.id === HERO_ORIGIN_ID) return "200 South";
+  if (room.id === HERO_DESTINATION_ID) return "East Registration";
+  return room.labelLines.join(" ");
+}
+
 function DemoShaft({ x, z, compact }: { x: number; z: number; compact: boolean }) {
   const h = WORLD_FLOOR_GAP + 1.4;
-  const shift = compact ? 0 : HERO_L2_SHIFT * 0.35;
+  const shift = compact ? 0 : HERO_L2_SHIFT * 0.5;
   return (
     <group position={[x + shift, h / 2, z]}>
-      <mesh>
-        <cylinderGeometry args={[1.05, 1.35, h, 24, 1, true]} />
+      <mesh renderOrder={6}>
+        <cylinderGeometry args={[1.15, 1.45, h, 24, 1, true]} />
         <meshStandardMaterial
           color={PALETTE.cta}
           transparent
-          opacity={0.28}
+          opacity={0.38}
           emissive={PALETTE.cta}
-          emissiveIntensity={0.32}
+          emissiveIntensity={0.4}
           side={THREE.DoubleSide}
+          depthTest={false}
           depthWrite={false}
         />
       </mesh>
-      <mesh>
-        <cylinderGeometry args={[0.22, 0.22, h, 8]} />
-        <meshStandardMaterial color={PALETTE.highlight} emissive={PALETTE.highlight} emissiveIntensity={0.6} />
+      <mesh renderOrder={7}>
+        <cylinderGeometry args={[0.28, 0.28, h, 8]} />
+        <meshStandardMaterial
+          color={PALETTE.highlight}
+          emissive={PALETTE.highlight}
+          emissiveIntensity={0.7}
+          depthTest={false}
+          depthWrite={false}
+        />
       </mesh>
-      {compact ? null : (
-        <Html position={[0, h / 2 + 0.35, 0]} center sprite zIndexRange={[40, 0]} style={{ pointerEvents: "none" }}>
-          <div className="max-w-[8.5rem] rounded-md bg-cta px-2 py-1 text-center text-[10px] font-bold leading-tight text-white shadow-md">
-            {HERO_SHAFT_LABEL}
-          </div>
-        </Html>
-      )}
+      <Html position={[0, h / 2 + 0.15, 0]} center sprite zIndexRange={[40, 0]} style={{ pointerEvents: "none" }}>
+        <div className="rounded-md bg-cta px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white shadow-md">
+          DEMO
+        </div>
+      </Html>
     </group>
   );
 }
@@ -368,8 +391,8 @@ function JourneyRibbon({ path, marker }: { path: WorldPoint[]; marker: WorldPoin
             a={prev}
             b={point}
             color={vertical ? PALETTE.cta : PALETTE.primary}
-            radius={done ? 0.42 : 0.2}
-            opacity={done ? 1 : 0.28}
+            radius={vertical ? (done ? 0.7 : 0.42) : done ? 0.52 : 0.3}
+            opacity={done ? 1 : 0.55}
           />
         );
       })}
@@ -379,9 +402,15 @@ function JourneyRibbon({ path, marker }: { path: WorldPoint[]; marker: WorldPoin
 
 function ProgressMarker({ point, caption }: { point: WorldPoint; caption: string | null }) {
   return (
-    <mesh position={[point.x, point.y + 0.7, point.z]}>
-      <sphereGeometry args={[0.78, 20, 20]} />
-      <meshStandardMaterial color={PALETTE.highlight} emissive={PALETTE.cta} emissiveIntensity={0.5} />
+    <mesh position={[point.x, point.y + 0.35, point.z]} renderOrder={12}>
+      <sphereGeometry args={[0.95, 20, 20]} />
+      <meshStandardMaterial
+        color={PALETTE.highlight}
+        emissive={PALETTE.cta}
+        emissiveIntensity={0.65}
+        depthTest={false}
+        depthWrite={false}
+      />
       {caption ? (
         <Html position={[1.8, 0.9, 0]} center sprite zIndexRange={[50, 0]} style={{ pointerEvents: "none" }}>
           <div className="rounded-md bg-[#0b0f1f] px-2 py-1 text-[10px] font-semibold text-white shadow">{caption}</div>
@@ -398,6 +427,8 @@ function RoomMesh({
   dimmed,
   showLabel,
   onSelect,
+  hero = false,
+  labelText,
 }: {
   room: SchematicRoom;
   selected: boolean;
@@ -405,8 +436,22 @@ function RoomMesh({
   dimmed: boolean;
   showLabel: boolean;
   onSelect: (id: string) => void;
+  hero?: boolean;
+  labelText?: string;
 }) {
-  const height = selected ? 2.7 : room.kind === "entrance" ? 1.35 : room.kind === "hall" ? 2.05 : 2.15;
+  const height = hero
+    ? selected
+      ? 1.55
+      : room.kind === "entrance"
+        ? 1.05
+        : 1.2
+    : selected
+      ? 2.7
+      : room.kind === "entrance"
+        ? 1.35
+        : room.kind === "hall"
+          ? 2.05
+          : 2.15;
   const center = roomWorldCenter(room, height / 2);
   const color = selected
     ? PALETTE.primary
@@ -431,10 +476,16 @@ function RoomMesh({
       }}
     >
       <boxGeometry args={[Math.max(0.55, room.rect.w * WORLD_SCALE - 0.28), height, Math.max(0.55, room.rect.h * WORLD_SCALE - 0.28)]} />
-      <meshStandardMaterial color={color} transparent={dimmed} opacity={dimmed ? 0.32 : 1} depthWrite={!dimmed} roughness={0.55} />
+      <meshStandardMaterial
+        color={color}
+        transparent={dimmed || hero}
+        opacity={dimmed ? 0.32 : hero ? 0.78 : 1}
+        depthWrite={!dimmed}
+        roughness={0.55}
+      />
       {!dimmed ? <Edges threshold={80} color={selected ? PALETTE.highlight : PALETTE.primary} /> : null}
       {showLabel && !dimmed ? (
-        <RoomLabel text={room.labelLines.join(" ")} strong={selected} position={[0, height / 2 + 0.15, 0]} />
+        <RoomLabel text={labelText ?? room.labelLines.join(" ")} strong={selected} position={[0, height / 2 + 0.15, 0]} />
       ) : null}
     </mesh>
   );
@@ -454,8 +505,8 @@ function RoomLabel({
       <div
         className={
           strong
-            ? "max-w-[11rem] rounded-md bg-primary px-2 py-1 text-center text-[12px] font-semibold leading-tight text-primary-foreground shadow-md"
-            : "max-w-[10rem] rounded-md bg-[#0b0f1f] px-2 py-1 text-center text-[11px] font-semibold leading-tight text-white shadow-md"
+            ? "max-w-[9rem] rounded-md bg-primary px-1.5 py-0.5 text-center text-[11px] font-semibold leading-tight text-primary-foreground shadow-md"
+            : "max-w-[8.5rem] rounded-md bg-[#0b0f1f] px-1.5 py-0.5 text-center text-[10px] font-semibold leading-tight text-white shadow-md"
         }
       >
         {text}
@@ -712,15 +763,16 @@ function Segment({
   const mid = start.clone().add(end).multiplyScalar(0.5);
   const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
   return (
-    <mesh position={mid} quaternion={quaternion}>
+    <mesh position={mid} quaternion={quaternion} renderOrder={10}>
       <cylinderGeometry args={[radius, radius, length, 8]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={opacity > 0.5 ? 0.22 : 0.05}
-        transparent={opacity < 1}
+        emissiveIntensity={opacity > 0.5 ? 0.45 : 0.12}
+        transparent
         opacity={opacity}
-        depthWrite={opacity > 0.5}
+        depthTest={false}
+        depthWrite={false}
       />
     </mesh>
   );
@@ -733,6 +785,7 @@ function CameraRig({
   followPoint = null,
   onUserInteract,
   profile = "default",
+  compact = false,
 }: {
   box: WorldBox;
   resetToken: number;
@@ -740,6 +793,7 @@ function CameraRig({
   followPoint?: WorldPoint | null;
   onUserInteract?: () => void;
   profile?: "default" | "hero";
+  compact?: boolean;
 }) {
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
@@ -750,9 +804,11 @@ function CameraRig({
   const ignoreStart = useRef(0);
   const profileRef = useRef(profile);
   profileRef.current = profile;
+  const compactRef = useRef(compact);
+  compactRef.current = compact;
 
   const applyPose = () => {
-    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current);
+    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current, compactRef.current);
     ignoreStart.current = 2;
     camera.position.set(pose.position.x, pose.position.y, pose.position.z);
     camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
@@ -765,13 +821,13 @@ function CameraRig({
 
   useLayoutEffect(() => {
     applyPose();
-    // Snap only on Fit / explicit reset — not on every selection, which caused settle jitter.
+    // Snap on Fit, viewport size, and phone/desktop camera profile — not on every room selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetToken, camera, invalidate, size.width, size.height]);
+  }, [resetToken, camera, invalidate, size.width, size.height, compact, profile]);
 
   useFrame((_, dt) => {
     if (!followPoint || !controls.current) return;
-    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current);
+    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current, compactRef.current);
     const mix = 0.42;
     const target = new THREE.Vector3(
       followPoint.x * mix + pose.target.x * (1 - mix),

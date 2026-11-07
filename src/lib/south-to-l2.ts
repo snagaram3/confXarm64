@@ -1,5 +1,5 @@
 import { SOUTH_ENTRANCE_ID } from "./map-query";
-import { WORLD_FLOOR_GAP, worldPoint, type WorldPoint } from "./map-3d-world";
+import { WORLD_FLOOR_GAP, roomWorldCenter, worldPoint, type WorldBox, type WorldPoint } from "./map-3d-world";
 import type { NavKeyframe } from "./nav-playback";
 import type { Floor, MapSurface } from "./types";
 import { SCHEMATIC_ROOMS, rectCenter, type SchematicRoom, type SchematicSheetId } from "./venue-schematic";
@@ -45,7 +45,7 @@ export const HERO_STEPS: HeroStep[] = [
     progress: 0.5,
     sheet: "salt-l1",
     highlightId: HERO_SHAFT_ID,
-    label: HERO_SHAFT_LABEL,
+    label: "DEMO floor change — not a surveyed elevator",
   },
   {
     progress: 0.72,
@@ -125,22 +125,54 @@ export function southToL2Keyframes(rooms: SchematicRoom[] = SCHEMATIC_ROOMS): Na
   const corridorY = 312;
   const shaft = HERO_SHAFT_SCHEMATIC;
   const midLift = WORLD_FLOOR_GAP * 0.5;
+  /** Drawn above schematic room masses so the DEMO ribbon stays readable. */
+  const walkLift = 3.15;
   return [
-    frame("salt-l1", { x: s.x, y: s.y }, 1, "south", "200 South Entrance · Salt Palace L1", "walk", 0.9),
-    frame("salt-l1", { x: s.x, y: (s.y + corridorY) / 2 }, 1, "approach", "Illustrative L1 corridor", "walk", 0.9),
-    frame("salt-l1", { x: s.x, y: corridorY }, 1, "corridor", "Illustrative L1 corridor", "walk", 0.9),
-    frame("salt-l1", { x: (s.x + shaft.x) / 2, y: corridorY }, 1, "along", "Illustrative L1 corridor", "walk", 0.9),
-    frame("salt-l1", shaft, 1, "shaft-base", HERO_SHAFT_LABEL, "walk", 0.9),
+    frame("salt-l1", { x: s.x, y: s.y }, 1, "south", "200 South Entrance · Salt Palace L1", "walk", walkLift),
+    frame("salt-l1", { x: s.x, y: (s.y + corridorY) / 2 }, 1, "approach", "Illustrative L1 corridor", "walk", walkLift),
+    frame("salt-l1", { x: s.x, y: corridorY }, 1, "corridor", "Illustrative L1 corridor", "walk", walkLift),
+    frame("salt-l1", { x: (s.x + shaft.x) / 2, y: corridorY }, 1, "along", "Illustrative L1 corridor", "walk", walkLift),
+    frame("salt-l1", shaft, 1, "shaft-base", HERO_SHAFT_LABEL, "walk", walkLift),
     frame("salt-l1", shaft, 1, "up", HERO_SHAFT_LABEL, "vertical", midLift),
-    frame("salt-l2", shaft, 2, "arrive-l2", "Salt Palace Level 2", "walk", 0.9),
-    frame("salt-l2", { x: shaft.x, y: (shaft.y + e.y) / 2 }, 2, "l2-drop", "Illustrative L2 corridor", "walk", 0.9),
-    frame("salt-l2", { x: e.x, y: corridorY }, 2, "l2-corridor", "Illustrative L2 corridor", "walk", 0.9),
-    frame("salt-l2", { x: e.x, y: e.y }, 2, "east-reg", "East Registration · Salt Palace L2", "walk", 0.9),
+    frame("salt-l2", shaft, 2, "arrive-l2", "Salt Palace Level 2", "walk", walkLift),
+    frame("salt-l2", { x: shaft.x, y: (shaft.y + e.y) / 2 }, 2, "l2-drop", "Illustrative L2 corridor", "walk", walkLift),
+    frame("salt-l2", { x: e.x, y: corridorY }, 2, "l2-corridor", "Illustrative L2 corridor", "walk", walkLift),
+    frame("salt-l2", { x: e.x, y: e.y }, 2, "east-reg", "East Registration · Salt Palace L2", "walk", walkLift),
   ];
 }
 
 export function heroShaftWorld(): WorldPoint {
   return worldPoint("salt-l1", HERO_SHAFT_SCHEMATIC, 0);
+}
+
+/** Tight framing around the DEMO L1→L2 corridor so phone/desktop aren't wasted on empty plate. */
+export function heroJourneyBox(rooms: SchematicRoom[] = SCHEMATIC_ROOMS, compact = false): WorldBox {
+  const origin = rooms.find((room) => room.id === HERO_ORIGIN_ID);
+  const dest = rooms.find((room) => room.id === HERO_DESTINATION_ID);
+  const pad = compact ? 6.2 : 9;
+  const points: WorldPoint[] = [
+    worldPoint("salt-l1", HERO_SHAFT_SCHEMATIC, 0),
+    worldPoint("salt-l1", HERO_SHAFT_SCHEMATIC, WORLD_FLOOR_GAP),
+  ];
+  if (origin) points.push(roomWorldCenter(origin, 1.4));
+  if (dest) points.push(roomWorldCenter(dest, WORLD_FLOOR_GAP + 1.4));
+  const min = { x: Infinity, y: -1.2, z: Infinity };
+  const max = { x: -Infinity, y: WORLD_FLOOR_GAP + 4.2, z: -Infinity };
+  for (const point of points) {
+    min.x = Math.min(min.x, point.x - pad);
+    min.z = Math.min(min.z, point.z - pad);
+    max.x = Math.max(max.x, point.x + pad);
+    max.z = Math.max(max.z, point.z + pad);
+  }
+  return {
+    min,
+    max,
+    center: {
+      x: (min.x + max.x) / 2,
+      y: WORLD_FLOOR_GAP * 0.42,
+      z: (min.z + max.z) / 2,
+    },
+  };
 }
 
 export function heroStepAt(progress: number): HeroStep {

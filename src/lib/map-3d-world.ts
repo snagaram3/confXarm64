@@ -138,26 +138,38 @@ export function isometricPose(
   aspect = 1.35,
   fov = 46,
   profile: "default" | "hero" = "default",
+  compact = false,
 ): { position: WorldPoint; target: WorldPoint } {
   const sizeX = Math.max(box.max.x - box.min.x, 8);
   const sizeY = Math.max(box.max.y - box.min.y, 4);
   const sizeZ = Math.max(box.max.z - box.min.z, 8);
   const vFov = (fov * Math.PI) / 180;
-  const margin = profile === "hero" ? 1.22 : 1.16;
-  const aspectSafe = Math.max(aspect, 0.95);
+  const hero = profile === "hero";
+  const margin = hero ? (compact ? 1.02 : 1.14) : 1.16;
+  const aspectSafe = Math.max(aspect, compact ? 0.78 : 0.95);
   const dist = Math.max(
     (sizeZ * margin) / (2 * Math.tan(vFov / 2)),
     (sizeX * margin) / (2 * Math.tan(vFov / 2) * aspectSafe),
-    profile === "hero" ? 34 : 28,
+    hero ? (compact ? 18 : 28) : 28,
   );
-  const target = { x: box.center.x, y: box.center.y + sizeY * (profile === "hero" ? 0.12 : 0.15), z: box.center.z };
-  if (profile === "hero") {
+  const target = {
+    x: box.center.x,
+    y: box.center.y + sizeY * (hero ? (compact ? 0.12 : 0.14) : 0.15),
+    z: box.center.z,
+  };
+  if (hero) {
     return {
-      position: {
-        x: target.x + dist * 0.72,
-        y: target.y + dist * 0.38,
-        z: target.z + dist * 0.52,
-      },
+      position: compact
+        ? {
+            x: target.x + dist * 0.38,
+            y: target.y + dist * 0.72,
+            z: target.z + dist * 0.42,
+          }
+        : {
+            x: target.x + dist * 0.68,
+            y: target.y + dist * 0.42,
+            z: target.z + dist * 0.5,
+          },
       target,
     };
   }
