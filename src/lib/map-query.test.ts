@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  EAST_REGISTRATION_ID,
   SOUTH_ENTRANCE_ID,
   bootstrapMapState,
   initialMapProjection,
@@ -38,6 +39,8 @@ describe("parseMapQuery", () => {
     assert.equal(resolveOriginRoomId(q.destination), "87423");
     assert.equal(originSheet(SOUTH_ENTRANCE_ID), "salt-l1");
     assert.equal(originSheet("87423"), "salt-l2");
+    assert.equal(resolveOriginRoomId("east-registration"), EAST_REGISTRATION_ID);
+    assert.equal(originSheet(EAST_REGISTRATION_ID), "salt-l2");
   });
 });
 
@@ -99,5 +102,18 @@ describe("serializeMapSearch", () => {
     });
     assert.match(q, /destination=87423/);
     assert.match(q, /origin=entrance-south/);
+  });
+
+  it("uses east-registration for the L2 hero destination", () => {
+    const q = serializeMapSearch({
+      projection: "3d",
+      surface: "venue",
+      originId: SOUTH_ENTRANCE_ID,
+      destinationId: EAST_REGISTRATION_ID,
+      stepFree: false,
+    });
+    assert.match(q, /origin=entrance-south/);
+    assert.match(q, /destination=east-registration/);
+    assert.match(q, /view=3d/);
   });
 });

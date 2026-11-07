@@ -1,5 +1,5 @@
 import { Edges, Html, OrbitControls, useTexture } from "@react-three/drei";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PALETTE } from "@/theme/tokens";
 import { venue } from "@/lib/catalog";
 import {
@@ -15,12 +15,14 @@ import {
   type WorldBox,
   type WorldPoint,
 } from "@/lib/map-3d-world";
-import { PORTALS, SHEETS, sheetById, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
+import { HERO_ORIGIN_ID, HERO_DESTINATION_ID, HERO_SHAFT_LABEL, heroShaftWorld } from "@/lib/south-to-l2";
+import { PORTALS, SHEETS, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 export type Map3DKind = "venue-schematic" | "image-plane" | "sample";
+export type MapJourneyMode = "hero" | "sample" | null;
 
 export interface Map3DPin {
   id: string;
@@ -33,7 +35,8 @@ export interface Map3DPin {
   sublabel?: string;
 }
 
-const CAMERA_FOV = 46;
+const CAMERA_FOV = 42;
+const HERO_L2_SHIFT = 24;
 
 export default function Map3DView({
   kind,
@@ -52,6 +55,9 @@ export default function Map3DView({
   onSheet,
   navPath,
   navMarker,
+  journeyMode,
+  followActive,
+  onUserInteract,
 }: {
   kind: Map3DKind;
   rooms: SchematicRoom[];
@@ -69,6 +75,9 @@ export default function Map3DView({
   onSheet?: (id: SchematicSheetId) => void;
   navPath?: WorldPoint[];
   navMarker?: WorldPoint | null;
+  journeyMode?: MapJourneyMode;
+  followActive?: boolean;
+  onUserInteract?: () => void;
 }) {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -78,30 +87,13 @@ export default function Map3DView({
     query.addEventListener("change", update);
     return () => query.removeEventListener("change", update);
   }, []);
-  const sheet = sheetById(focusSheet);
-  const selectedRoom = rooms.find((room) => room.id === selectedId);
-  const selectedPin = pins?.find((pin) => pin.id === selectedId);
-  const selectedName =
-    selectedRoom?.labelLines.join(" ") ??
-    selectedRoom?.roomOrArea ??
-    selectedPin?.label ??
-    (kind === "sample" ? (sampleSpaces?.find((space) => space.id === selectedId)?.label ?? "SAMPLE floor") : "Tap a room on this floor");
-  const selectedElsewhere =
-    selectedRoom && selectedRoom.sheet !== focusSheet && kind === "venue-schematic"
-      ? `${selectedName} is on ${sheetById(selectedRoom.sheet).title}`
-      : selectedName;
-  const floorTitle =
-    kind === "venue-schematic"
-      ? sheet.title
-      : kind === "sample"
-        ? `SAMPLE · floor ${sampleFloor ?? 1}`
-        : "Official floorplan image";
+  const hero = journeyMode === "hero";
 
   return (
-    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[4.5rem] pb-[15rem] lg:pt-16 lg:pb-36">
+    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[3.35rem] pb-[7.25rem] sm:pb-[7.5rem] lg:pt-14 lg:pb-24">
       <Canvas
         camera={{ fov: CAMERA_FOV, near: 0.1, far: 5000, position: [48, 72, 96] }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.75]}
         frameloop={reducedMotion ? "demand" : "always"}
         gl={{ antialias: true, powerPreference: "low-power" }}
         onCreated={({ gl }) => {
@@ -110,9 +102,11 @@ export default function Map3DView({
           gl.domElement.tabIndex = -1;
         }}
       >
-        <ambientLight intensity={0.95} />
-        <directionalLight position={[40, 90, 55]} intensity={1.35} />
-        <hemisphereLight args={[PALETTE.secondary, "#8a9bb0", 0.55]} />
+        <fog attach="fog" args={[PALETTE.mapCanvas, 90, 320]} />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[48, 110, 36]} intensity={1.45} />
+        <directionalLight position={[-40, 28, -24]} intensity={0.28} color={PALETTE.peach} />
+        <hemisphereLight args={["#e8eef6", "#7d8ca3", 0.42]} />
         <Suspense fallback={null}>
           {kind === "venue-schematic" && (
             <SchematicScene
@@ -123,8 +117,13 @@ export default function Map3DView({
               onSelect={onSelect}
               reducedMotion={reducedMotion}
               resetToken={resetToken}
-              compact={compact}
+              compact={compact || hero}
               onSheet={onSheet}
+              navPath={hero ? navPath : undefined}
+              navMarker={hero ? navMarker ?? null : null}
+              hero={hero}
+              followActive={Boolean(followActive && hero)}
+              onUserInteract={onUserInteract}
             />
           )}
           {kind === "image-plane" && imageSrc && (
@@ -136,6 +135,7 @@ export default function Map3DView({
               onSelect={onSelect}
               reducedMotion={reducedMotion}
               resetToken={resetToken}
+              onUserInteract={onUserInteract}
             />
           )}
           {kind === "sample" && (
@@ -149,26 +149,14 @@ export default function Map3DView({
               resetToken={resetToken}
               navPath={navPath}
               navMarker={navMarker}
+              followActive={Boolean(followActive)}
+              onUserInteract={onUserInteract}
             />
           )}
         </Suspense>
       </Canvas>
-      <aside className="pointer-events-none absolute left-2 top-[3.85rem] z-10 max-w-[min(94%,20rem)] rounded-xl border border-border bg-card/95 p-2.5 shadow-sm lg:top-[3.65rem]">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">{floorTitle}</p>
-        <p className="text-sm font-semibold leading-snug text-foreground">{selectedElsewhere}</p>
-        <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-          {kind === "venue-schematic"
-            ? "Illustrative extrusion — not to scale, not GPS. Navy = selected. Gold = recommended."
-            : kind === "image-plane"
-              ? "Official image on a plane. Pins are image-relative, not buildings."
-              : "SAMPLE extrusion — not the official Salt Palace."}
-        </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">Drag to orbit · two-finger pan · pinch zoom · Fit resets this floor.</p>
-      </aside>
-      <p className="pointer-events-none absolute bottom-1 left-2 max-w-[min(72%,22rem)] text-[10px] leading-snug text-foreground/80">
-        {kind === "venue-schematic" && "WebGL 3D extrusion of the Floorwise schematic — not surveyed heights."}
-        {kind === "image-plane" && "Official floorplan image on a 3D plane. Pins are not extruded buildings."}
-        {kind === "sample" && "SAMPLE schematic extruded for orbit — not the official Salt Palace."}
+      <p className="sr-only">
+        Drag to orbit. Pinch zoom. Fit resets the camera. Keyboard: Space pause, R replay, Escape explore, arrows for steps.
       </p>
     </div>
   );
@@ -184,6 +172,11 @@ function SchematicScene({
   resetToken,
   compact,
   onSheet,
+  navPath,
+  navMarker,
+  hero,
+  followActive,
+  onUserInteract,
 }: {
   rooms: SchematicRoom[];
   selectedId: string | null;
@@ -194,37 +187,61 @@ function SchematicScene({
   resetToken: number;
   compact: boolean;
   onSheet?: (id: SchematicSheetId) => void;
+  navPath?: WorldPoint[];
+  navMarker?: WorldPoint | null;
+  hero: boolean;
+  followActive: boolean;
+  onUserInteract?: () => void;
 }) {
   const visibleSheets = relatedSheets(focusSheet);
-  const labelIds = useMemo(
-    () => labeledRoomIds(rooms, focusSheet, selectedId, recommendedId, compact),
-    [rooms, focusSheet, selectedId, recommendedId, compact],
-  );
-  const box = useMemo(
-    () => focusWorldBox({ focusSheet, rooms, selectedId }),
-    [focusSheet, rooms, selectedId],
-  );
+  const labelIds = useMemo(() => {
+    const ids = labeledRoomIds(rooms, focusSheet, selectedId, recommendedId, compact || hero);
+    if (hero) {
+      ids.add(HERO_ORIGIN_ID);
+      ids.add(HERO_DESTINATION_ID);
+    }
+    return ids;
+  }, [rooms, focusSheet, selectedId, recommendedId, compact, hero]);
+  const box = useMemo(() => {
+    const base = focusWorldBox({ focusSheet, rooms, selectedId: hero ? null : selectedId });
+    if (hero && !compact) {
+      base.max.x += HERO_L2_SHIFT;
+      base.center.x += HERO_L2_SHIFT * 0.5;
+    }
+    return base;
+  }, [focusSheet, rooms, selectedId, hero, compact]);
+  const shaft = heroShaftWorld();
 
   return (
     <>
-      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
+      <CameraRig
+        box={box}
+        resetToken={resetToken}
+        reducedMotion={reducedMotion}
+        followPoint={followActive ? shiftHeroPoint(navMarker ?? null, hero && !compact) : null}
+        onUserInteract={onUserInteract}
+        profile={hero ? "hero" : "default"}
+      />
       {SHEETS.filter((sheet) => visibleSheets.includes(sheet.id)).map((sheet) => {
         const sheetRooms = rooms.filter((room) => room.sheet === sheet.id);
         const plate = sheetPlate(sheet.id, rooms);
         const focused = sheet.id === focusSheet;
+        const showFloor = hero || focused;
+        const shiftX = hero && !compact && sheet.id === "salt-l2" ? HERO_L2_SHIFT : 0;
         return (
-          <group key={sheet.id}>
-            <mesh position={[plate.center.x, plate.center.y, plate.center.z]}>
-              <boxGeometry args={[plate.width, 0.4, plate.depth]} />
+          <group key={sheet.id} position={[shiftX, 0, 0]}>
+            <mesh position={[plate.center.x, plate.center.y, plate.center.z]} receiveShadow>
+              <boxGeometry args={[plate.width, 0.38, plate.depth]} />
               <meshStandardMaterial
-                color={sheet.id === "hyatt" ? "#edc9b0" : focused ? "#9eb1c9" : "#c5d0e0"}
+                color={sheet.id === "hyatt" ? "#edc9b0" : focused ? "#8ea3bf" : "#b7c4d6"}
                 transparent={!focused}
-                opacity={focused ? 1 : 0.38}
-                depthWrite={focused}
+                opacity={hero ? (focused ? 1 : 0.72) : focused ? 1 : 0.34}
+                depthWrite={focused || hero}
+                roughness={0.72}
               />
             </mesh>
             <Html
-              position={[plate.center.x, plate.center.y + (focused ? 3.4 : 8.2), plate.center.z - plate.depth * 0.46]}
+              position={[plate.center.x, plate.center.y + (focused ? 3.6 : 7.4), plate.center.z - plate.depth * 0.46]}
               center
               sprite
               zIndexRange={[12, 0]}
@@ -246,32 +263,131 @@ function SchematicScene({
                 room={room}
                 selected={room.id === selectedId}
                 recommended={room.id === recommendedId}
-                dimmed={!focused}
-                showLabel={labelIds.has(room.id)}
+                dimmed={!showFloor}
+                showLabel={labelIds.has(room.id) && (hero ? room.id === selectedId || room.id === HERO_ORIGIN_ID || room.id === HERO_DESTINATION_ID || room.kind === "entrance" : true) && (focused || hero)}
                 onSelect={onSelect}
               />
             ))}
           </group>
         );
       })}
-      {PORTALS.filter((portal) => portal.sheet === focusSheet).map((portal) => {
-        const point = worldPoint(portal.sheet, portal.point, 3.2);
+      {hero ? <DemoShaft x={shaft.x} z={shaft.z} compact={compact} /> : null}
+      {navPath && navPath.length > 1 ? (
+        <JourneyRibbon path={navPath.map((point) => shiftHeroPoint(point, hero && !compact)!)} marker={shiftHeroPoint(navMarker ?? null, hero && !compact)} />
+      ) : null}
+      {navMarker ? (
+        <ProgressMarker
+          point={shiftHeroPoint(navMarker, hero && !compact)!}
+          caption={hero ? null : "SAMPLE walker · not GPS"}
+        />
+      ) : null}
+      {!hero &&
+        PORTALS.filter((portal) => portal.sheet === focusSheet).map((portal) => {
+          const point = worldPoint(portal.sheet, portal.point, 3.2);
+          return (
+            <Html key={`${portal.sheet}-${portal.toSheet}`} position={[point.x, point.y, point.z]} center sprite zIndexRange={[24, 0]}>
+              <button
+                type="button"
+                className="rounded-md border border-border bg-[#0b0f1f] px-2 py-1 text-[10px] font-semibold text-white shadow"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSheet?.(portal.toSheet);
+                }}
+              >
+                {portal.label} · schematic link, not stairs
+              </button>
+            </Html>
+          );
+        })}
+    </>
+  );
+}
+
+function shiftHeroPoint(point: WorldPoint | null, hero: boolean): WorldPoint | null {
+  if (!point) return null;
+  if (!hero || point.y < WORLD_FLOOR_GAP * 0.75) return point;
+  return { ...point, x: point.x + HERO_L2_SHIFT };
+}
+
+function DemoShaft({ x, z, compact }: { x: number; z: number; compact: boolean }) {
+  const h = WORLD_FLOOR_GAP + 1.4;
+  const shift = compact ? 0 : HERO_L2_SHIFT * 0.35;
+  return (
+    <group position={[x + shift, h / 2, z]}>
+      <mesh>
+        <cylinderGeometry args={[1.05, 1.35, h, 24, 1, true]} />
+        <meshStandardMaterial
+          color={PALETTE.cta}
+          transparent
+          opacity={0.28}
+          emissive={PALETTE.cta}
+          emissiveIntensity={0.32}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh>
+        <cylinderGeometry args={[0.22, 0.22, h, 8]} />
+        <meshStandardMaterial color={PALETTE.highlight} emissive={PALETTE.highlight} emissiveIntensity={0.6} />
+      </mesh>
+      {compact ? null : (
+        <Html position={[0, h / 2 + 0.35, 0]} center sprite zIndexRange={[40, 0]} style={{ pointerEvents: "none" }}>
+          <div className="max-w-[8.5rem] rounded-md bg-cta px-2 py-1 text-center text-[10px] font-bold leading-tight text-white shadow-md">
+            {HERO_SHAFT_LABEL}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+function JourneyRibbon({ path, marker }: { path: WorldPoint[]; marker: WorldPoint | null }) {
+  const traveled = useMemo(() => {
+    if (!marker || path.length < 2) return path.length - 1;
+    let best = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < path.length; i += 1) {
+      const point = path[i]!;
+      const d = Math.hypot(point.x - marker.x, point.y - marker.y, point.z - marker.z);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  }, [path, marker]);
+  return (
+    <>
+      {path.slice(1).map((point, i) => {
+        const prev = path[i]!;
+        const vertical = Math.abs(point.y - prev.y) > Math.hypot(point.x - prev.x, point.z - prev.z);
+        const done = i < traveled;
         return (
-          <Html key={`${portal.sheet}-${portal.toSheet}`} position={[point.x, point.y, point.z]} center sprite zIndexRange={[24, 0]}>
-            <button
-              type="button"
-              className="rounded-md border border-border bg-[#0b0f1f] px-2 py-1 text-[10px] font-semibold text-white shadow"
-              onClick={(event) => {
-                event.stopPropagation();
-                onSheet?.(portal.toSheet);
-              }}
-            >
-              {portal.label} · schematic link, not stairs
-            </button>
-          </Html>
+          <Segment
+            key={`rib-${i}`}
+            a={prev}
+            b={point}
+            color={vertical ? PALETTE.cta : PALETTE.primary}
+            radius={done ? 0.42 : 0.2}
+            opacity={done ? 1 : 0.28}
+          />
         );
       })}
     </>
+  );
+}
+
+function ProgressMarker({ point, caption }: { point: WorldPoint; caption: string | null }) {
+  return (
+    <mesh position={[point.x, point.y + 0.7, point.z]}>
+      <sphereGeometry args={[0.78, 20, 20]} />
+      <meshStandardMaterial color={PALETTE.highlight} emissive={PALETTE.cta} emissiveIntensity={0.5} />
+      {caption ? (
+        <Html position={[1.8, 0.9, 0]} center sprite zIndexRange={[50, 0]} style={{ pointerEvents: "none" }}>
+          <div className="rounded-md bg-[#0b0f1f] px-2 py-1 text-[10px] font-semibold text-white shadow">{caption}</div>
+        </Html>
+      ) : null}
+    </mesh>
   );
 }
 
@@ -290,15 +406,15 @@ function RoomMesh({
   showLabel: boolean;
   onSelect: (id: string) => void;
 }) {
-  const height = selected ? 3.1 : room.kind === "entrance" ? 1.2 : room.kind === "hall" ? 2.1 : 2.4;
+  const height = selected ? 2.7 : room.kind === "entrance" ? 1.35 : room.kind === "hall" ? 2.05 : 2.15;
   const center = roomWorldCenter(room, height / 2);
   const color = selected
     ? PALETTE.primary
     : recommended
       ? PALETTE.highlight
       : room.placedOnOfficial
-        ? "#e8eef6"
-        : "#d9c48a";
+        ? "#eef3f9"
+        : "#e2d3a8";
   return (
     <mesh
       position={[center.x, center.y, center.z]}
@@ -315,8 +431,8 @@ function RoomMesh({
       }}
     >
       <boxGeometry args={[Math.max(0.55, room.rect.w * WORLD_SCALE - 0.28), height, Math.max(0.55, room.rect.h * WORLD_SCALE - 0.28)]} />
-      <meshStandardMaterial color={color} transparent={dimmed} opacity={dimmed ? 0.28 : 1} depthWrite={!dimmed} />
-      {!dimmed ? <Edges threshold={80} color={selected ? "#fefefe" : PALETTE.primary} /> : null}
+      <meshStandardMaterial color={color} transparent={dimmed} opacity={dimmed ? 0.32 : 1} depthWrite={!dimmed} roughness={0.55} />
+      {!dimmed ? <Edges threshold={80} color={selected ? PALETTE.highlight : PALETTE.primary} /> : null}
       {showLabel && !dimmed ? (
         <RoomLabel text={room.labelLines.join(" ")} strong={selected} position={[0, height / 2 + 0.15, 0]} />
       ) : null}
@@ -338,8 +454,8 @@ function RoomLabel({
       <div
         className={
           strong
-            ? "max-w-[12rem] rounded-md bg-primary px-2 py-1 text-center text-[12px] font-semibold leading-tight text-primary-foreground shadow-md"
-            : "max-w-[11rem] rounded-md bg-[#0b0f1f] px-2 py-1 text-center text-[11px] font-semibold leading-tight text-white shadow-md"
+            ? "max-w-[11rem] rounded-md bg-primary px-2 py-1 text-center text-[12px] font-semibold leading-tight text-primary-foreground shadow-md"
+            : "max-w-[10rem] rounded-md bg-[#0b0f1f] px-2 py-1 text-center text-[11px] font-semibold leading-tight text-white shadow-md"
         }
       >
         {text}
@@ -356,6 +472,7 @@ function ImagePlaneScene({
   onSelect,
   reducedMotion,
   resetToken,
+  onUserInteract,
 }: {
   src: string;
   pins: Map3DPin[];
@@ -364,6 +481,7 @@ function ImagePlaneScene({
   onSelect: (id: string) => void;
   reducedMotion: boolean;
   resetToken: number;
+  onUserInteract?: () => void;
 }) {
   const texture = useTexture(src);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -392,7 +510,7 @@ function ImagePlaneScene({
   }, [selected, width, depth]);
   return (
     <>
-      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
+      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} onUserInteract={onUserInteract} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[width, depth]} />
         <meshBasicMaterial map={texture} />
@@ -404,6 +522,7 @@ function ImagePlaneScene({
         const rec = pin.id === recommendedId;
         const connector = pin.kind === "connector";
         const booth = pin.kind === "booth";
+        const showLabel = selectedPin || rec || connector;
         return (
           <group key={pin.id} position={[x, selectedPin ? 1.4 : 0.85, z]}>
             <mesh
@@ -429,43 +548,37 @@ function ImagePlaneScene({
               />
               <meshStandardMaterial
                 color={
-                  selectedPin
-                    ? PALETTE.primary
-                    : rec
-                      ? PALETTE.must
-                      : connector
-                        ? "#4b5d78"
-                        : PALETTE.cta
+                  selectedPin ? PALETTE.primary : rec ? PALETTE.must : connector ? "#4b5d78" : PALETTE.cta
                 }
               />
             </mesh>
-            {(selectedPin || rec || connector || booth) ? (
-            <Html center sprite zIndexRange={[28, 0]} style={{ pointerEvents: "auto" }} position={[0, selectedPin ? 2.2 : 1.35, 0]}>
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onSelect(pin.id);
-                }}
-                className={
-                  selectedPin
-                    ? "flex max-w-[9rem] items-center gap-1 rounded-md bg-primary px-1.5 py-1 text-left text-[11px] font-semibold text-primary-foreground shadow"
-                    : connector
-                      ? "rounded-md bg-[#0b0f1f] px-1.5 py-1 text-[10px] font-semibold text-white shadow"
-                      : "flex max-w-[8.5rem] items-center gap-1 rounded-md bg-card px-1.5 py-1 text-left text-[10px] font-semibold text-foreground shadow"
-                }
-                aria-label={pin.label}
-              >
-                {pin.logoSrc ? (
-                  <img
-                    src={pin.logoSrc}
-                    alt=""
-                    className={pin.logoOnDark ? "size-6 rounded bg-primary object-contain p-0.5" : "size-6 rounded bg-white object-contain"}
-                  />
-                ) : null}
-                <span className="leading-tight">{pin.label}</span>
-              </button>
-            </Html>
+            {showLabel ? (
+              <Html center sprite zIndexRange={[28, 0]} style={{ pointerEvents: "auto" }} position={[0, selectedPin ? 2.2 : 1.35, 0]}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelect(pin.id);
+                  }}
+                  className={
+                    selectedPin
+                      ? "flex max-w-[9rem] items-center gap-1 rounded-md bg-primary px-1.5 py-1 text-left text-[11px] font-semibold text-primary-foreground shadow"
+                      : connector
+                        ? "rounded-md bg-[#0b0f1f] px-1.5 py-1 text-[10px] font-semibold text-white shadow"
+                        : "flex max-w-[8.5rem] items-center gap-1 rounded-md bg-card px-1.5 py-1 text-left text-[10px] font-semibold text-foreground shadow"
+                  }
+                  aria-label={pin.label}
+                >
+                  {pin.logoSrc ? (
+                    <img
+                      src={pin.logoSrc}
+                      alt=""
+                      className={pin.logoOnDark ? "size-6 rounded bg-primary object-contain p-0.5" : "size-6 rounded bg-white object-contain"}
+                    />
+                  ) : null}
+                  <span className="leading-tight">{pin.label}</span>
+                </button>
+              </Html>
             ) : null}
           </group>
         );
@@ -484,6 +597,8 @@ function SampleScene({
   resetToken,
   navPath,
   navMarker,
+  followActive,
+  onUserInteract,
 }: {
   spaces: Space[];
   floor: number;
@@ -494,6 +609,8 @@ function SampleScene({
   resetToken: number;
   navPath?: WorldPoint[];
   navMarker?: WorldPoint | null;
+  followActive?: boolean;
+  onUserInteract?: () => void;
 }) {
   const S = WORLD_SCALE;
   const stacked = Boolean(navPath && navPath.length > 1);
@@ -521,7 +638,13 @@ function SampleScene({
   const floors = stacked ? [1, 2] : [floor];
   return (
     <>
-      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
+      <CameraRig
+        box={box}
+        resetToken={resetToken}
+        reducedMotion={reducedMotion}
+        followPoint={followActive ? navMarker ?? null : null}
+        onUserInteract={onUserInteract}
+      />
       {floors.map((lvl) => (
         <mesh key={`plate-${lvl}`} position={[(w / 2) * S, (lvl - 1) * WORLD_FLOOR_GAP - 0.2, (h / 2) * S]}>
           <boxGeometry args={[w * S, 0.3, h * S]} />
@@ -542,11 +665,7 @@ function SampleScene({
             }}
           >
             <boxGeometry args={[space.w * S, height, space.h * S]} />
-            <meshStandardMaterial
-              color={
-                selectedSpace ? PALETTE.primary : space.kind === "vertical" ? "#334155" : "#e8eef6"
-              }
-            />
+            <meshStandardMaterial color={selectedSpace ? PALETTE.primary : space.kind === "vertical" ? "#334155" : "#e8eef6"} />
             <Edges color={PALETTE.primary} />
             {selectedSpace || space.kind === "entrance" || space.kind === "vertical" ? (
               <RoomLabel
@@ -558,31 +677,34 @@ function SampleScene({
           </mesh>
         );
       })}
-      {(navPath && navPath.length > 1 ? navPath : null)
-        ? (navPath ?? []).slice(1).map((point, i) => {
-            const prev = (navPath ?? [])[i]!;
-            return <Segment key={`nav-${i}`} a={prev} b={point} />;
-          })
-        : path && path.length > 1
-          ? path.slice(1).map((point, i) => {
-              const prev = path[i]!;
-              const a = { x: prev[0] * S, y: 0.5, z: prev[1] * S };
-              const b = { x: point[0] * S, y: 0.5, z: point[1] * S };
-              return <Segment key={i} a={a} b={b} />;
-            })
-          : null}
-      {navMarker ? (
-        <mesh position={[navMarker.x, navMarker.y + 0.6, navMarker.z]}>
-          <sphereGeometry args={[0.85, 16, 16]} />
-          <meshStandardMaterial color={PALETTE.cta} emissive={PALETTE.cta} emissiveIntensity={0.35} />
-          <RoomLabel text="SAMPLE walker · not live GPS" strong position={[0, 1.4, 0]} />
-        </mesh>
+      {navPath && navPath.length > 1 ? (
+        <JourneyRibbon path={navPath} marker={navMarker ?? null} />
+      ) : path && path.length > 1 ? (
+        path.slice(1).map((point, i) => {
+          const prev = path[i]!;
+          const a = { x: prev[0] * S, y: 0.5, z: prev[1] * S };
+          const b = { x: point[0] * S, y: 0.5, z: point[1] * S };
+          return <Segment key={i} a={a} b={b} color={PALETTE.primary} />;
+        })
       ) : null}
+      {navMarker ? <ProgressMarker point={navMarker} caption="SAMPLE walker · not live GPS" /> : null}
     </>
   );
 }
 
-function Segment({ a, b }: { a: WorldPoint; b: WorldPoint }) {
+function Segment({
+  a,
+  b,
+  color = PALETTE.primary,
+  radius = 0.28,
+  opacity = 1,
+}: {
+  a: WorldPoint;
+  b: WorldPoint;
+  color?: string;
+  radius?: number;
+  opacity?: number;
+}) {
   const start = new THREE.Vector3(a.x, a.y, a.z);
   const end = new THREE.Vector3(b.x, b.y, b.z);
   const dir = end.clone().sub(start);
@@ -591,8 +713,15 @@ function Segment({ a, b }: { a: WorldPoint; b: WorldPoint }) {
   const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
   return (
     <mesh position={mid} quaternion={quaternion}>
-      <cylinderGeometry args={[0.28, 0.28, length, 8]} />
-      <meshStandardMaterial color={PALETTE.primary} />
+      <cylinderGeometry args={[radius, radius, length, 8]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={opacity > 0.5 ? 0.22 : 0.05}
+        transparent={opacity < 1}
+        opacity={opacity}
+        depthWrite={opacity > 0.5}
+      />
     </mesh>
   );
 }
@@ -601,18 +730,30 @@ function CameraRig({
   box,
   resetToken,
   reducedMotion,
+  followPoint = null,
+  onUserInteract,
+  profile = "default",
 }: {
   box: WorldBox;
   resetToken: number;
   reducedMotion: boolean;
+  followPoint?: WorldPoint | null;
+  onUserInteract?: () => void;
+  profile?: "default" | "hero";
 }) {
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
   const size = useThree((state) => state.size);
   const controls = useRef<{ target: THREE.Vector3; update: () => void } | null>(null);
+  const boxRef = useRef(box);
+  boxRef.current = box;
+  const ignoreStart = useRef(0);
+  const profileRef = useRef(profile);
+  profileRef.current = profile;
 
-  useLayoutEffect(() => {
-    const pose = isometricPose(box, size.width / Math.max(size.height, 1), CAMERA_FOV);
+  const applyPose = () => {
+    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current);
+    ignoreStart.current = 2;
     camera.position.set(pose.position.x, pose.position.y, pose.position.z);
     camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
     if (controls.current) {
@@ -620,29 +761,34 @@ function CameraRig({
       controls.current.update();
     }
     invalidate();
-  }, [box, resetToken, camera, invalidate, size.width, size.height]);
+  };
 
-  useEffect(() => {
-    let cancelled = false;
-    const apply = () => {
-      if (cancelled) return;
-      const pose = isometricPose(box, size.width / Math.max(size.height, 1), CAMERA_FOV);
-      camera.position.set(pose.position.x, pose.position.y, pose.position.z);
-      camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
-      if (controls.current) {
-        controls.current.target.set(pose.target.x, pose.target.y, pose.target.z);
-        controls.current.update();
-      }
-      invalidate();
-    };
-    const first = window.requestAnimationFrame(apply);
-    const second = window.requestAnimationFrame(() => window.requestAnimationFrame(apply));
-    return () => {
-      cancelled = true;
-      window.cancelAnimationFrame(first);
-      window.cancelAnimationFrame(second);
-    };
-  }, [box, resetToken, camera, invalidate, size.width, size.height]);
+  useLayoutEffect(() => {
+    applyPose();
+    // Snap only on Fit / explicit reset — not on every selection, which caused settle jitter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetToken, camera, invalidate, size.width, size.height]);
+
+  useFrame((_, dt) => {
+    if (!followPoint || !controls.current) return;
+    const pose = isometricPose(boxRef.current, size.width / Math.max(size.height, 1), CAMERA_FOV, profileRef.current);
+    const mix = 0.42;
+    const target = new THREE.Vector3(
+      followPoint.x * mix + pose.target.x * (1 - mix),
+      followPoint.y + 1.6,
+      followPoint.z * mix + pose.target.z * (1 - mix),
+    );
+    const offset = new THREE.Vector3(
+      pose.position.x - pose.target.x,
+      pose.position.y - pose.target.y,
+      pose.position.z - pose.target.z,
+    );
+    const desired = target.clone().add(offset);
+    const t = Math.min(1, dt * 2.1);
+    controls.current.target.lerp(target, t);
+    camera.position.lerp(desired, t);
+    controls.current.update();
+  });
 
   return (
     <OrbitControls
@@ -656,6 +802,13 @@ function CameraRig({
       maxPolarAngle={Math.PI / 2.12}
       touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
       makeDefault
+      onStart={() => {
+        if (ignoreStart.current > 0) {
+          ignoreStart.current -= 1;
+          return;
+        }
+        onUserInteract?.();
+      }}
     />
   );
 }

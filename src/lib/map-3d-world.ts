@@ -137,18 +137,30 @@ export function isometricPose(
   box: WorldBox,
   aspect = 1.35,
   fov = 46,
+  profile: "default" | "hero" = "default",
 ): { position: WorldPoint; target: WorldPoint } {
   const sizeX = Math.max(box.max.x - box.min.x, 8);
   const sizeY = Math.max(box.max.y - box.min.y, 4);
   const sizeZ = Math.max(box.max.z - box.min.z, 8);
   const vFov = (fov * Math.PI) / 180;
-  const margin = 1.16;
+  const margin = profile === "hero" ? 1.22 : 1.16;
+  const aspectSafe = Math.max(aspect, 0.95);
   const dist = Math.max(
     (sizeZ * margin) / (2 * Math.tan(vFov / 2)),
-    (sizeX * margin) / (2 * Math.tan(vFov / 2) * Math.max(aspect, 0.5)),
-    28,
+    (sizeX * margin) / (2 * Math.tan(vFov / 2) * aspectSafe),
+    profile === "hero" ? 34 : 28,
   );
-  const target = { x: box.center.x, y: box.center.y + sizeY * 0.15, z: box.center.z };
+  const target = { x: box.center.x, y: box.center.y + sizeY * (profile === "hero" ? 0.12 : 0.15), z: box.center.z };
+  if (profile === "hero") {
+    return {
+      position: {
+        x: target.x + dist * 0.72,
+        y: target.y + dist * 0.38,
+        z: target.z + dist * 0.52,
+      },
+      target,
+    };
+  }
   return {
     position: {
       x: target.x + dist * 0.42,

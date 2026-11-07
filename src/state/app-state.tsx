@@ -23,12 +23,13 @@ import {
 import {
   FEATURED_BOOTH_ID,
   LATE_SESSION_ID,
-  OPENING_KEYNOTE_ID,
   catalog,
   sampleSessionById,
   sessionsInRoom,
   wayfinding,
 } from "@/lib/catalog";
+import { HERO_DESTINATION_ID } from "@/lib/south-to-l2";
+import { SOUTH_ENTRANCE_ID } from "@/lib/map-query";
 import { parseAsk, type ConferenceDayId } from "@/lib/ask";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { sheetForFocus, type SchematicSheetId } from "@/lib/venue-schematic";
@@ -239,9 +240,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<AppView>(() =>
     parseToolsPath(window.location.pathname) ? "tools" : "map",
   );
-  const [floor, setFloor] = useState<Floor>(2);
+  const [floor, setFloor] = useState<Floor>(1);
   const [selection, setSelection] = useState<Selection>(() =>
-    boot.focusId ? { kind: "space", id: boot.focusId } : null,
+    boot.focusId && boot.focusId !== SOUTH_ENTRANCE_ID
+      ? { kind: "space", id: boot.focusId }
+      : { kind: "space", id: SOUTH_ENTRANCE_ID },
   );
   const [navigating, setNavigating] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
@@ -273,8 +276,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       : null,
   );
   const [mapCameraReset, setMapCameraReset] = useState(0);
-  const [mapOriginId] = useState<string | null>(boot.originId);
-  const [mapDestinationId, setMapDestinationId] = useState<string | null>(boot.destinationId);
+  const [mapOriginId] = useState<string | null>(boot.originId ?? SOUTH_ENTRANCE_ID);
+  const [mapDestinationId, setMapDestinationId] = useState<string | null>(
+    boot.destinationId ??
+      (boot.focusId && boot.focusId !== SOUTH_ENTRANCE_ID && boot.focusId !== HERO_DESTINATION_ID
+        ? boot.focusId
+        : HERO_DESTINATION_ID),
+  );
   const [stepFree, setStepFree] = useState(boot.stepFree ?? false);
   const [dayFilter, setDayFilter] = useState<ConferenceDayId | "all">("all");
   const [includeEnded, setIncludeEnded] = useState(false);
@@ -394,7 +402,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const map: Record<string, Session> = {};
         for (const s of data.sessions) map[s.id] = s;
         setSessionIndex(map);
-        setSelection((prev) => prev ?? { kind: "session", id: OPENING_KEYNOTE_ID });
+        setSelection((prev) => prev ?? { kind: "space", id: SOUTH_ENTRANCE_ID });
       })
       .catch(() => undefined);
     fetchReminderStatus()

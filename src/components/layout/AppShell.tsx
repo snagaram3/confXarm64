@@ -5,7 +5,6 @@ import { ProfileSheet } from "@/components/profile/ProfileSheet";
 import { AgendaPanel } from "@/components/agenda/AgendaPanel";
 import { FeaturedPanel } from "@/components/sessions/FeaturedPanel";
 import { RankedList } from "@/components/sessions/RankedList";
-import { SessionDetail } from "@/components/sessions/SessionDetail";
 import { SponsorView } from "@/components/sponsor/SponsorView";
 import { SearchStatus } from "@/components/status/SearchStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -57,11 +56,13 @@ export function AppShell() {
           className={cn(
             "flex min-h-0 min-w-0 flex-col bg-card/95",
             "max-lg:absolute max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-30 max-lg:max-w-full max-lg:rounded-t-3xl max-lg:border-t max-lg:border-border max-lg:shadow-[0_-16px_40px_rgba(28,25,23,0.14)]",
-            view === "tools" || sheetOpen
-              ? view === "tools"
-                ? "max-lg:h-[min(82vh,46rem)]"
-                : "max-lg:h-[min(38vh,20rem)]"
-              : "max-lg:h-[5.75rem] max-lg:landscape:h-0 max-lg:landscape:overflow-hidden max-lg:landscape:border-0 max-lg:landscape:shadow-none",
+            view === "map"
+              ? "max-lg:hidden lg:hidden"
+              : view === "tools" || sheetOpen
+                ? view === "tools"
+                  ? "max-lg:h-[min(82vh,46rem)]"
+                  : "max-lg:h-[min(38vh,20rem)]"
+                : "max-lg:h-[5.75rem] max-lg:landscape:h-0 max-lg:landscape:overflow-hidden max-lg:landscape:border-0 max-lg:landscape:shadow-none",
             view === "tools"
               ? "lg:h-full lg:w-[min(56vw,44rem)] lg:shrink-0 lg:border-l lg:border-border"
               : "lg:h-full lg:w-[min(38vw,26rem)] lg:shrink-0 lg:border-l lg:border-border",
@@ -81,8 +82,7 @@ export function AppShell() {
           <ScrollArea className="min-h-0 min-w-0 w-full flex-1">
             <div className="flex w-full min-w-0 max-w-full flex-col gap-3 overflow-x-clip p-3 pb-4 lg:gap-4 lg:p-5">
               {view !== "tools" && <SearchStatus />}
-              {view !== "navigate" && view !== "tools" && view !== "agenda" && <SuggestionRail />}
-              {view === "map" && <SessionDetail />}
+              {view !== "navigate" && view !== "tools" && view !== "agenda" && view !== "map" && <SuggestionRail />}
               {view === "agenda" && (
                 <>
                   <RankedList />

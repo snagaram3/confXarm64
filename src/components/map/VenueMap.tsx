@@ -1,7 +1,7 @@
 import { ImageFloorMap, type MapPin } from "@/components/map/ImageFloorMap";
 import { Map3DSurface } from "@/components/map/Map3DSurface";
 import type { Map3DPin } from "@/components/map/Map3DView";
-import { MapExperienceDock } from "@/components/map/MapExperienceDock";
+import { JourneyHud, journeyStatus } from "@/components/map/JourneyHud";
 import { MapProjectionSwitcher } from "@/components/map/MapProjectionSwitcher";
 import { MapSwitcher } from "@/components/map/MapSwitcher";
 import { SchematicSheetSwitcher } from "@/components/map/SchematicSheetSwitcher";
@@ -10,8 +10,28 @@ import { VenueSchematic } from "@/components/map/VenueSchematic";
 import { Button } from "@/components/ui/button";
 import { catalog, venue } from "@/lib/catalog";
 import { destinationAdvice } from "@/lib/map-destination";
+import {
+  EAST_REGISTRATION_ID,
+  SOUTH_ENTRANCE_ID,
+  detectWebGL,
+  readStoredProjection,
+} from "@/lib/map-query";
 import { interpolateNav, sample255Keyframes } from "@/lib/nav-playback";
 import { motionEnabled } from "@/lib/motion";
+import {
+  HERO_DESTINATION_ID,
+  HERO_DURATION_SEC,
+  HERO_STEPS,
+  heroHighlightId,
+  heroStepAt,
+  heroStepIndex,
+  isHeroDemoId,
+  markHeroPreviewPlayed,
+  readHeroPreviewPlayed,
+  sheetPointsForHero,
+  shouldAutoplayHero,
+  southToL2Keyframes,
+} from "@/lib/south-to-l2";
 import { VENUE_CONNECTORS, connectorTitle } from "@/lib/venue-connectors";
 import { buildSchematic } from "@/lib/venue-schematic";
 import { cn } from "@/lib/utils";
@@ -71,6 +91,9 @@ export function VenueMap() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [navPlaying, setNavPlaying] = useState(false);
   const [navProgress, setNavProgress] = useState(0);
+  const [journey, setJourney] = useState<"hero" | "sample" | null>("hero");
+  const [followActive, setFollowActive] = useState(false);
+  const [explored, setExplored] = useState(false);
   const motion = motionEnabled(motionPref);
   const reducedMotion = !motion;
 
@@ -143,31 +166,88 @@ export function VenueMap() {
     ...venuePins.map((p) => ({ ...p, kind: "room" as const })),
     ...connectorPins,
   ];
-  const navFrames = useMemo(() => sample255Keyframes(), []);
-  const navPose = useMemo(
-    () => interpolateNav(navFrames, reducedMotion && showPath ? 1 : navProgress),
-    [navFrames, navProgress, reducedMotion, showPath],
-  );
+  const sampleFrames = useMemo(() => sample255Keyframes(), []);
+  const heroFrames = useMemo(() => southToL2Keyframes(), []);
+  const navFrames = journey === "sample" ? sampleFrames : heroFrames;
+  const navPose = useMemo(() => {
+    if (journey !== "hero" && !(journey === "sample" && showPath)) return null;
+    const t = reducedMotion && journey === "hero" ? (navProgress > 0 ? navProgress : 1) : navProgress;
+    return interpolateNav(navFrames, t);
+  }, [journey, showPath, navFrames, navProgress, reducedMotion]);
+
+  useEffect(() => {
+    const conflicting =
+      Boolean(roomId) && !isHeroDemoId(roomId) && roomId !== EAST_REGISTRATION_ID && mapSurface !== "venue"
+        ? true
+        : Boolean(roomId) && !isHeroDemoId(roomId) && roomId !== HERO_DESTINATION_ID && roomId !== SOUTH_ENTRANCE_ID;
+    const auto = shouldAutoplayHero({
+      reducedMotion,
+      webgl: detectWebGL(),
+      storedProjection: readStoredProjection(),
+      requestedProjection: mapProjection === "flat" ? "flat" : null,
+      surface: mapSurface,
+      originId: SOUTH_ENTRANCE_ID,
+      destinationId: conflicting ? roomId : HERO_DESTINATION_ID,
+      alreadyPlayed: readHeroPreviewPlayed(),
+    });
+    if (mapSurface !== "venue" || conflicting) {
+      if (conflicting) setJourney(null);
+      return;
+    }
+    if (reducedMotion) {
+      setJourney("hero");
+      setNavProgress(1);
+      setNavPlaying(false);
+      setFollowActive(false);
+      setSchematicSheet("salt-l2");
+      return;
+    }
+    if (auto) {
+      setJourney("hero");
+      setNavProgress(0);
+      setNavPlaying(true);
+      setFollowActive(true);
+      return;
+    }
+    setJourney("hero");
+    setNavProgress(1);
+    setNavPlaying(false);
+    setFollowActive(false);
+    // Fresh-visit preview only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!navPlaying || reducedMotion) return;
     let frame = 0;
     let last = performance.now();
+    const duration = journey === "hero" ? HERO_DURATION_SEC : 16;
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
       setNavProgress((prev) => {
-        const next = Math.min(1, prev + dt / 16);
-        if (next >= 1) setNavPlaying(false);
+        const next = Math.min(1, prev + dt / duration);
+        if (next >= 1) {
+          setNavPlaying(false);
+          setFollowActive(false);
+          markHeroPreviewPlayed();
+        }
         return next;
       });
       frame = window.requestAnimationFrame(tick);
     };
     frame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frame);
-  }, [navPlaying, reducedMotion]);
+  }, [navPlaying, reducedMotion, journey]);
 
   useEffect(() => {
+    if (journey === "hero" && navPose) {
+      const sheet = navPose.floor === 2 ? "salt-l2" : "salt-l1";
+      if (schematicSheet !== sheet && (mapSurface === "venue" || journey === "hero")) {
+        setSchematicSheet(sheet);
+      }
+      return;
+    }
     if (mapSurface !== "sample" || !navPose || !showPath) return;
     if (floor !== navPose.floor) setFloor(navPose.floor);
     const last = wayfinding.steps.length - 1;
@@ -175,7 +255,7 @@ export function VenueMap() {
       const idx = Math.round(navProgress * last);
       if (idx !== stepIndex) goToStep(idx);
     }
-  }, [navPose, navProgress, mapSurface, showPath, floor, stepIndex, goToStep, setFloor]);
+  }, [navPose, navProgress, mapSurface, showPath, floor, stepIndex, goToStep, setFloor, journey, schematicSheet, setSchematicSheet]);
   const recommendedExpo = mustBooth?.id ?? topicalBooth?.id ?? null;
   const recommendedVenue = rankedSessions[0]?.item.roomId ?? null;
   const schematic = useMemo(
@@ -183,7 +263,15 @@ export function VenueMap() {
     [roomAnchors],
   );
 
+  const stopHeroForExplore = () => {
+    setNavPlaying(false);
+    setFollowActive(false);
+    setExplored(true);
+    if (journey === "hero") setJourney(null);
+  };
+
   const onSelectRoom = (id: string) => {
+    if (!isHeroDemoId(id)) stopHeroForExplore();
     if (VENUE_CONNECTORS.some((c) => c.id === id)) {
       setConnectorId(id);
       clearSelection();
@@ -196,6 +284,70 @@ export function VenueMap() {
     if (talk) selectSession(talk.id, { jump: false });
     else selectSpace(id);
   };
+
+  const playHero = (fromStart: boolean) => {
+    setMapSurface("venue");
+    setVenueLayer("schematic");
+    setJourney("hero");
+    setConnectorId(null);
+    setDetailsOpen(false);
+    setNavProgress(fromStart ? 0 : navProgress >= 1 ? 0 : navProgress);
+    if (reducedMotion) {
+      setNavProgress(fromStart ? 0 : navProgress);
+      setNavPlaying(false);
+      setFollowActive(false);
+      if (fromStart) setSchematicSheet("salt-l1");
+      return;
+    }
+    setNavPlaying(true);
+    setFollowActive(true);
+    if (fromStart) {
+      setSchematicSheet("salt-l1");
+      resetMapCamera();
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      if (event.key === " " && (journey === "hero" || journey === "sample")) {
+        event.preventDefault();
+        if (navPlaying) {
+          setNavPlaying(false);
+          setFollowActive(false);
+        } else if (journey === "sample") {
+          startNavTo255({ stayOnMap: true });
+          setNavProgress(navProgress >= 1 ? 0 : navProgress);
+          setNavPlaying(!reducedMotion);
+          setFollowActive(!reducedMotion);
+        } else {
+          playHero(navProgress >= 1);
+        }
+      }
+      if (event.key === "r" || event.key === "R") {
+        event.preventDefault();
+        playHero(true);
+      }
+      if (event.key === "Escape") {
+        setNavPlaying(false);
+        setFollowActive(false);
+        setDetailsOpen(false);
+      }
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+        const delta = event.key === "ArrowRight" ? 1 : -1;
+        const next = Math.min(HERO_STEPS.length - 1, Math.max(0, heroStepIndex(navProgress) + delta));
+        const step = HERO_STEPS[next]!;
+        setJourney("hero");
+        setNavPlaying(false);
+        setFollowActive(false);
+        setNavProgress(step.progress);
+        setSchematicSheet(step.sheet);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [journey, navPlaying, navProgress, reducedMotion, startNavTo255]);
 
   const selectedSchematic = schematic.rooms.find((room) => room.id === roomId) ?? null;
   const selectedAnchor = roomAnchors.find((room) => room.id === roomId) ?? null;
@@ -259,7 +411,9 @@ export function VenueMap() {
       : mapSurface === "venue" && venueLayer === "official"
         ? "/maps/venue-overview.png"
         : undefined;
-  const threeSelected = mapSurface === "expo" ? selectedBooth : connectorId ?? roomId;
+  const heroSelected = journey === "hero" ? heroHighlightId(navProgress) : null;
+  const threeSelected =
+    mapSurface === "expo" ? selectedBooth : connectorId ?? (journey === "hero" && !detailsOpen ? heroSelected : roomId);
   const threeRecommended = mapSurface === "expo" ? recommendedExpo : recommendedVenue;
   const threePins = mapSurface === "expo" ? expoPins : mapSurface === "venue" && venueLayer === "official" ? threeVenuePins : [];
   const resetToken = mapCameraReset + (mapFocus?.token ?? 0);
@@ -293,6 +447,7 @@ export function VenueMap() {
       pathPoints={pathPoints}
       youAreHere={youAreHere}
       selectSpace={selectSpace}
+      journeyPoints={journey === "hero" ? sheetPointsForHero(schematicSheet) : undefined}
     />
   );
 
@@ -306,18 +461,15 @@ export function VenueMap() {
           recommendedId={threeRecommended}
           focusSheet={schematicSheet}
           onSelect={(id) => {
-            if (VENUE_CONNECTORS.some((c) => c.id === id)) {
-              setConnectorId(id);
-              clearSelection();
-              setDetailsOpen(true);
-              return;
-            }
-            setConnectorId(null);
-            setDetailsOpen(true);
             if (mapSurface === "expo") {
+              stopHeroForExplore();
+              setConnectorId(null);
+              setDetailsOpen(true);
               selectBooth(id, { jump: false });
               requestMapFocus(id);
-            } else onSelectRoom(id);
+              return;
+            }
+            onSelectRoom(id);
           }}
           reducedMotion={reducedMotion}
           resetToken={resetToken}
@@ -329,8 +481,29 @@ export function VenueMap() {
           fallback={flatLayers}
           onError={() => setMapProjection("flat")}
           onSheet={setSchematicSheet}
-          navPath={mapSurface === "sample" && showPath ? navFrames : undefined}
-          navMarker={mapSurface === "sample" && showPath ? navPose?.position ?? null : null}
+          navPath={
+            journey === "hero" && threeKind === "venue-schematic"
+              ? heroFrames
+              : journey === "sample" && mapSurface === "sample"
+                ? sampleFrames
+                : undefined
+          }
+          navMarker={
+            journey === "hero" && threeKind === "venue-schematic"
+              ? navPose?.position ?? null
+              : journey === "sample"
+                ? navPose?.position ?? null
+                : null
+          }
+          journeyMode={journey}
+          followActive={followActive && navPlaying}
+          onUserInteract={() => {
+            if (navPlaying) {
+              setNavPlaying(false);
+              setFollowActive(false);
+              setExplored(true);
+            }
+          }}
         />
       ) : (
         flatLayers
@@ -341,6 +514,7 @@ export function VenueMap() {
             value={mapSurface}
             onChange={(next) => {
               setMapSurface(next);
+              if (next !== "venue") stopHeroForExplore();
               if (next === "venue") setVenueLayer("schematic");
             }}
           />
@@ -406,22 +580,19 @@ export function VenueMap() {
           ))}
         </div>
       )}
-      {(map3dNotice || (stepFree && mapProjection === "3d")) && (
-        <div className="pointer-events-none absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-2 z-40 max-w-[min(92vw,22rem)] lg:bottom-16">
-          <p className="rounded-xl border border-border bg-card/95 px-3 py-2 text-xs text-foreground shadow-sm">
-            {map3dNotice}
-            {stepFree && mapProjection === "3d"
-              ? `${map3dNotice ? " " : ""}Step-free is a planning preference, not a verified accessible indoor route.`
-              : null}
-          </p>
+      {map3dNotice ? (
+        <div className="pointer-events-none absolute right-2 top-14 z-40 max-w-[min(48vw,16rem)]">
+          <p className="rounded-xl border border-border bg-card/95 px-2.5 py-1.5 text-[11px] text-foreground shadow-sm">{map3dNotice}</p>
         </div>
-      )}
-      <MapExperienceDock
+      ) : null}
+      <JourneyHud
+        journey={mapSurface === "expo" ? null : journey}
         selectedBoothId={selectedBooth}
         selectedRoom={selectedRoomChip}
         roomsOnSheet={roomsOnSheet}
         sponsorPrefs={sponsorPrefs}
         onSelectBooth={(id) => {
+          stopHeroForExplore();
           setMapSurface("expo");
           selectBooth(id, { jump: false });
           requestMapFocus(id);
@@ -467,6 +638,7 @@ export function VenueMap() {
             : null
         }
         onOpenSession={(id) => {
+          stopHeroForExplore();
           setConnectorId(null);
           setDetailsOpen(true);
           selectSession(id);
@@ -475,10 +647,19 @@ export function VenueMap() {
         }}
         destination={activeDestination}
         onSetDestination={() => {
-          if (!activeDestination?.playable) return;
+          if (!activeDestination?.playable) {
+            if (selectedRoomChip) requestMapFocus(selectedRoomChip.id);
+            return;
+          }
+          if (isHeroDemoId(selectedRoomChip?.id ?? "")) {
+            playHero(true);
+            return;
+          }
           setConnectorId(null);
-          setMapSurface("sample");
-          selectSession("ebpf-obs", { jump: false });
+          setJourney("sample");
+          startNavTo255({ stayOnMap: true });
+          setNavProgress(reducedMotion ? 1 : 0);
+          setNavPlaying(!reducedMotion);
           requestMapFocus("255");
         }}
         onDismissDetails={() => {
@@ -491,22 +672,47 @@ export function VenueMap() {
         reducedMotion={reducedMotion}
         stepFree={stepFree}
         onPlay={() => {
-          startNavTo255({ stayOnMap: true });
-          setConnectorId(null);
-          setNavProgress(reducedMotion ? 1 : 0);
-          setNavPlaying(!reducedMotion);
+          if (journey === "sample") {
+            startNavTo255({ stayOnMap: true });
+            setNavProgress(reducedMotion ? 1 : navProgress >= 1 ? 0 : navProgress);
+            setNavPlaying(!reducedMotion);
+            setFollowActive(!reducedMotion);
+            return;
+          }
+          playHero(false);
         }}
-        onPause={() => setNavPlaying(false)}
-        onReplay={() => {
-          startNavTo255({ stayOnMap: true });
-          setConnectorId(null);
-          setNavProgress(0);
-          setNavPlaying(!reducedMotion);
-          if (reducedMotion) setNavProgress(1);
+        onPause={() => {
+          setNavPlaying(false);
+          setFollowActive(false);
         }}
+        onReplay={() => playHero(true)}
+        onExplore={() => {
+          setNavPlaying(false);
+          setFollowActive(false);
+          setDetailsOpen(false);
+          setExplored(true);
+        }}
+        showRecs={explored && mapSurface !== "expo"}
+        showJourneyBar={mapSurface !== "expo"}
+        onStep={(delta) => {
+          const next = Math.min(HERO_STEPS.length - 1, Math.max(0, heroStepIndex(navProgress) + delta));
+          const step = HERO_STEPS[next]!;
+          setJourney("hero");
+          setNavPlaying(false);
+          setFollowActive(false);
+          setNavProgress(step.progress);
+          setSchematicSheet(step.sheet);
+        }}
+        statusText={journeyStatus({
+          journey,
+          playing: navPlaying,
+          reducedMotion,
+          progress: navProgress,
+          label: heroStepAt(navProgress).label,
+        })}
       />
       {mapProjection === "3d" && (
-        <div className="pointer-events-none absolute bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-2 z-30">
+        <div className="pointer-events-none absolute right-2 top-[3.7rem] z-30 hidden sm:block lg:top-[3.55rem]">
           <Button
             type="button"
             variant="outline"
@@ -575,6 +781,7 @@ function MapFlatLayers({
   pathPoints,
   youAreHere,
   selectSpace,
+  journeyPoints,
 }: {
   mapSurface: "expo" | "venue" | "sample";
   venueLayer: "schematic" | "official";
@@ -613,6 +820,7 @@ function MapFlatLayers({
   pathPoints: [number, number][] | undefined;
   youAreHere: [number, number] | undefined;
   selectSpace: (id: string) => void;
+  journeyPoints?: { x: number; y: number }[];
 }) {
   return (
     <>
@@ -641,6 +849,7 @@ function MapFlatLayers({
           focusToken={mapFocus?.token}
           motionPref={motionPref}
           rooms={roomAnchors}
+          journeyPoints={journeyPoints}
         />
       )}
       {mapSurface === "venue" && venueLayer === "official" && (

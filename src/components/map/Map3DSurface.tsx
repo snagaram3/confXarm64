@@ -1,5 +1,5 @@
 import { Map3DErrorBoundary } from "@/components/map/Map3DErrorBoundary";
-import type { Map3DKind, Map3DPin } from "@/components/map/Map3DView";
+import type { Map3DKind, Map3DPin, MapJourneyMode } from "@/components/map/Map3DView";
 import type { WorldPoint } from "@/lib/map-3d-world";
 import type { SchematicRoom, SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
@@ -26,6 +26,9 @@ export function Map3DSurface({
   onSheet,
   navPath,
   navMarker,
+  journeyMode,
+  followActive,
+  onUserInteract,
 }: {
   kind: Map3DKind;
   rooms: SchematicRoom[];
@@ -45,6 +48,9 @@ export function Map3DSurface({
   onSheet?: (id: SchematicSheetId) => void;
   navPath?: WorldPoint[];
   navMarker?: WorldPoint | null;
+  journeyMode?: MapJourneyMode;
+  followActive?: boolean;
+  onUserInteract?: () => void;
 }) {
   return (
     <Map3DErrorBoundary fallback={fallback} onError={onError}>
@@ -72,6 +78,9 @@ export function Map3DSurface({
           onSheet={onSheet}
           navPath={navPath}
           navMarker={navMarker}
+          journeyMode={journeyMode}
+          followActive={followActive}
+          onUserInteract={onUserInteract}
         />
       </Suspense>
     </Map3DErrorBoundary>

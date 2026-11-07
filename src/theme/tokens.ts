@@ -31,7 +31,7 @@ export const ADJUSTED = {
   accentForeground: "#0b0f1f",
   border: "#c5d0e0",
   input: "#b7c4d6",
-  mapCanvas: "#dce5f2",
+  mapCanvas: "#c8d4e8",
   mapGrid: "#c5d0e0",
   destructive: "#b42318",
   primaryHover: "#0e356e",

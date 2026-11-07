@@ -1,10 +1,12 @@
 import type { MapSurface } from "./types";
-import type { SchematicSheetId } from "./venue-schematic";
+import { sheetForFocus, type SchematicSheetId } from "./venue-schematic";
 
 export type MapProjection = "flat" | "3d";
 
 /** 200 South entrance on the official venue room list. */
 export const SOUTH_ENTRANCE_ID = "87690";
+/** Salt Palace Level 2 · East Registration (official room id). */
+export const EAST_REGISTRATION_ID = "87691";
 
 /** CrowdCompass simulated node ids → Floorwise official room ids. Schematic layout, not GPS. */
 const ORIGIN_ALIASES: Record<string, string> = {
@@ -14,6 +16,13 @@ const ORIGIN_ALIASES: Record<string, string> = {
   "200-south": SOUTH_ENTRANCE_ID,
   "200south": SOUTH_ENTRANCE_ID,
   [SOUTH_ENTRANCE_ID]: SOUTH_ENTRANCE_ID,
+  "east-registration": EAST_REGISTRATION_ID,
+  eastregistration: EAST_REGISTRATION_ID,
+  l2: EAST_REGISTRATION_ID,
+  "salt-l2": EAST_REGISTRATION_ID,
+  "level-2": EAST_REGISTRATION_ID,
+  level2: EAST_REGISTRATION_ID,
+  [EAST_REGISTRATION_ID]: EAST_REGISTRATION_ID,
   "hall-de": "82947",
   "room-250-ac": "87421",
   "room-250-df": "87422",
@@ -60,8 +69,16 @@ export function resolveOriginRoomId(origin: string | null | undefined): string |
 export function originSheet(roomId: string | null): SchematicSheetId | null {
   if (!roomId) return null;
   if (roomId === SOUTH_ENTRANCE_ID || roomId === "82947") return "salt-l1";
-  if (roomId.startsWith("874") || roomId === "82953" || roomId === "82954") return "salt-l2";
-  return null;
+  if (
+    roomId === EAST_REGISTRATION_ID ||
+    roomId === "90804" ||
+    roomId.startsWith("874") ||
+    roomId === "82953" ||
+    roomId === "82954"
+  ) {
+    return "salt-l2";
+  }
+  return sheetForFocus(roomId);
 }
 
 export function detectWebGL(): boolean {
@@ -124,7 +141,9 @@ export function resolveMapProjection(requested: MapProjection, webgl: boolean): 
 }
 
 export function roomIdToShareParam(id: string): string {
-  return id === SOUTH_ENTRANCE_ID ? "entrance-south" : id;
+  if (id === SOUTH_ENTRANCE_ID) return "entrance-south";
+  if (id === EAST_REGISTRATION_ID) return "east-registration";
+  return id;
 }
 
 export function serializeMapSearch(input: {

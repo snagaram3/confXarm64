@@ -18,7 +18,7 @@ export function SchematicSheetSwitcher({
           aria-selected={value === sheet.id}
           onClick={() => onChange(sheet.id)}
           className={cn(
-            "min-h-11 shrink-0 rounded-full px-3 text-xs font-semibold",
+            "min-h-10 shrink-0 rounded-full px-2.5 text-[11px] font-semibold sm:min-h-11 sm:px-3 sm:text-xs",
             value === sheet.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent",
           )}
         >

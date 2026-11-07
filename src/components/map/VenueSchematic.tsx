@@ -30,6 +30,8 @@ export function VenueSchematic({
   focusToken,
   motionPref,
   rooms,
+  journeyPoints,
+  journeyMarker,
 }: {
   sheet: SchematicSheetId;
   onSheet: (id: SchematicSheetId) => void;
@@ -40,6 +42,8 @@ export function VenueSchematic({
   focusToken?: number;
   motionPref: "full" | "reduced";
   rooms: RoomAnchorLite[];
+  journeyPoints?: { x: number; y: number }[];
+  journeyMarker?: { x: number; y: number } | null;
 }) {
   const motion = motionEnabled(motionPref);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +113,8 @@ export function VenueSchematic({
               onSelect={onSelect}
               onSheet={onSheet}
               interactive
+              journeyPoints={journeyPoints}
+              journeyMarker={journeyMarker}
             />
           </div>
         </div>
@@ -237,6 +243,8 @@ function FloorSheetSvg({
   onSelect,
   onSheet,
   interactive,
+  journeyPoints,
+  journeyMarker,
 }: {
   sheet: SchematicSheetId;
   rooms: SchematicRoom[];
@@ -245,6 +253,8 @@ function FloorSheetSvg({
   onSelect: (id: string) => void;
   onSheet: (id: SchematicSheetId) => void;
   interactive: boolean;
+  journeyPoints?: { x: number; y: number }[];
+  journeyMarker?: { x: number; y: number } | null;
 }) {
   const info = sheetById(sheet);
   const frame = SCHEMATIC_FRAME;
@@ -291,6 +301,24 @@ function FloorSheetSvg({
           onSelect={onSelect}
         />
       ))}
+
+      {journeyPoints && journeyPoints.length > 1 ? (
+        <g aria-hidden>
+          <polyline
+            fill="none"
+            stroke={PALETTE.primary}
+            strokeWidth={8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            points={journeyPoints.map((p) => `${p.x},${p.y}`).join(" ")}
+            opacity={0.85}
+          />
+          {sheet === "salt-l1" || sheet === "salt-l2" ? (
+            <circle cx={journeyPoints[sheet === "salt-l1" ? journeyPoints.length - 1 : 0]!.x} cy={journeyPoints[sheet === "salt-l1" ? journeyPoints.length - 1 : 0]!.y} r={14} fill={PALETTE.cta} />
+          ) : null}
+          {journeyMarker ? <circle cx={journeyMarker.x} cy={journeyMarker.y} r={10} fill={PALETTE.highlight} stroke={PALETTE.primary} strokeWidth={2} /> : null}
+        </g>
+      ) : null}
 
       {portals.map((portal) => {
         const w = 132;

@@ -21,7 +21,7 @@ export function TopBar() {
               Private companion
             </span>
           </div>
-          <p className="mt-1 truncate text-xs text-muted-foreground">
+          <p className="mt-1 hidden truncate text-xs text-muted-foreground sm:block">
             KCNA26 Salt Palace + Hyatt · official schedule snapshot, not an LF/CNCF app
           </p>
         </div>

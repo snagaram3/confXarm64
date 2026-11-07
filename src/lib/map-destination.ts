@@ -1,4 +1,5 @@
 import { LATE_SESSION_ID, wayfinding } from "./catalog";
+import { HERO_DESTINATION_ID, HERO_JOURNEY_DISCLAIMER, HERO_ORIGIN_ID, HERO_SHAFT_ID, isHeroDemoId } from "./south-to-l2";
 
 export type MapTargetKind = "booth" | "room" | "space" | "connector" | "session";
 
@@ -36,11 +37,25 @@ export function destinationAdvice(target: MapTarget): DestinationAdvice {
       body: "This is an official printed label on venue.pdf, not a surveyed machine. amenities.json has coordinates: null. No indoor route is attached.",
     };
   }
+  if (target.id === HERO_SHAFT_ID) {
+    return {
+      playable: true,
+      title: "Illustrative floor change",
+      body: HERO_JOURNEY_DISCLAIMER,
+    };
+  }
   if (target.kind === "booth") {
     return {
       playable: false,
       title: "No verified indoor walk",
-      body: `${target.label} is an image-relative PDF booth pin, not GPS. The only animated path is the SAMPLE walk to room 255 on the sample schematic — not a route to this booth.`,
+      body: `${target.label} is an image-relative PDF booth pin, not GPS. The South Entrance → L2 preview is an illustrative schematic demo — not a route to this booth.`,
+    };
+  }
+  if (isHeroDemoId(target.id) && (target.id === HERO_ORIGIN_ID || target.id === HERO_DESTINATION_ID)) {
+    return {
+      playable: true,
+      title: "Illustrative South → L2 journey",
+      body: HERO_JOURNEY_DISCLAIMER,
     };
   }
   if (isSample255Destination(target.id)) {
@@ -60,6 +75,6 @@ export function destinationAdvice(target: MapTarget): DestinationAdvice {
   return {
     playable: false,
     title: "No verified indoor walk",
-    body: `${target.label} is labeled from the official schedule or SAMPLE drawing. Block positions are not surveyed walking paths. The only animated path is the SAMPLE walk to room 255 — not a route to this selection.`,
+    body: `${target.label} is labeled from the official schedule or SAMPLE drawing. Block positions are not surveyed walking paths. No verified indoor route is attached. The South Entrance → L2 preview is an illustrative demo — not a route to this selection.`,
   };
 }
