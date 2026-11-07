@@ -1,5 +1,6 @@
 import { Map3DErrorBoundary } from "@/components/map/Map3DErrorBoundary";
 import type { Map3DKind, Map3DPin } from "@/components/map/Map3DView";
+import type { WorldPoint } from "@/lib/map-3d-world";
 import type { SchematicRoom, SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
 import { lazy, Suspense, type ReactNode } from "react";
@@ -22,6 +23,9 @@ export function Map3DSurface({
   samplePath,
   fallback,
   onError,
+  onSheet,
+  navPath,
+  navMarker,
 }: {
   kind: Map3DKind;
   rooms: SchematicRoom[];
@@ -38,6 +42,9 @@ export function Map3DSurface({
   samplePath?: [number, number][];
   fallback: ReactNode;
   onError: () => void;
+  onSheet?: (id: SchematicSheetId) => void;
+  navPath?: WorldPoint[];
+  navMarker?: WorldPoint | null;
 }) {
   return (
     <Map3DErrorBoundary fallback={fallback} onError={onError}>
@@ -62,6 +69,9 @@ export function Map3DSurface({
           sampleSpaces={sampleSpaces}
           sampleFloor={sampleFloor}
           samplePath={samplePath}
+          onSheet={onSheet}
+          navPath={navPath}
+          navMarker={navMarker}
         />
       </Suspense>
     </Map3DErrorBoundary>

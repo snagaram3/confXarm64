@@ -18,7 +18,7 @@ import { BottomNav } from "./BottomNav";
 import { TopBar } from "./TopBar";
 
 export function AppShell() {
-  const { view, setView } = useAppState();
+  const { view, setView, mapFocus } = useAppState();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toolTab, setToolTab] = useState<ToolTab>(() => parseToolsPath(window.location.pathname) ?? "elasticsearch");
 
@@ -41,6 +41,10 @@ export function AppShell() {
     setToolTab(parseToolsPath(window.location.pathname) ?? "dash0");
     setSheetOpen(true);
   }, [view]);
+
+  useEffect(() => {
+    if (view === "map" || view === "sponsor") setSheetOpen(false);
+  }, [view, mapFocus?.token]);
 
   return (
     <div className="flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] flex-col overflow-x-clip overflow-y-hidden border-t-[3px] border-primary bg-background">

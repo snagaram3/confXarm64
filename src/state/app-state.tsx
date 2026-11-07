@@ -33,10 +33,12 @@ import { parseAsk, type ConferenceDayId } from "@/lib/ask";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { sheetForFocus, type SchematicSheetId } from "@/lib/venue-schematic";
 import {
+  MAP_PROJECTION_KEY,
   bootstrapMapState,
   detectWebGL,
   initialMapProjection,
   mapSharePath,
+  readStoredProjection,
   resolveMapProjection,
   serializeMapSearch,
   type MapProjection,
@@ -94,7 +96,7 @@ interface AppStateValue {
   clearSelection: () => void;
   navigating: boolean;
   stepIndex: number;
-  startNavTo255: () => void;
+  startNavTo255: (opts?: { stayOnMap?: boolean }) => void;
   stopNav: () => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -256,14 +258,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [scheduleNote, setScheduleNote] = useState("");
   const [featured, setFeatured] = useState<AppStateValue["featured"]>(null);
   const [roomAnchors, setRoomAnchors] = useState<AppStateValue["roomAnchors"]>([]);
-  const [mapSurface, setMapSurface] = useState<MapSurface>(boot.surface ?? "expo");
+  const [mapSurface, setMapSurface] = useState<MapSurface>(boot.surface ?? "venue");
   const [venueLayer, setVenueLayer] = useState<VenueLayer>("schematic");
   const [schematicSheet, setSchematicSheet] = useState<SchematicSheetId>(boot.sheet ?? "salt-l1");
   const [preferredProjection, setPreferredProjection] = useState<MapProjection>(
-    boot.projectionRequested === "3d" ? "3d" : "flat",
+    boot.projectionRequested === "flat" ? "flat" : "3d",
   );
   const [mapProjection, setMapProjectionState] = useState<MapProjection>(
-    boot.projectionRequested === "3d" ? "3d" : "flat",
+    boot.projectionRequested === "flat" ? "flat" : "3d",
   );
   const [map3dNotice, setMap3dNotice] = useState<string | null>(() =>
     boot.projectionRequested === "3d" && !motionEnabled(readMotionPref())
@@ -334,6 +336,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const resolved = resolveMapProjection(requested, gl);
     setPreferredProjection(requested);
     setMapProjectionState(resolved.projection);
+    try {
+      localStorage.setItem(MAP_PROJECTION_KEY, requested);
+    } catch {
+      /* ignore */
+    }
     if (resolved.error) {
       setMap3dNotice(resolved.error);
       return;
@@ -359,8 +366,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       requested: boot.projectionRequested,
       reducedMotion: reduced,
       webgl: gl,
+      stored: readStoredProjection(),
     });
-    setPreferredProjection(boot.projectionRequested === "3d" ? "3d" : "flat");
+    setPreferredProjection(boot.projectionRequested ?? initial.projection);
     setMapProjectionState(initial.projection);
     setMap3dNotice(initial.notice);
     if (boot.openMap) setView("map");
@@ -698,13 +706,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setFloor(wayfinding.steps[clamped].floor);
   }, []);
 
-  const startNavTo255 = useCallback(() => {
+  const startNavTo255 = useCallback((opts?: { stayOnMap?: boolean }) => {
     setNavigating(true);
-    setView("navigate");
+    setView(opts?.stayOnMap ? "map" : "navigate");
     setMapSurface("sample");
     setStepIndex(0);
     setFloor(1);
     setSelection({ kind: "session", id: LATE_SESSION_ID });
+    const gl = detectWebGL();
+    if (gl && motionEnabled(readMotionPref())) {
+      setPreferredProjection("3d");
+      setMapProjectionState("3d");
+    }
   }, []);
 
   const stopNav = useCallback(() => {

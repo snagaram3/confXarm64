@@ -147,7 +147,7 @@ export function SessionDetail() {
       )}
       <div className="flex flex-wrap gap-2">
         {isSample && (
-          <Button onClick={startNavTo255}>
+          <Button onClick={() => startNavTo255()}>
             <Navigation />
             Sample walk to 255
           </Button>

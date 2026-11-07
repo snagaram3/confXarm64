@@ -74,25 +74,43 @@ export function detectWebGL(): boolean {
   }
 }
 
+export const MAP_PROJECTION_KEY = "floorwise.mapProjection";
+
+export function readStoredProjection(): MapProjection | null {
+  try {
+    const raw = localStorage.getItem(MAP_PROJECTION_KEY);
+    if (raw === "flat" || raw === "3d") return raw;
+  } catch {
+    /* private mode */
+  }
+  return null;
+}
+
 export function initialMapProjection(input: {
   requested: MapProjection | null;
   reducedMotion: boolean;
   webgl: boolean;
+  stored?: MapProjection | null;
 }): { projection: MapProjection; notice: string | null } {
-  if (input.requested === "3d" && input.reducedMotion) {
+  if (input.reducedMotion) {
     return {
       projection: "flat",
       notice: "Reduced motion is on, so the flat map is open. You can switch to 3D. Selection stays the same.",
     };
   }
-  if (input.requested === "3d" && !input.webgl) {
+  if (!input.webgl) {
     return {
       projection: "flat",
-      notice: "This browser has no WebGL, so the flat map is showing. Selection is unchanged.",
+      notice:
+        input.requested === "3d" || input.requested == null
+          ? "This browser has no WebGL, so the flat map is showing. Selection is unchanged."
+          : null,
     };
   }
+  if (input.requested === "flat") return { projection: "flat", notice: null };
   if (input.requested === "3d") return { projection: "3d", notice: null };
-  return { projection: "flat", notice: null };
+  if (input.stored === "flat") return { projection: "flat", notice: null };
+  return { projection: "3d", notice: null };
 }
 
 export function resolveMapProjection(requested: MapProjection, webgl: boolean): { projection: MapProjection; error: string | null } {
@@ -122,8 +140,8 @@ export function serializeMapSearch(input: {
     params.set("destination", roomIdToShareParam(input.destinationId));
   }
   params.set("stepFree", String(input.stepFree));
-  if (input.projection === "3d") params.set("view", "3d");
-  if (input.surface !== "expo") params.set("surface", input.surface);
+  params.set("view", input.projection === "3d" ? "3d" : "2d");
+  if (input.surface !== "venue") params.set("surface", input.surface);
   const q = params.toString();
   return q ? `?${q}` : "";
 }
@@ -156,7 +174,7 @@ export function bootstrapMapState(search: string, pathname: string): MapBootstra
   const shareActive = Boolean(q.mapPath || q.projection || q.origin || q.destination || q.stepFree != null || q.surface);
   return {
     projectionRequested: q.projection,
-    surface: q.surface ?? (originId || destinationId || q.mapPath ? "venue" : null),
+    surface: q.surface ?? (originId || destinationId || q.mapPath || q.projection ? "venue" : null),
     originId,
     destinationId,
     focusId,

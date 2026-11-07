@@ -9,11 +9,11 @@ Bundle inspected in isolation at `/tmp/fw-ref/` and `/tmp/fw-ref-3d/` on this VM
 | Reference idea | Floorwise | How to try |
 | --- | --- | --- |
 | Multi-level schematic as the map, PDF secondary | **Ported / adapted.** Venue opens an illustrative Salt Palace L1 / L2 / Hyatt schematic by default (stacked overview + selected floor + level tabs). Official `venue.pdf` is **Official floor plan**. Expo booths stay on the official expo PDF. Geometry is labeled not-to-scale; unmapped TBD/off-site rooms stay listed. Session→room focus uses official room ids. | Map switcher → **Venue**. Stacked plates or **SP L1 / SP L2 / Hyatt**. Tap a room. **Official floor plan** for the PDF. Motion off flattens the stack. |
-| Ask parser (origins, leftover query, chips) | **Adapted.** Origins are Floorwise (West Temple/expo, Salt Palace, Hyatt, sample 255), plus day + step-free. Not CrowdCompass node ids. | **For you** → Ask “step-free eBPF near Hyatt on Tuesday”. Chips appear; ranking query gets `eBPF`; map can jump to the Hyatt schematic. |
-| Best Pick + Rescue | **Adapted** to honest Floorwise signals: sold out, agenda overlap, ended (planner clock), colocated All-Access, unplaced room. **Not** host occupancy / Full latch. | **For you** Best pick card. Save two overlapping talks on Agenda, then Rescue appears. **Take me there** focuses the schematic (or SAMPLE 255). |
+| Ask parser (origins, leftover query, chips) | **Adapted.** Origins are Floorwise (West Temple/expo, Salt Palace, Hyatt, sample 255), plus day + step-free. Not CrowdCompass node ids. | **For you** → Ask “step-free eBPF near Hyatt on Tuesday”. Chips appear; ranking query gets `eBPF`; **Take me there** / **View on map** selects that room on the 3D map. |
+| Best Pick + Rescue | **Adapted** to honest Floorwise signals: sold out, agenda overlap, ended (planner clock), colocated All-Access, unplaced room. **Not** host occupancy / Full latch. **Take me there** highlights the real room; SAMPLE playback only for the 255 sample talk. Sponsor chips use catalog tags + search interests, not walking distance. | **For you** Best pick → **Take me there**. On the map, **Next talk** / **Exhibitor match** chips. |
 | Day chips + include-ended | **Ported** onto the official 8–12 Nov 2026 days. | **For you** day chips. Planner clock on Agenda can hide ended talks unless **Include ended** is on. |
 | Step-free toggle | **Adapted** on the SAMPLE 255 walk only (escalator copy → elevator copy). Does not invent a new polyline or claim an official accessible route. Share URLs may include `stepFree=true` as a **planning preference**. | **255** tab → **Step-free copy on this SAMPLE walk**. |
-| Optional WebGL 3D map | **Adapted independently** from CrowdCompass `venue-map-3d.tsx` (R3F Canvas + OrbitControls + CameraRig + extruded schematic plates). Floorwise 3D uses Floorwise schematic rooms and official images — not CrowdCompass occupancy tones, A* tubes, or invented booth buildings. Reduced motion / missing WebGL open the flat map; **3D map** can still be chosen when WebGL exists. | Open `/map?origin=entrance-south&stepFree=true&view=3d`, or tap **3D map**. Orbit / two-finger pan / pinch zoom. **SP L1 / SP L2 / Hyatt** still selects a level. **Fit** resets the camera. Expo 3D is the official floorplan on a plane with image-relative pins. |
+| Optional WebGL 3D map | **Adapted independently.** 3D is now the default first visit when WebGL exists. Floorwise schematic rooms, official PDF images, catalog booth logos, and official venue.pdf stair/elevator **labels**. Not CrowdCompass occupancy, A*, or invented machines. Reduced motion / missing WebGL / **Flat map** stay flat. SAMPLE 255 walk can Play/Pause/Replay on 3D; it is labeled SAMPLE. | Open `/` or `/map?origin=entrance-south&stepFree=true&view=3d`. Tap a sponsor chip. **Official floor plan** for STAIRS/ELEVATOR labels. **Play** for the SAMPLE 255 walkthrough. |
 
 ## Skipped (intentionally)
 
@@ -30,6 +30,8 @@ Bundle inspected in isolation at `/tmp/fw-ref/` and `/tmp/fw-ref-3d/` on this VM
 
 - Schematic disclaimer is on the map: not to scale, not GPS, not walking time.
 - `LABEL` on a block means the room is on the official schedule but was **not** a verified pin on `venue.pdf`.
-- Portal chips are **schematic links** between sheets, not surveyed bridges.
-- 3D venue geometry is an extrusion of that schematic. Expo 3D keeps the official image; pins are not buildings.
+- Portal chips are **schematic links** between sheets, not surveyed bridges or elevators.
+- Official stair/elevator markers are PDF-text labels from `venue.pdf` (`src/data/venue-connectors.json`). They are not walkable nodes. `amenities.json` still has `coordinates: null` and `step_free_route_verified: false`.
+- 3D venue geometry is an extrusion of that schematic. Expo 3D keeps the official image; logos sit on image-relative booth anchors.
+- SAMPLE 255 animation uses `wayfinding.json` only. No live GPS, occupancy, or walking-time claim.
 - Synthetic Dash0 dashboard is unchanged and still labeled SAMPLE.

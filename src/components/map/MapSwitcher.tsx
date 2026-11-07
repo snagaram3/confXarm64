@@ -2,8 +2,8 @@ import type { MapSurface } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const SURFACES: { id: MapSurface; label: string }[] = [
-  { id: "expo", label: "Expo floor" },
   { id: "venue", label: "Venue" },
+  { id: "expo", label: "Expo floor" },
   { id: "sample", label: "Sample schematic" },
 ];
 

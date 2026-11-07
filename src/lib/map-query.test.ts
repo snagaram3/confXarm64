@@ -21,6 +21,11 @@ describe("parseMapQuery", () => {
     assert.equal(resolveOriginRoomId(q.origin), SOUTH_ENTRANCE_ID);
   });
 
+  it("reads view=2d as an explicit flat preference", () => {
+    const q = parseMapQuery("view=2d", "/map");
+    assert.equal(q.projection, "flat");
+  });
+
   it("does not treat missing view as 3D and leaves tools paths alone", () => {
     const q = parseMapQuery("", "/tools/dash0");
     assert.equal(q.projection, null);
@@ -49,16 +54,19 @@ describe("bootstrapMapState", () => {
     assert.equal(boot.shareActive, true);
   });
 
-  it("does not force venue on a bare 3D query at /", () => {
+  it("opens venue when the share asks for 3D at /map, and leaves tools alone", () => {
     const boot = bootstrapMapState("view=3d", "/");
-    assert.equal(boot.surface, null);
+    assert.equal(boot.surface, "venue");
     assert.equal(boot.projectionRequested, "3d");
     assert.equal(boot.originId, null);
   });
 });
 
 describe("map projection fallback", () => {
-  it("opens flat when reduced motion or WebGL is missing, without changing the request meaning", () => {
+  it("defaults to 3D when WebGL is available, and honors flat / reduced-motion / no-WebGL", () => {
+    assert.equal(initialMapProjection({ requested: null, reducedMotion: false, webgl: true }).projection, "3d");
+    assert.equal(initialMapProjection({ requested: "flat", reducedMotion: false, webgl: true }).projection, "flat");
+    assert.equal(initialMapProjection({ requested: null, reducedMotion: false, webgl: true, stored: "flat" }).projection, "flat");
     assert.equal(initialMapProjection({ requested: "3d", reducedMotion: true, webgl: true }).projection, "flat");
     assert.equal(initialMapProjection({ requested: "3d", reducedMotion: false, webgl: false }).projection, "flat");
     assert.equal(initialMapProjection({ requested: "3d", reducedMotion: false, webgl: true }).projection, "3d");
@@ -78,7 +86,7 @@ describe("serializeMapSearch", () => {
     assert.match(q, /view=3d/);
     assert.match(q, /origin=entrance-south/);
     assert.match(q, /stepFree=true/);
-    assert.match(q, /surface=venue/);
+    assert.doesNotMatch(q, /surface=/);
   });
 
   it("keeps destination when it differs from origin", () => {

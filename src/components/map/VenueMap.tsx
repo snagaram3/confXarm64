@@ -1,5 +1,7 @@
 import { ImageFloorMap, type MapPin } from "@/components/map/ImageFloorMap";
 import { Map3DSurface } from "@/components/map/Map3DSurface";
+import type { Map3DPin } from "@/components/map/Map3DView";
+import { MapExperienceDock } from "@/components/map/MapExperienceDock";
 import { MapProjectionSwitcher } from "@/components/map/MapProjectionSwitcher";
 import { MapSwitcher } from "@/components/map/MapSwitcher";
 import { SchematicSheetSwitcher } from "@/components/map/SchematicSheetSwitcher";
@@ -7,7 +9,10 @@ import { VenueLayerSwitcher } from "@/components/map/VenueLayerSwitcher";
 import { VenueSchematic } from "@/components/map/VenueSchematic";
 import { Button } from "@/components/ui/button";
 import { catalog, venue } from "@/lib/catalog";
+import { destinationAdvice } from "@/lib/map-destination";
+import { interpolateNav, sample255Keyframes } from "@/lib/nav-playback";
 import { motionEnabled } from "@/lib/motion";
+import { VENUE_CONNECTORS, connectorTitle } from "@/lib/venue-connectors";
 import { buildSchematic } from "@/lib/venue-schematic";
 import { cn } from "@/lib/utils";
 import { selectedRoomId, useAppState } from "@/state/app-state";
@@ -16,7 +21,7 @@ import { FloorPlan } from "./FloorPlan";
 import { FloorSwitcher } from "./FloorSwitcher";
 import { MapLegend } from "./MapLegend";
 import { wayfinding } from "@/lib/catalog";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const BUILDINGS = ["all", "Salt Palace", "Hyatt Regency"] as const;
 const LEVELS = ["all", 1, 2, 3, 4, 5] as const;
@@ -30,6 +35,7 @@ export function VenueMap() {
     selectSpace,
     selectBooth,
     selectSession,
+    clearSelection,
     navigating,
     stepIndex,
     view,
@@ -55,9 +61,16 @@ export function VenueMap() {
     rankedSessions,
     motionPref,
     requestMapFocus,
+    setSponsorPref,
+    startNavTo255,
+    goToStep,
   } = useAppState();
   const [building, setBuilding] = useState<(typeof BUILDINGS)[number]>("all");
   const [level, setLevel] = useState<(typeof LEVELS)[number]>("all");
+  const [connectorId, setConnectorId] = useState<string | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [navPlaying, setNavPlaying] = useState(false);
+  const [navProgress, setNavProgress] = useState(0);
   const motion = motionEnabled(motionPref);
   const reducedMotion = !motion;
 
@@ -80,6 +93,7 @@ export function VenueMap() {
   const mustBooth =
     catalog.booths.find((b) => sponsorPrefs[b.id] === "must") ??
     rankedBooths.find((b) => b.rank === "must")?.item;
+  const topicalBooth = rankedBooths.find((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)?.item;
 
   const expoPins = catalog.booths
     .filter((b) => b.pinAvailable && b.pinNx != null && b.pinNy != null)
@@ -91,6 +105,9 @@ export function VenueMap() {
       booth: b,
       pref: sponsorPrefs[b.id],
       recommended: mustBooth?.id === b.id,
+      kind: "booth" as const,
+      logoSrc: b.logo,
+      logoOnDark: b.logoOnDark,
     }));
   const unplacedBooths = catalog.booths.filter((b) => !b.pinAvailable);
 
@@ -112,7 +129,54 @@ export function VenueMap() {
   );
 
   const unplaced = (roomAnchors ?? []).filter((r) => !r.placed);
-  const recommendedExpo = mustBooth?.id ?? null;
+  const connectorPins: Map3DPin[] = VENUE_CONNECTORS.filter((c) =>
+    building === "all" ? true : c.building === building,
+  ).map((c) => ({
+    id: c.id,
+    nx: c.nx,
+    ny: c.ny,
+    label: connectorTitle(c),
+    kind: "connector",
+    sublabel: c.matchedText,
+  }));
+  const threeVenuePins: Map3DPin[] = [
+    ...venuePins.map((p) => ({ ...p, kind: "room" as const })),
+    ...connectorPins,
+  ];
+  const navFrames = useMemo(() => sample255Keyframes(), []);
+  const navPose = useMemo(
+    () => interpolateNav(navFrames, reducedMotion && showPath ? 1 : navProgress),
+    [navFrames, navProgress, reducedMotion, showPath],
+  );
+
+  useEffect(() => {
+    if (!navPlaying || reducedMotion) return;
+    let frame = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      setNavProgress((prev) => {
+        const next = Math.min(1, prev + dt / 16);
+        if (next >= 1) setNavPlaying(false);
+        return next;
+      });
+      frame = window.requestAnimationFrame(tick);
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [navPlaying, reducedMotion]);
+
+  useEffect(() => {
+    if (mapSurface !== "sample" || !navPose || !showPath) return;
+    if (floor !== navPose.floor) setFloor(navPose.floor);
+    const last = wayfinding.steps.length - 1;
+    if (last > 0) {
+      const idx = Math.round(navProgress * last);
+      if (idx !== stepIndex) goToStep(idx);
+    }
+  }, [navPose, navProgress, mapSurface, showPath, floor, stepIndex, goToStep, setFloor]);
+  const recommendedExpo = mustBooth?.id ?? topicalBooth?.id ?? null;
   const recommendedVenue = rankedSessions[0]?.item.roomId ?? null;
   const schematic = useMemo(
     () => buildSchematic(roomAnchors.length ? roomAnchors : undefined),
@@ -120,10 +184,68 @@ export function VenueMap() {
   );
 
   const onSelectRoom = (id: string) => {
+    if (VENUE_CONNECTORS.some((c) => c.id === id)) {
+      setConnectorId(id);
+      clearSelection();
+      setDetailsOpen(true);
+      return;
+    }
+    setConnectorId(null);
+    setDetailsOpen(true);
     const talk = officialSessions.find((s) => s.roomId === id);
     if (talk) selectSession(talk.id, { jump: false });
     else selectSpace(id);
   };
+
+  const selectedSchematic = schematic.rooms.find((room) => room.id === roomId) ?? null;
+  const selectedAnchor = roomAnchors.find((room) => room.id === roomId) ?? null;
+  const sampleSpace = venue.spaces.find((space) => space.id === roomId) ?? null;
+  const selectedRoomChip =
+    !detailsOpen || selectedBooth || connectorId || !roomId
+      ? null
+      : {
+          id: roomId,
+          label:
+            selectedSchematic?.labelLines.join(" ") ??
+            selectedAnchor?.label ??
+            sampleSpace?.label ??
+            roomId,
+          detail: selectedAnchor
+            ? `${selectedAnchor.building ?? "Venue"} ${selectedAnchor.level != null ? `L${selectedAnchor.level}` : ""} · ${
+                selectedAnchor.placed ? "official pin" : "schedule label, not a venue.pdf pin"
+              }`
+            : mapSurface === "sample"
+              ? "SAMPLE schematic space — not the official Salt Palace."
+              : "Illustrative schematic block — not a surveyed coordinate.",
+          placed: selectedAnchor?.placed ?? Boolean(selectedSchematic?.placedOnOfficial),
+        };
+  const roomsOnSheet = schematic.rooms
+    .filter((room) => room.sheet === schematicSheet)
+    .map((room) => ({
+      id: room.id,
+      label: room.labelLines.join(" "),
+      detail: room.roomOrArea ?? room.labelLines.join(" "),
+      placed: Boolean(room.placedOnOfficial),
+    }));
+  const connector = VENUE_CONNECTORS.find((item) => item.id === connectorId) ?? null;
+  const boothRecord = catalog.booths.find((item) => item.id === selectedBooth) ?? null;
+  const activeDestination = connector
+    ? destinationAdvice({ kind: "connector", id: connector.id, label: connectorTitle(connector) })
+    : boothRecord
+      ? destinationAdvice({
+          kind: "booth",
+          id: boothRecord.id,
+          label: boothRecord.sponsor,
+          placed: boothRecord.pinAvailable,
+        })
+      : selectedRoomChip
+        ? destinationAdvice({
+            kind: "room",
+            id: selectedRoomChip.id,
+            label: selectedRoomChip.label,
+            placed: selectedRoomChip.placed,
+          })
+        : null;
 
   const threeKind =
     mapSurface === "sample"
@@ -137,9 +259,9 @@ export function VenueMap() {
       : mapSurface === "venue" && venueLayer === "official"
         ? "/maps/venue-overview.png"
         : undefined;
-  const threeSelected = mapSurface === "expo" ? selectedBooth : roomId;
+  const threeSelected = mapSurface === "expo" ? selectedBooth : connectorId ?? roomId;
   const threeRecommended = mapSurface === "expo" ? recommendedExpo : recommendedVenue;
-  const threePins = mapSurface === "expo" ? expoPins : venuePins;
+  const threePins = mapSurface === "expo" ? expoPins : mapSurface === "venue" && venueLayer === "official" ? threeVenuePins : [];
   const resetToken = mapCameraReset + (mapFocus?.token ?? 0);
 
   const flatLayers = (
@@ -149,11 +271,12 @@ export function VenueMap() {
       schematicSheet={schematicSheet}
       setSchematicSheet={setSchematicSheet}
       roomId={roomId}
+      connectorId={connectorId}
       selectedBooth={selectedBooth}
       recommendedExpo={recommendedExpo}
       recommendedVenue={recommendedVenue}
       expoPins={expoPins}
-      venuePins={venuePins}
+      venuePins={[...venuePins, ...connectorPins]}
       unplaced={unplaced}
       building={building}
       setBuilding={setBuilding}
@@ -182,7 +305,20 @@ export function VenueMap() {
           selectedId={threeSelected}
           recommendedId={threeRecommended}
           focusSheet={schematicSheet}
-          onSelect={mapSurface === "expo" ? (id) => selectBooth(id, { jump: false }) : onSelectRoom}
+          onSelect={(id) => {
+            if (VENUE_CONNECTORS.some((c) => c.id === id)) {
+              setConnectorId(id);
+              clearSelection();
+              setDetailsOpen(true);
+              return;
+            }
+            setConnectorId(null);
+            setDetailsOpen(true);
+            if (mapSurface === "expo") {
+              selectBooth(id, { jump: false });
+              requestMapFocus(id);
+            } else onSelectRoom(id);
+          }}
           reducedMotion={reducedMotion}
           resetToken={resetToken}
           imageSrc={threeImageSrc}
@@ -192,6 +328,9 @@ export function VenueMap() {
           samplePath={mapSurface === "sample" ? pathPoints : undefined}
           fallback={flatLayers}
           onError={() => setMapProjection("flat")}
+          onSheet={setSchematicSheet}
+          navPath={mapSurface === "sample" && showPath ? navFrames : undefined}
+          navMarker={mapSurface === "sample" && showPath ? navPose?.position ?? null : null}
         />
       ) : (
         flatLayers
@@ -213,7 +352,15 @@ export function VenueMap() {
         )}
         {mapSurface === "venue" && venueLayer === "schematic" && (
           <div className="pointer-events-auto">
-            <SchematicSheetSwitcher value={schematicSheet} onChange={setSchematicSheet} />
+            <SchematicSheetSwitcher
+              value={schematicSheet}
+              onChange={(id) => {
+                setSchematicSheet(id);
+                resetMapCamera();
+                const match = schematic.rooms.find((room) => room.id === roomId && room.sheet === id);
+                if (match) requestMapFocus(match.id);
+              }}
+            />
           </div>
         )}
         {mapSurface === "sample" && (
@@ -269,6 +416,95 @@ export function VenueMap() {
           </p>
         </div>
       )}
+      <MapExperienceDock
+        selectedBoothId={selectedBooth}
+        selectedRoom={selectedRoomChip}
+        roomsOnSheet={roomsOnSheet}
+        sponsorPrefs={sponsorPrefs}
+        onSelectBooth={(id) => {
+          setMapSurface("expo");
+          selectBooth(id, { jump: false });
+          requestMapFocus(id);
+          setConnectorId(null);
+          setDetailsOpen(true);
+        }}
+        onSelectRoom={(id) => {
+          setConnectorId(null);
+          setDetailsOpen(true);
+          onSelectRoom(id);
+          requestMapFocus(id);
+        }}
+        onSetPref={setSponsorPref}
+        connectorId={connectorId}
+        onSelectConnector={(id) => {
+          setConnectorId(id);
+          if (id) clearSelection();
+          setDetailsOpen(Boolean(id));
+        }}
+        onShowOfficialConnectors={() => {
+          setMapSurface("venue");
+          setVenueLayer("official");
+          clearSelection();
+        }}
+        nextSession={
+          rankedSessions[0]
+            ? {
+                id: rankedSessions[0].item.id,
+                title: rankedSessions[0].item.title,
+                roomLabel: rankedSessions[0].item.roomLabel ?? rankedSessions[0].item.roomId,
+                why: rankedSessions[0].why,
+              }
+            : null
+        }
+        nextBooth={
+          (mustBooth ?? topicalBooth)
+            ? {
+                id: (mustBooth ?? topicalBooth)!.id,
+                sponsor: (mustBooth ?? topicalBooth)!.sponsor,
+                boothNumber: (mustBooth ?? topicalBooth)!.boothNumber,
+                why: "Official exhibitor match — not walking distance.",
+              }
+            : null
+        }
+        onOpenSession={(id) => {
+          setConnectorId(null);
+          setDetailsOpen(true);
+          selectSession(id);
+          const talk = officialSessions.find((item) => item.id === id) ?? resolveSession(id);
+          if (talk?.roomId) requestMapFocus(talk.roomId);
+        }}
+        destination={activeDestination}
+        onSetDestination={() => {
+          if (!activeDestination?.playable) return;
+          setConnectorId(null);
+          setMapSurface("sample");
+          selectSession("ebpf-obs", { jump: false });
+          requestMapFocus("255");
+        }}
+        onDismissDetails={() => {
+          setConnectorId(null);
+          setDetailsOpen(false);
+          if (selection?.kind === "booth") clearSelection();
+        }}
+        navPlaying={navPlaying}
+        navProgress={navProgress}
+        reducedMotion={reducedMotion}
+        stepFree={stepFree}
+        onPlay={() => {
+          startNavTo255({ stayOnMap: true });
+          setConnectorId(null);
+          setNavProgress(reducedMotion ? 1 : 0);
+          setNavPlaying(!reducedMotion);
+        }}
+        onPause={() => setNavPlaying(false)}
+        onReplay={() => {
+          startNavTo255({ stayOnMap: true });
+          setConnectorId(null);
+          setNavProgress(0);
+          setNavPlaying(!reducedMotion);
+          if (reducedMotion) setNavProgress(1);
+        }}
+      />
       {mapProjection === "3d" && (
         <div className="pointer-events-none absolute bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-2 z-30">
           <Button
@@ -317,6 +553,7 @@ function MapFlatLayers({
   schematicSheet,
   setSchematicSheet,
   roomId,
+  connectorId,
   selectedBooth,
   recommendedExpo,
   recommendedVenue,
@@ -344,6 +581,7 @@ function MapFlatLayers({
   schematicSheet: "salt-l1" | "salt-l2" | "hyatt";
   setSchematicSheet: (id: "salt-l1" | "salt-l2" | "hyatt") => void;
   roomId: string | null;
+  connectorId: string | null;
   selectedBooth: string | null;
   recommendedExpo: string | null;
   recommendedVenue: string | null;
@@ -411,7 +649,7 @@ function MapFlatLayers({
             src="/maps/venue-overview.png"
             alt="Official venue map, Salt Palace and Hyatt"
             pins={venuePins}
-            selectedId={roomId}
+            selectedId={connectorId ?? roomId}
             onSelect={onSelectRoom}
             credit="Official venue.pdf · verified labels only · Hyatt stays on Hyatt"
             motion={motion}

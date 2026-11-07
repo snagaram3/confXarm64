@@ -12,8 +12,8 @@ export function MapProjectionSwitcher({
     <div role="tablist" aria-label="Map projection" className="inline-flex rounded-full border border-border bg-card/95 p-1 shadow-sm">
       {(
         [
-          { id: "flat", label: "Flat map" },
           { id: "3d", label: "3D map" },
+          { id: "flat", label: "Flat map" },
         ] as const
       ).map((item) => (
         <button

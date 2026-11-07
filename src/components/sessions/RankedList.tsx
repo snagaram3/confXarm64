@@ -39,6 +39,7 @@ export function RankedList() {
     pickId,
     setPickId,
     startNavTo255,
+    requestMapFocus,
   } = useAppState();
   const [askDraft, setAskDraft] = useState("");
   const selectedId = selection?.kind === "session" ? selection.id : null;
@@ -149,10 +150,11 @@ export function RankedList() {
           if (!best.pick) return;
           setPickId(best.pick.item.id);
           if (best.pick.item.id === LATE_SESSION_ID || best.pick.item.dataset === "sample") {
-            startNavTo255();
+            startNavTo255({ stayOnMap: true });
             return;
           }
           selectSession(best.pick.item.id);
+          if (best.pick.item.roomId) requestMapFocus(best.pick.item.roomId);
         }}
         onSkip={() => {
           const ids = visible.map((row) => row.item.id);

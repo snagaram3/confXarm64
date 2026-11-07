@@ -3,6 +3,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { PALETTE } from "@/theme/tokens";
 import { venue } from "@/lib/catalog";
 import {
+  WORLD_FLOOR_GAP,
   WORLD_SCALE,
   focusWorldBox,
   isometricPose,
@@ -10,10 +11,11 @@ import {
   relatedSheets,
   roomWorldCenter,
   sheetPlate,
+  worldPoint,
   type WorldBox,
   type WorldPoint,
 } from "@/lib/map-3d-world";
-import { SHEETS, sheetById, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
+import { PORTALS, SHEETS, sheetById, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -25,6 +27,10 @@ export interface Map3DPin {
   nx: number;
   ny: number;
   label: string;
+  kind?: "booth" | "connector" | "room";
+  logoSrc?: string | null;
+  logoOnDark?: boolean;
+  sublabel?: string;
 }
 
 const CAMERA_FOV = 46;
@@ -43,6 +49,9 @@ export default function Map3DView({
   sampleSpaces,
   sampleFloor,
   samplePath,
+  onSheet,
+  navPath,
+  navMarker,
 }: {
   kind: Map3DKind;
   rooms: SchematicRoom[];
@@ -57,6 +66,9 @@ export default function Map3DView({
   sampleSpaces?: Space[];
   sampleFloor?: number;
   samplePath?: [number, number][];
+  onSheet?: (id: SchematicSheetId) => void;
+  navPath?: WorldPoint[];
+  navMarker?: WorldPoint | null;
 }) {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -86,7 +98,7 @@ export default function Map3DView({
         : "Official floorplan image";
 
   return (
-    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[4.5rem] pb-[7.25rem] lg:pt-16 lg:pb-14">
+    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[4.5rem] pb-[15rem] lg:pt-16 lg:pb-36">
       <Canvas
         camera={{ fov: CAMERA_FOV, near: 0.1, far: 5000, position: [48, 72, 96] }}
         dpr={[1, 1.5]}
@@ -112,6 +124,7 @@ export default function Map3DView({
               reducedMotion={reducedMotion}
               resetToken={resetToken}
               compact={compact}
+              onSheet={onSheet}
             />
           )}
           {kind === "image-plane" && imageSrc && (
@@ -134,6 +147,8 @@ export default function Map3DView({
               onSelect={onSelect}
               reducedMotion={reducedMotion}
               resetToken={resetToken}
+              navPath={navPath}
+              navMarker={navMarker}
             />
           )}
         </Suspense>
@@ -168,6 +183,7 @@ function SchematicScene({
   reducedMotion,
   resetToken,
   compact,
+  onSheet,
 }: {
   rooms: SchematicRoom[];
   selectedId: string | null;
@@ -177,6 +193,7 @@ function SchematicScene({
   reducedMotion: boolean;
   resetToken: number;
   compact: boolean;
+  onSheet?: (id: SchematicSheetId) => void;
 }) {
   const visibleSheets = relatedSheets(focusSheet);
   const labelIds = useMemo(
@@ -237,6 +254,23 @@ function SchematicScene({
           </group>
         );
       })}
+      {PORTALS.filter((portal) => portal.sheet === focusSheet).map((portal) => {
+        const point = worldPoint(portal.sheet, portal.point, 3.2);
+        return (
+          <Html key={`${portal.sheet}-${portal.toSheet}`} position={[point.x, point.y, point.z]} center sprite zIndexRange={[24, 0]}>
+            <button
+              type="button"
+              className="rounded-md border border-border bg-[#0b0f1f] px-2 py-1 text-[10px] font-semibold text-white shadow"
+              onClick={(event) => {
+                event.stopPropagation();
+                onSheet?.(portal.toSheet);
+              }}
+            >
+              {portal.label} · schematic link, not stairs
+            </button>
+          </Html>
+        );
+      })}
     </>
   );
 }
@@ -271,6 +305,13 @@ function RoomMesh({
       onClick={(event) => {
         event.stopPropagation();
         onSelect(room.id);
+      }}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "auto";
       }}
     >
       <boxGeometry args={[Math.max(0.55, room.rect.w * WORLD_SCALE - 0.28), height, Math.max(0.55, room.rect.h * WORLD_SCALE - 0.28)]} />
@@ -361,19 +402,72 @@ function ImagePlaneScene({
         const z = (pin.ny - 0.5) * depth;
         const selectedPin = pin.id === selectedId;
         const rec = pin.id === recommendedId;
+        const connector = pin.kind === "connector";
+        const booth = pin.kind === "booth";
         return (
-          <mesh
-            key={pin.id}
-            position={[x, selectedPin ? 1.6 : 0.9, z]}
-            onClick={(event) => {
-              event.stopPropagation();
-              onSelect(pin.id);
-            }}
-          >
-            <cylinderGeometry args={[selectedPin ? 1.25 : 0.8, selectedPin ? 1.25 : 0.8, selectedPin ? 3 : 1.6, 12]} />
-            <meshStandardMaterial color={selectedPin ? PALETTE.primary : rec ? PALETTE.must : PALETTE.cta} />
-            {selectedPin ? <RoomLabel text={pin.label} strong position={[0, 2.2, 0]} /> : null}
-          </mesh>
+          <group key={pin.id} position={[x, selectedPin ? 1.4 : 0.85, z]}>
+            <mesh
+              onClick={(event) => {
+                event.stopPropagation();
+                onSelect(pin.id);
+              }}
+              onPointerOver={(event) => {
+                event.stopPropagation();
+                document.body.style.cursor = "pointer";
+              }}
+              onPointerOut={() => {
+                document.body.style.cursor = "auto";
+              }}
+            >
+              <cylinderGeometry
+                args={[
+                  selectedPin ? 1.05 : booth ? 0.7 : 0.55,
+                  selectedPin ? 1.05 : booth ? 0.7 : 0.55,
+                  selectedPin ? 2.4 : 1.2,
+                  12,
+                ]}
+              />
+              <meshStandardMaterial
+                color={
+                  selectedPin
+                    ? PALETTE.primary
+                    : rec
+                      ? PALETTE.must
+                      : connector
+                        ? "#4b5d78"
+                        : PALETTE.cta
+                }
+              />
+            </mesh>
+            {(selectedPin || rec || connector || booth) ? (
+            <Html center sprite zIndexRange={[28, 0]} style={{ pointerEvents: "auto" }} position={[0, selectedPin ? 2.2 : 1.35, 0]}>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSelect(pin.id);
+                }}
+                className={
+                  selectedPin
+                    ? "flex max-w-[9rem] items-center gap-1 rounded-md bg-primary px-1.5 py-1 text-left text-[11px] font-semibold text-primary-foreground shadow"
+                    : connector
+                      ? "rounded-md bg-[#0b0f1f] px-1.5 py-1 text-[10px] font-semibold text-white shadow"
+                      : "flex max-w-[8.5rem] items-center gap-1 rounded-md bg-card px-1.5 py-1 text-left text-[10px] font-semibold text-foreground shadow"
+                }
+                aria-label={pin.label}
+              >
+                {pin.logoSrc ? (
+                  <img
+                    src={pin.logoSrc}
+                    alt=""
+                    className={pin.logoOnDark ? "size-6 rounded bg-primary object-contain p-0.5" : "size-6 rounded bg-white object-contain"}
+                  />
+                ) : null}
+                <span className="leading-tight">{pin.label}</span>
+              </button>
+            </Html>
+            ) : null}
+          </group>
         );
       })}
     </>
@@ -388,6 +482,8 @@ function SampleScene({
   onSelect,
   reducedMotion,
   resetToken,
+  navPath,
+  navMarker,
 }: {
   spaces: Space[];
   floor: number;
@@ -396,16 +492,23 @@ function SampleScene({
   onSelect: (id: string) => void;
   reducedMotion: boolean;
   resetToken: number;
+  navPath?: WorldPoint[];
+  navMarker?: WorldPoint | null;
 }) {
   const S = WORLD_SCALE;
-  const visible = useMemo(() => spaces.filter((space) => space.floor === floor), [spaces, floor]);
+  const stacked = Boolean(navPath && navPath.length > 1);
+  const visible = useMemo(
+    () => (stacked ? spaces.filter((space) => space.floor === 1 || space.floor === 2) : spaces.filter((space) => space.floor === floor)),
+    [spaces, floor, stacked],
+  );
   const selected = visible.find((space) => space.id === selectedId);
   const box = useMemo<WorldBox>(() => {
     const { w, h } = venue.viewBox;
+    const top = stacked ? WORLD_FLOOR_GAP + 6 : 4;
     const min = { x: 0, y: 0, z: 0 };
-    const max = { x: w * S, y: 4, z: h * S };
-    const center = { x: (w / 2) * S, y: 1.2, z: (h / 2) * S };
-    if (!selected) return { min, max, center };
+    const max = { x: w * S, y: top, z: h * S };
+    const center = { x: (w / 2) * S, y: stacked ? WORLD_FLOOR_GAP * 0.45 : 1.2, z: (h / 2) * S };
+    if (!selected || stacked) return { min, max, center };
     const x = (selected.x + selected.w / 2) * S;
     const z = (selected.y + selected.h / 2) * S;
     return {
@@ -413,44 +516,68 @@ function SampleScene({
       max: { x: x + 12, y: 4, z: z + 12 },
       center: { x, y: 2, z },
     };
-  }, [selected, S]);
+  }, [selected, S, stacked]);
   const { w, h } = venue.viewBox;
+  const floors = stacked ? [1, 2] : [floor];
   return (
     <>
       <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
-      <mesh position={[(w / 2) * S, -0.2, (h / 2) * S]}>
-        <boxGeometry args={[w * S, 0.3, h * S]} />
-        <meshStandardMaterial color="#9eb1c9" />
-      </mesh>
+      {floors.map((lvl) => (
+        <mesh key={`plate-${lvl}`} position={[(w / 2) * S, (lvl - 1) * WORLD_FLOOR_GAP - 0.2, (h / 2) * S]}>
+          <boxGeometry args={[w * S, 0.3, h * S]} />
+          <meshStandardMaterial color={lvl === floor ? "#9eb1c9" : "#c5d0e0"} transparent={lvl !== floor} opacity={lvl === floor ? 1 : 0.4} />
+        </mesh>
+      ))}
       {visible.map((space) => {
-        const height = space.kind === "room" ? 2.2 : space.kind === "hall" ? 1.4 : 0.8;
+        const height =
+          space.kind === "vertical" ? 3.4 : space.kind === "room" ? 2.2 : space.kind === "hall" ? 1.4 : 0.8;
         const selectedSpace = space.id === selectedId;
         return (
           <mesh
             key={space.id}
-            position={[(space.x + space.w / 2) * S, height / 2, (space.y + space.h / 2) * S]}
+            position={[(space.x + space.w / 2) * S, (space.floor - 1) * WORLD_FLOOR_GAP + height / 2, (space.y + space.h / 2) * S]}
             onClick={(event) => {
               event.stopPropagation();
-              if (space.kind === "room" || space.kind === "hall") onSelect(space.id);
+              if (space.kind === "room" || space.kind === "hall" || space.kind === "vertical") onSelect(space.id);
             }}
           >
             <boxGeometry args={[space.w * S, height, space.h * S]} />
-            <meshStandardMaterial color={selectedSpace ? PALETTE.primary : "#e8eef6"} />
+            <meshStandardMaterial
+              color={
+                selectedSpace ? PALETTE.primary : space.kind === "vertical" ? "#334155" : "#e8eef6"
+              }
+            />
             <Edges color={PALETTE.primary} />
-            {selectedSpace || space.kind === "entrance" ? (
-              <RoomLabel text={space.label} strong={selectedSpace} position={[0, height / 2 + 0.2, 0]} />
+            {selectedSpace || space.kind === "entrance" || space.kind === "vertical" ? (
+              <RoomLabel
+                text={space.kind === "vertical" ? `SAMPLE ${space.label}` : space.label}
+                strong={selectedSpace || space.kind === "vertical"}
+                position={[0, height / 2 + 0.2, 0]}
+              />
             ) : null}
           </mesh>
         );
       })}
-      {path && path.length > 1
-        ? path.slice(1).map((point, i) => {
-            const prev = path[i]!;
-            const a = { x: prev[0] * S, y: 0.5, z: prev[1] * S };
-            const b = { x: point[0] * S, y: 0.5, z: point[1] * S };
-            return <Segment key={i} a={a} b={b} />;
+      {(navPath && navPath.length > 1 ? navPath : null)
+        ? (navPath ?? []).slice(1).map((point, i) => {
+            const prev = (navPath ?? [])[i]!;
+            return <Segment key={`nav-${i}`} a={prev} b={point} />;
           })
-        : null}
+        : path && path.length > 1
+          ? path.slice(1).map((point, i) => {
+              const prev = path[i]!;
+              const a = { x: prev[0] * S, y: 0.5, z: prev[1] * S };
+              const b = { x: point[0] * S, y: 0.5, z: point[1] * S };
+              return <Segment key={i} a={a} b={b} />;
+            })
+          : null}
+      {navMarker ? (
+        <mesh position={[navMarker.x, navMarker.y + 0.6, navMarker.z]}>
+          <sphereGeometry args={[0.85, 16, 16]} />
+          <meshStandardMaterial color={PALETTE.cta} emissive={PALETTE.cta} emissiveIntensity={0.35} />
+          <RoomLabel text="SAMPLE walker · not live GPS" strong position={[0, 1.4, 0]} />
+        </mesh>
+      ) : null}
     </>
   );
 }

@@ -34,6 +34,9 @@ export function NavigatePanel() {
         </p>
         <h2 className="mt-1 font-display text-2xl font-semibold">{wayfinding.title}</h2>
         <p className="text-sm text-muted-foreground">{wayfinding.from} · not live positioning</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          On the SAMPLE 3D map, Play walks a labeled marker along this same polyline. Pause and Replay are on the map. Reduced motion shows the full path without looping.
+        </p>
       </div>
 
       <label className="flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm">
