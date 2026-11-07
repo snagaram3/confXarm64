@@ -1,11 +1,21 @@
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { Edges, Html, OrbitControls, useTexture } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { PALETTE } from "@/theme/tokens";
 import { venue } from "@/lib/catalog";
-import { plateFromRects, roomWorldCenter, WORLD_SCALE, type WorldPoint } from "@/lib/map-3d-world";
-import { SHEETS, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
+import {
+  WORLD_SCALE,
+  focusWorldBox,
+  isometricPose,
+  labeledRoomIds,
+  relatedSheets,
+  roomWorldCenter,
+  sheetPlate,
+  type WorldBox,
+  type WorldPoint,
+} from "@/lib/map-3d-world";
+import { SHEETS, sheetById, type SchematicRoom, type SchematicSheetId } from "@/lib/venue-schematic";
 import type { Space } from "@/lib/types";
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 export type Map3DKind = "venue-schematic" | "image-plane" | "sample";
@@ -16,6 +26,8 @@ export interface Map3DPin {
   ny: number;
   label: string;
 }
+
+const CAMERA_FOV = 46;
 
 export default function Map3DView({
   kind,
@@ -46,10 +58,37 @@ export default function Map3DView({
   sampleFloor?: number;
   samplePath?: [number, number][];
 }) {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 639px)");
+    const update = () => setCompact(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  const sheet = sheetById(focusSheet);
+  const selectedRoom = rooms.find((room) => room.id === selectedId);
+  const selectedPin = pins?.find((pin) => pin.id === selectedId);
+  const selectedName =
+    selectedRoom?.labelLines.join(" ") ??
+    selectedRoom?.roomOrArea ??
+    selectedPin?.label ??
+    (kind === "sample" ? (sampleSpaces?.find((space) => space.id === selectedId)?.label ?? "SAMPLE floor") : "Tap a room on this floor");
+  const selectedElsewhere =
+    selectedRoom && selectedRoom.sheet !== focusSheet && kind === "venue-schematic"
+      ? `${selectedName} is on ${sheetById(selectedRoom.sheet).title}`
+      : selectedName;
+  const floorTitle =
+    kind === "venue-schematic"
+      ? sheet.title
+      : kind === "sample"
+        ? `SAMPLE · floor ${sampleFloor ?? 1}`
+        : "Official floorplan image";
+
   return (
-    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas">
+    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[4.5rem] pb-[7.25rem] lg:pt-16 lg:pb-14">
       <Canvas
-        camera={{ fov: 40, near: 0.1, far: 5000, position: [48, 72, 96] }}
+        camera={{ fov: CAMERA_FOV, near: 0.1, far: 5000, position: [48, 72, 96] }}
         dpr={[1, 1.5]}
         frameloop={reducedMotion ? "demand" : "always"}
         gl={{ antialias: true, powerPreference: "low-power" }}
@@ -59,8 +98,9 @@ export default function Map3DView({
           gl.domElement.tabIndex = -1;
         }}
       >
-        <ambientLight intensity={1.45} />
-        <directionalLight position={[50, 120, 70]} intensity={1.15} />
+        <ambientLight intensity={0.95} />
+        <directionalLight position={[40, 90, 55]} intensity={1.35} />
+        <hemisphereLight args={[PALETTE.secondary, "#8a9bb0", 0.55]} />
         <Suspense fallback={null}>
           {kind === "venue-schematic" && (
             <SchematicScene
@@ -71,6 +111,7 @@ export default function Map3DView({
               onSelect={onSelect}
               reducedMotion={reducedMotion}
               resetToken={resetToken}
+              compact={compact}
             />
           )}
           {kind === "image-plane" && imageSrc && (
@@ -97,11 +138,21 @@ export default function Map3DView({
           )}
         </Suspense>
       </Canvas>
-      <p className="pointer-events-none absolute bottom-1 left-2 max-w-[min(72%,24rem)] text-[10px] leading-snug text-foreground/80">
-        {kind === "venue-schematic" &&
-          "WebGL 3D extrusion of the Floorwise schematic — not to scale, not indoor GPS, not surveyed heights."}
-        {kind === "image-plane" &&
-          "Official floorplan image on a 3D plane. Pins are image-relative anchors, not extruded buildings."}
+      <aside className="pointer-events-none absolute left-2 top-[3.85rem] z-10 max-w-[min(94%,20rem)] rounded-xl border border-border bg-card/95 p-2.5 shadow-sm lg:top-[3.65rem]">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">{floorTitle}</p>
+        <p className="text-sm font-semibold leading-snug text-foreground">{selectedElsewhere}</p>
+        <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+          {kind === "venue-schematic"
+            ? "Illustrative extrusion — not to scale, not GPS. Navy = selected. Gold = recommended."
+            : kind === "image-plane"
+              ? "Official image on a plane. Pins are image-relative, not buildings."
+              : "SAMPLE extrusion — not the official Salt Palace."}
+        </p>
+        <p className="mt-1 text-[11px] text-muted-foreground">Drag to orbit · two-finger pan · pinch zoom · Fit resets this floor.</p>
+      </aside>
+      <p className="pointer-events-none absolute bottom-1 left-2 max-w-[min(72%,22rem)] text-[10px] leading-snug text-foreground/80">
+        {kind === "venue-schematic" && "WebGL 3D extrusion of the Floorwise schematic — not surveyed heights."}
+        {kind === "image-plane" && "Official floorplan image on a 3D plane. Pins are not extruded buildings."}
         {kind === "sample" && "SAMPLE schematic extruded for orbit — not the official Salt Palace."}
       </p>
     </div>
@@ -116,6 +167,7 @@ function SchematicScene({
   onSelect,
   reducedMotion,
   resetToken,
+  compact,
 }: {
   rooms: SchematicRoom[];
   selectedId: string | null;
@@ -124,84 +176,95 @@ function SchematicScene({
   onSelect: (id: string) => void;
   reducedMotion: boolean;
   resetToken: number;
+  compact: boolean;
 }) {
-  const selected = rooms.find((r) => r.id === selectedId);
-  const focus = useMemo(() => {
-    const points: WorldPoint[] = [];
-    for (const sheet of SHEETS) {
-      const sheetRooms = rooms.filter((r) => r.sheet === sheet.id);
-      const rects = [...sheet.corridors, ...sheetRooms.map((r) => r.rect), ...sheet.zones.map((z) => z.rect)];
-      if (rects.length === 0) continue;
-      const plate = plateFromRects(sheet.id, rects);
-      points.push(plate.center);
-      if (sheet.id === focusSheet) {
-        points.push({ x: plate.center.x + plate.width * 0.35, y: plate.center.y, z: plate.center.z + plate.depth * 0.35 });
-        points.push({ x: plate.center.x - plate.width * 0.35, y: plate.center.y, z: plate.center.z - plate.depth * 0.35 });
-      }
-    }
-    if (selected) points.push(roomWorldCenter(selected, 2.4));
-    return points;
-  }, [rooms, selected, focusSheet]);
+  const visibleSheets = relatedSheets(focusSheet);
+  const labelIds = useMemo(
+    () => labeledRoomIds(rooms, focusSheet, selectedId, recommendedId, compact),
+    [rooms, focusSheet, selectedId, recommendedId, compact],
+  );
+  const box = useMemo(
+    () => focusWorldBox({ focusSheet, rooms, selectedId }),
+    [focusSheet, rooms, selectedId],
+  );
 
   return (
     <>
-      <CameraRig points={focus} resetToken={resetToken} reducedMotion={reducedMotion} />
-      {SHEETS.map((sheet) => {
-        const sheetRooms = rooms.filter((r) => r.sheet === sheet.id);
-        const rects = [...sheet.corridors, ...sheetRooms.map((r) => r.rect), ...sheet.zones.map((z) => z.rect)];
-        if (rects.length === 0) return null;
-        const plate = plateFromRects(sheet.id, rects);
+      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
+      {SHEETS.filter((sheet) => visibleSheets.includes(sheet.id)).map((sheet) => {
+        const sheetRooms = rooms.filter((room) => room.sheet === sheet.id);
+        const plate = sheetPlate(sheet.id, rooms);
+        const focused = sheet.id === focusSheet;
         return (
-          <mesh key={sheet.id} position={[plate.center.x, plate.center.y, plate.center.z]}>
-            <boxGeometry args={[plate.width, 0.35, plate.depth]} />
-            <meshStandardMaterial
-              color={sheet.id === "hyatt" ? PALETTE.peach : PALETTE.secondary}
-              transparent={sheetFloorLift(sheet.id) > 0}
-              opacity={sheetFloorLift(sheet.id) > 0 ? 0.62 : 1}
-              depthWrite={sheetFloorLift(sheet.id) === 0}
-            />
-            <LabelSprite
-              text={sheet.title}
-              strong={sheet.id === focusSheet}
-              position={[0, 2.2, plate.depth * 0.42]}
-            />
-          </mesh>
+          <group key={sheet.id}>
+            <mesh position={[plate.center.x, plate.center.y, plate.center.z]}>
+              <boxGeometry args={[plate.width, 0.4, plate.depth]} />
+              <meshStandardMaterial
+                color={sheet.id === "hyatt" ? "#edc9b0" : focused ? "#9eb1c9" : "#c5d0e0"}
+                transparent={!focused}
+                opacity={focused ? 1 : 0.38}
+                depthWrite={focused}
+              />
+            </mesh>
+            <Html
+              position={[plate.center.x, plate.center.y + (focused ? 3.4 : 8.2), plate.center.z - plate.depth * 0.46]}
+              center
+              sprite
+              zIndexRange={[12, 0]}
+              style={{ pointerEvents: "none" }}
+            >
+              <div
+                className={
+                  focused
+                    ? "rounded-md bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground shadow-md"
+                    : "rounded-md bg-[#0b0f1f]/80 px-2 py-0.5 text-[10px] font-semibold text-white shadow"
+                }
+              >
+                {sheet.title}
+              </div>
+            </Html>
+            {sheetRooms.map((room) => (
+              <RoomMesh
+                key={room.id}
+                room={room}
+                selected={room.id === selectedId}
+                recommended={room.id === recommendedId}
+                dimmed={!focused}
+                showLabel={labelIds.has(room.id)}
+                onSelect={onSelect}
+              />
+            ))}
+          </group>
         );
       })}
-      {rooms.map((room) => (
-        <RoomMesh
-          key={room.id}
-          room={room}
-          selected={room.id === selectedId}
-          recommended={room.id === recommendedId}
-          showLabel={room.id === selectedId || room.id === recommendedId || room.kind === "entrance"}
-          onSelect={onSelect}
-        />
-      ))}
     </>
   );
-}
-
-function sheetFloorLift(sheet: SchematicSheetId): number {
-  return sheet === "salt-l1" ? 0 : 1;
 }
 
 function RoomMesh({
   room,
   selected,
   recommended,
+  dimmed,
   showLabel,
   onSelect,
 }: {
   room: SchematicRoom;
   selected: boolean;
   recommended: boolean;
+  dimmed: boolean;
   showLabel: boolean;
   onSelect: (id: string) => void;
 }) {
-  const height = room.kind === "entrance" ? 0.9 : room.kind === "hall" ? 1.6 : 2.1;
+  const height = selected ? 3.1 : room.kind === "entrance" ? 1.2 : room.kind === "hall" ? 2.1 : 2.4;
   const center = roomWorldCenter(room, height / 2);
-  const color = selected ? PALETTE.primary : recommended ? PALETTE.highlight : room.placedOnOfficial ? PALETTE.card : PALETTE.maybeWash;
+  const color = selected
+    ? PALETTE.primary
+    : recommended
+      ? PALETTE.highlight
+      : room.placedOnOfficial
+        ? "#e8eef6"
+        : "#d9c48a";
   return (
     <mesh
       position={[center.x, center.y, center.z]}
@@ -210,10 +273,37 @@ function RoomMesh({
         onSelect(room.id);
       }}
     >
-      <boxGeometry args={[Math.max(0.4, room.rect.w * WORLD_SCALE - 0.35), height, Math.max(0.4, room.rect.h * WORLD_SCALE - 0.35)]} />
-      <meshStandardMaterial color={color} />
-      {showLabel ? <LabelSprite text={room.labelLines.join(" ")} strong={selected} position={[0, height / 2 + 1.8, 0]} /> : null}
+      <boxGeometry args={[Math.max(0.55, room.rect.w * WORLD_SCALE - 0.28), height, Math.max(0.55, room.rect.h * WORLD_SCALE - 0.28)]} />
+      <meshStandardMaterial color={color} transparent={dimmed} opacity={dimmed ? 0.28 : 1} depthWrite={!dimmed} />
+      {!dimmed ? <Edges threshold={80} color={selected ? "#fefefe" : PALETTE.primary} /> : null}
+      {showLabel && !dimmed ? (
+        <RoomLabel text={room.labelLines.join(" ")} strong={selected} position={[0, height / 2 + 0.15, 0]} />
+      ) : null}
     </mesh>
+  );
+}
+
+function RoomLabel({
+  text,
+  strong,
+  position,
+}: {
+  text: string;
+  strong: boolean;
+  position: [number, number, number];
+}) {
+  return (
+    <Html position={position} center sprite zIndexRange={[30, 0]} style={{ pointerEvents: "none" }}>
+      <div
+        className={
+          strong
+            ? "max-w-[12rem] rounded-md bg-primary px-2 py-1 text-center text-[12px] font-semibold leading-tight text-primary-foreground shadow-md"
+            : "max-w-[11rem] rounded-md bg-[#0b0f1f] px-2 py-1 text-center text-[11px] font-semibold leading-tight text-white shadow-md"
+        }
+      >
+        {text}
+      </div>
+    </Html>
   );
 }
 
@@ -240,17 +330,28 @@ function ImagePlaneScene({
   const aspect = image?.height ? (image.width ?? 1) / image.height : 1.35;
   const width = 110;
   const depth = width / aspect;
-  const selected = pins.find((p) => p.id === selectedId);
-  const focus = useMemo<WorldPoint[]>(
-    () =>
-      selected
-        ? [{ x: (selected.nx - 0.5) * width, y: 1.2, z: (selected.ny - 0.5) * depth }]
-        : [{ x: 0, y: 0, z: 0 }],
-    [selected, width, depth],
-  );
+  const selected = pins.find((pin) => pin.id === selectedId);
+  const box = useMemo<WorldBox>(() => {
+    const min = { x: -width / 2, y: 0, z: -depth / 2 };
+    const max = { x: width / 2, y: 3, z: depth / 2 };
+    if (selected) {
+      const x = (selected.nx - 0.5) * width;
+      const z = (selected.ny - 0.5) * depth;
+      return {
+        min: { x: x - 14, y: 0, z: z - 14 },
+        max: { x: x + 14, y: 4, z: z + 14 },
+        center: { x, y: 1.2, z },
+      };
+    }
+    return {
+      min,
+      max,
+      center: { x: 0, y: 0.4, z: 0 },
+    };
+  }, [selected, width, depth]);
   return (
     <>
-      <CameraRig points={focus} resetToken={resetToken} reducedMotion={reducedMotion} />
+      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[width, depth]} />
         <meshBasicMaterial map={texture} />
@@ -263,15 +364,15 @@ function ImagePlaneScene({
         return (
           <mesh
             key={pin.id}
-            position={[x, selectedPin ? 1.4 : 0.9, z]}
+            position={[x, selectedPin ? 1.6 : 0.9, z]}
             onClick={(event) => {
               event.stopPropagation();
               onSelect(pin.id);
             }}
           >
-            <cylinderGeometry args={[selectedPin ? 1.15 : 0.85, selectedPin ? 1.15 : 0.85, selectedPin ? 2.6 : 1.6, 12]} />
+            <cylinderGeometry args={[selectedPin ? 1.25 : 0.8, selectedPin ? 1.25 : 0.8, selectedPin ? 3 : 1.6, 12]} />
             <meshStandardMaterial color={selectedPin ? PALETTE.primary : rec ? PALETTE.must : PALETTE.cta} />
-            {selectedPin ? <LabelSprite text={pin.label} strong position={[0, 2.4, 0]} /> : null}
+            {selectedPin ? <RoomLabel text={pin.label} strong position={[0, 2.2, 0]} /> : null}
           </mesh>
         );
       })}
@@ -297,21 +398,29 @@ function SampleScene({
   resetToken: number;
 }) {
   const S = WORLD_SCALE;
-  const visible = useMemo(() => spaces.filter((s) => s.floor === floor), [spaces, floor]);
-  const selected = visible.find((s) => s.id === selectedId);
-  const focus = useMemo<WorldPoint[]>(() => {
-    if (selected) {
-      return [{ x: (selected.x + selected.w / 2) * S, y: 2, z: (selected.y + selected.h / 2) * S }];
-    }
-    return visible.slice(0, 8).map((s) => ({ x: (s.x + s.w / 2) * S, y: 1, z: (s.y + s.h / 2) * S }));
-  }, [selected, visible, S]);
+  const visible = useMemo(() => spaces.filter((space) => space.floor === floor), [spaces, floor]);
+  const selected = visible.find((space) => space.id === selectedId);
+  const box = useMemo<WorldBox>(() => {
+    const { w, h } = venue.viewBox;
+    const min = { x: 0, y: 0, z: 0 };
+    const max = { x: w * S, y: 4, z: h * S };
+    const center = { x: (w / 2) * S, y: 1.2, z: (h / 2) * S };
+    if (!selected) return { min, max, center };
+    const x = (selected.x + selected.w / 2) * S;
+    const z = (selected.y + selected.h / 2) * S;
+    return {
+      min: { x: x - 12, y: 0, z: z - 12 },
+      max: { x: x + 12, y: 4, z: z + 12 },
+      center: { x, y: 2, z },
+    };
+  }, [selected, S]);
   const { w, h } = venue.viewBox;
   return (
     <>
-      <CameraRig points={focus} resetToken={resetToken} reducedMotion={reducedMotion} />
+      <CameraRig box={box} resetToken={resetToken} reducedMotion={reducedMotion} />
       <mesh position={[(w / 2) * S, -0.2, (h / 2) * S]}>
         <boxGeometry args={[w * S, 0.3, h * S]} />
-        <meshStandardMaterial color={PALETTE.secondary} />
+        <meshStandardMaterial color="#9eb1c9" />
       </mesh>
       {visible.map((space) => {
         const height = space.kind === "room" ? 2.2 : space.kind === "hall" ? 1.4 : 0.8;
@@ -326,8 +435,11 @@ function SampleScene({
             }}
           >
             <boxGeometry args={[space.w * S, height, space.h * S]} />
-            <meshStandardMaterial color={selectedSpace ? PALETTE.primary : PALETTE.card} />
-            <LabelSprite text={space.label} strong={selectedSpace} position={[0, height / 2 + 1.6, 0]} />
+            <meshStandardMaterial color={selectedSpace ? PALETTE.primary : "#e8eef6"} />
+            <Edges color={PALETTE.primary} />
+            {selectedSpace || space.kind === "entrance" ? (
+              <RoomLabel text={space.label} strong={selectedSpace} position={[0, height / 2 + 0.2, 0]} />
+            ) : null}
           </mesh>
         );
       })}
@@ -359,30 +471,51 @@ function Segment({ a, b }: { a: WorldPoint; b: WorldPoint }) {
 }
 
 function CameraRig({
-  points,
+  box,
   resetToken,
   reducedMotion,
 }: {
-  points: WorldPoint[];
+  box: WorldBox;
   resetToken: number;
   reducedMotion: boolean;
 }) {
   const camera = useThree((state) => state.camera);
+  const invalidate = useThree((state) => state.invalidate);
+  const size = useThree((state) => state.size);
   const controls = useRef<{ target: THREE.Vector3; update: () => void } | null>(null);
 
   useLayoutEffect(() => {
-    if (points.length === 0) return;
-    const box = new THREE.Box3();
-    for (const point of points) box.expandByPoint(new THREE.Vector3(point.x, point.y, point.z));
-    const center = box.getCenter(new THREE.Vector3());
-    const span = Math.max(box.getSize(new THREE.Vector3()).length(), 72);
-    camera.position.set(center.x + span * 0.32, center.y + span * 0.62, center.z + span * 0.88);
-    camera.lookAt(center);
+    const pose = isometricPose(box, size.width / Math.max(size.height, 1), CAMERA_FOV);
+    camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+    camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
     if (controls.current) {
-      controls.current.target.copy(center);
+      controls.current.target.set(pose.target.x, pose.target.y, pose.target.z);
       controls.current.update();
     }
-  }, [camera, points, resetToken]);
+    invalidate();
+  }, [box, resetToken, camera, invalidate, size.width, size.height]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const apply = () => {
+      if (cancelled) return;
+      const pose = isometricPose(box, size.width / Math.max(size.height, 1), CAMERA_FOV);
+      camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+      camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
+      if (controls.current) {
+        controls.current.target.set(pose.target.x, pose.target.y, pose.target.z);
+        controls.current.update();
+      }
+      invalidate();
+    };
+    const first = window.requestAnimationFrame(apply);
+    const second = window.requestAnimationFrame(() => window.requestAnimationFrame(apply));
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(first);
+      window.cancelAnimationFrame(second);
+    };
+  }, [box, resetToken, camera, invalidate, size.width, size.height]);
 
   return (
     <OrbitControls
@@ -391,46 +524,11 @@ function CameraRig({
       dampingFactor={0.08}
       enablePan
       screenSpacePanning
-      minDistance={8}
-      maxDistance={420}
-      maxPolarAngle={Math.PI / 2.08}
+      minDistance={12}
+      maxDistance={280}
+      maxPolarAngle={Math.PI / 2.12}
       touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
       makeDefault
     />
   );
 }
-
-function LabelSprite({ text, strong, position }: { text: string; strong: boolean; position: [number, number, number] }) {
-  const texture = useMemo(() => makeLabelTexture(text, strong), [text, strong]);
-  useEffect(() => () => texture?.dispose(), [texture]);
-  if (!texture) return null;
-  const width = Math.min(18, 4.2 + text.length * 0.72);
-  return (
-    <sprite position={position} scale={[width, 2.8, 1]}>
-      <spriteMaterial map={texture} transparent depthWrite={false} />
-    </sprite>
-  );
-}
-
-function makeLabelTexture(text: string, strong: boolean): THREE.CanvasTexture | null {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 160;
-  const context = canvas.getContext("2d");
-  if (!context) return null;
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = strong ? "rgba(17,62,130,0.96)" : "rgba(255,255,255,0.94)";
-  context.beginPath();
-  context.roundRect(12, 28, 1000, 104, 52);
-  context.fill();
-  context.fillStyle = strong ? "#fefefe" : "#0b0f1f";
-  context.font = "700 60px Source Sans 3, sans-serif";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(text.slice(0, 42), 512, 82);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  return texture;
-}
-

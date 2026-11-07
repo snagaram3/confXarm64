@@ -196,7 +196,7 @@ export function VenueMap() {
       ) : (
         flatLayers
       )}
-      <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex flex-wrap justify-center gap-2 px-2">
+      <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex flex-nowrap justify-start gap-2 overflow-x-auto px-2 lg:justify-center">
         <div className="pointer-events-auto">
           <MapSwitcher
             value={mapSurface}
@@ -259,11 +259,11 @@ export function VenueMap() {
           ))}
         </div>
       )}
-      {(map3dNotice || stepFree) && (
-        <div className="pointer-events-none absolute bottom-[calc(2.75rem+env(safe-area-inset-bottom))] left-2 z-40 max-w-[min(92vw,22rem)]">
+      {(map3dNotice || (stepFree && mapProjection === "3d")) && (
+        <div className="pointer-events-none absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-2 z-40 max-w-[min(92vw,22rem)] lg:bottom-16">
           <p className="rounded-xl border border-border bg-card/95 px-3 py-2 text-xs text-foreground shadow-sm">
             {map3dNotice}
-            {stepFree
+            {stepFree && mapProjection === "3d"
               ? `${map3dNotice ? " " : ""}Step-free is a planning preference, not a verified accessible indoor route.`
               : null}
           </p>
