@@ -1,5 +1,6 @@
 import { SuggestionCard } from "@/components/bot/SuggestionCard";
-import { catalog, LATE_SESSION_ID, wayfinding } from "@/lib/catalog";
+import { catalog, LATE_SESSION_ID } from "@/lib/catalog";
+import { sampleWalkRemainingSec } from "@/lib/step-free";
 import { buildSuggestions, type Suggestion, type SuggestionAction } from "@/lib/suggestions";
 import { useAppState } from "@/state/app-state";
 
@@ -20,11 +21,10 @@ export function SuggestionRail() {
     selectBooth,
     rankedBooths,
     requestMapFocus,
+    stepFree,
   } = useAppState();
 
-  const remaining = wayfinding.steps
-    .slice(stepIndex)
-    .reduce((sum, step) => sum + step.durationSec, 0);
+  const remaining = sampleWalkRemainingSec(stepFree, stepIndex);
 
   const mustBoothId = Object.entries(sponsorPrefs).find(([, pref]) => pref === "must")?.[0];
   const mustBooth =

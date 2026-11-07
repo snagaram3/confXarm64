@@ -1,5 +1,8 @@
 import { ImageFloorMap } from "@/components/map/ImageFloorMap";
 import { MapSwitcher } from "@/components/map/MapSwitcher";
+import { SchematicSheetSwitcher } from "@/components/map/SchematicSheetSwitcher";
+import { VenueLayerSwitcher } from "@/components/map/VenueLayerSwitcher";
+import { VenueSchematic } from "@/components/map/VenueSchematic";
 import { catalog } from "@/lib/catalog";
 import { motionEnabled } from "@/lib/motion";
 import { useAppState } from "@/state/app-state";
@@ -30,6 +33,10 @@ export function VenueMap() {
     sponsorPrefs,
     mapSurface,
     setMapSurface,
+    venueLayer,
+    setVenueLayer,
+    schematicSheet,
+    setSchematicSheet,
     officialSessions,
     roomAnchors,
     resolveSession,
@@ -112,7 +119,24 @@ export function VenueMap() {
           recommendedId={recommendedExpo}
         />
       )}
-      {mapSurface === "venue" && (
+      {mapSurface === "venue" && venueLayer === "schematic" && (
+        <VenueSchematic
+          sheet={schematicSheet}
+          onSheet={setSchematicSheet}
+          selectedId={roomId}
+          recommendedId={recommendedVenue}
+          onSelect={(id) => {
+            const talk = officialSessions.find((s) => s.roomId === id);
+            if (talk) selectSession(talk.id, { jump: false });
+            else selectSpace(id);
+          }}
+          focusId={mapFocus?.id}
+          focusToken={mapFocus?.token}
+          motionPref={motionPref}
+          rooms={roomAnchors}
+        />
+      )}
+      {mapSurface === "venue" && venueLayer === "official" && (
         <>
           <ImageFloorMap
             src="/maps/venue-overview.png"
@@ -188,10 +212,26 @@ export function VenueMap() {
           onSelectSpace={selectSpace}
         />
       )}
-      <div className="pointer-events-none absolute inset-x-0 top-2 z-20 flex flex-wrap justify-center gap-2 px-2">
+      <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex flex-wrap justify-center gap-2 px-2">
         <div className="pointer-events-auto">
-          <MapSwitcher value={mapSurface} onChange={setMapSurface} />
+          <MapSwitcher
+            value={mapSurface}
+            onChange={(next) => {
+              setMapSurface(next);
+              if (next === "venue") setVenueLayer("schematic");
+            }}
+          />
         </div>
+        {mapSurface === "venue" && (
+          <div className="pointer-events-auto">
+            <VenueLayerSwitcher value={venueLayer} onChange={setVenueLayer} />
+          </div>
+        )}
+        {mapSurface === "venue" && venueLayer === "schematic" && (
+          <div className="pointer-events-auto">
+            <SchematicSheetSwitcher value={schematicSheet} onChange={setSchematicSheet} />
+          </div>
+        )}
         {mapSurface === "sample" && (
           <div className="pointer-events-auto">
             <FloorSwitcher floor={floor} onChange={setFloor} />

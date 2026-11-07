@@ -29,7 +29,9 @@ import {
   sessionsInRoom,
   wayfinding,
 } from "@/lib/catalog";
+import { parseAsk, type ConferenceDayId } from "@/lib/ask";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
+import { sheetForFocus, type SchematicSheetId } from "@/lib/venue-schematic";
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
@@ -41,6 +43,7 @@ import type {
   Floor,
   MapSurface,
   Profile,
+  VenueLayer,
   Rank,
   RankMeta,
   Ranked,
@@ -124,6 +127,20 @@ interface AppStateValue {
   }>;
   mapSurface: MapSurface;
   setMapSurface: (surface: MapSurface) => void;
+  venueLayer: VenueLayer;
+  setVenueLayer: (layer: VenueLayer) => void;
+  schematicSheet: SchematicSheetId;
+  setSchematicSheet: (sheet: SchematicSheetId) => void;
+  stepFree: boolean;
+  setStepFree: (value: boolean) => void;
+  dayFilter: ConferenceDayId | "all";
+  setDayFilter: (day: ConferenceDayId | "all") => void;
+  includeEnded: boolean;
+  setIncludeEnded: (value: boolean) => void;
+  askUnderstood: string[];
+  applyAsk: (raw: string) => void;
+  pickId: string | null;
+  setPickId: (id: string | null) => void;
   timeZone: DisplayTimeZone;
   setTimeZone: (tz: DisplayTimeZone) => void;
   bufferMinutes: number;
@@ -215,6 +232,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [featured, setFeatured] = useState<AppStateValue["featured"]>(null);
   const [roomAnchors, setRoomAnchors] = useState<AppStateValue["roomAnchors"]>([]);
   const [mapSurface, setMapSurface] = useState<MapSurface>("expo");
+  const [venueLayer, setVenueLayer] = useState<VenueLayer>("schematic");
+  const [schematicSheet, setSchematicSheet] = useState<SchematicSheetId>("salt-l1");
+  const [stepFree, setStepFree] = useState(false);
+  const [dayFilter, setDayFilter] = useState<ConferenceDayId | "all">("all");
+  const [includeEnded, setIncludeEnded] = useState(false);
+  const [askUnderstood, setAskUnderstood] = useState<string[]>([]);
+  const [pickId, setPickId] = useState<string | null>(null);
   const [timeZone, setTimeZoneState] = useState<DisplayTimeZone>(() => {
     try {
       const raw = localStorage.getItem(TZ_KEY);
@@ -482,6 +506,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const session = sessionIndex[id] ?? sampleSessionById(id);
       if (!session) return;
       setSelection({ kind: "session", id });
+      const nextSheet = sheetForFocus(session.roomId, roomAnchors.length ? roomAnchors : undefined);
+      if (nextSheet) setSchematicSheet(nextSheet);
       void fetchSessionDetail(id)
         .then((d) => {
           setSessionIndex((prev) => ({ ...prev, [id]: { ...prev[id], ...d.session } }));
@@ -495,13 +521,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           setMapSurface("expo");
         } else {
           setMapSurface("venue");
+          setVenueLayer("schematic");
           requestMapFocus(session.roomId);
         }
         setView("map");
       }
     },
-    [sessionIndex, requestMapFocus],
+    [sessionIndex, requestMapFocus, roomAnchors],
   );
+
+  const applyAsk = useCallback((raw: string) => {
+    const parsed = parseAsk(raw);
+    setSearchQuery(parsed.q || raw.trim());
+    setAskUnderstood(parsed.understood);
+    setPickId(null);
+    if (parsed.day) setDayFilter(parsed.day);
+    if (parsed.includeEnded != null) setIncludeEnded(parsed.includeEnded);
+    if (parsed.stepFree != null) setStepFree(parsed.stepFree);
+    if (parsed.surface) {
+      setMapSurface(parsed.surface);
+      if (parsed.surface === "venue") setVenueLayer("schematic");
+    }
+    if (parsed.sheet) setSchematicSheet(parsed.sheet);
+    setView("agenda");
+  }, []);
 
   const selectBooth = useCallback((id: string, opts?: { jump?: boolean }) => {
     const booth = catalog.booths.find((b) => b.id === id);
@@ -531,8 +574,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
       setSelection({ kind: "space", id });
+      const nextSheet = sheetForFocus(id, roomAnchors.length ? roomAnchors : undefined);
+      if (nextSheet) setSchematicSheet(nextSheet);
     },
-    [selectSession, officialSessions],
+    [selectSession, officialSessions, roomAnchors],
   );
 
   const clearSelection = useCallback(() => setSelection(null), []);
@@ -546,6 +591,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const startNavTo255 = useCallback(() => {
     setNavigating(true);
     setView("navigate");
+    setMapSurface("sample");
     setStepIndex(0);
     setFloor(1);
     setSelection({ kind: "session", id: LATE_SESSION_ID });
@@ -613,6 +659,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       roomAnchors,
       mapSurface,
       setMapSurface,
+      venueLayer,
+      setVenueLayer,
+      schematicSheet,
+      setSchematicSheet,
+      stepFree,
+      setStepFree,
+      dayFilter,
+      setDayFilter,
+      includeEnded,
+      setIncludeEnded,
+      askUnderstood,
+      applyAsk,
+      pickId,
+      setPickId,
       timeZone,
       setTimeZone,
       bufferMinutes,
@@ -671,6 +731,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       featured,
       roomAnchors,
       mapSurface,
+      venueLayer,
+      schematicSheet,
+      stepFree,
+      dayFilter,
+      includeEnded,
+      askUnderstood,
+      applyAsk,
+      pickId,
       timeZone,
       bufferMinutes,
       plannerIso,

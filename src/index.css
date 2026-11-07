@@ -259,6 +259,30 @@
   animation: none;
 }
 
+.fw-stack {
+  position: relative;
+  perspective: 900px;
+  perspective-origin: 50% 140%;
+}
+.fw-plate {
+  transform: translateY(calc((1 - var(--plate, 0)) * 22px)) rotateX(62deg) rotateZ(-16deg);
+  transform-origin: 50% 100%;
+  transition: transform 240ms ease, filter 240ms ease;
+}
+.fw-plate[aria-pressed="true"] {
+  transform: translateY(calc((1 - var(--plate, 0)) * 22px - 6px)) rotateX(54deg) rotateZ(-12deg);
+  filter: drop-shadow(0 8px 14px rgb(17 62 130 / 0.25));
+}
+.fw-stack-flat,
+html[data-motion="reduced"] .fw-stack {
+  perspective: none;
+}
+.fw-stack-flat .fw-plate,
+html[data-motion="reduced"] .fw-plate {
+  transform: translateY(calc(var(--plate, 0) * 4px)) !important;
+  filter: none !important;
+}
+
 html[data-motion="reduced"] .fw-motion,
 html[data-motion="reduced"] .pin-enter,
 html[data-motion="reduced"] .pin-selected,
@@ -280,5 +304,12 @@ html[data-motion="reduced"] .you-are-here {
   .map-path,
   .you-are-here {
     animation: none !important;
+  }
+  .fw-stack {
+    perspective: none;
+  }
+  .fw-plate {
+    transform: translateY(calc(var(--plate, 0) * 4px)) !important;
+    filter: none !important;
   }
 }

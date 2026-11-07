@@ -2,17 +2,28 @@ import { SuggestionCard } from "@/components/bot/SuggestionCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LATE_SESSION_ID, wayfinding } from "@/lib/catalog";
+import { sampleWalkRemainingSec, sampleWalkSteps } from "@/lib/step-free";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { ArrowDown, ArrowUp, Check } from "lucide-react";
 
 export function NavigatePanel() {
-  const { stepIndex, nextStep, prevStep, goToStep, stopNav, rankedSessionById, setFloor, setView } =
-    useAppState();
-  const steps = wayfinding.steps;
+  const {
+    stepIndex,
+    nextStep,
+    prevStep,
+    goToStep,
+    stopNav,
+    rankedSessionById,
+    setFloor,
+    setView,
+    stepFree,
+    setStepFree,
+  } = useAppState();
+  const steps = sampleWalkSteps(stepFree);
   const step = steps[stepIndex];
   const session = rankedSessionById[LATE_SESSION_ID];
-  const remaining = steps.slice(stepIndex).reduce((sum, s) => sum + s.durationSec, 0);
+  const remaining = sampleWalkRemainingSec(stepFree, stepIndex);
   const mins = Math.max(1, Math.round(remaining / 60));
 
   return (
@@ -25,13 +36,28 @@ export function NavigatePanel() {
         <p className="text-sm text-muted-foreground">{wayfinding.from} · not live positioning</p>
       </div>
 
+      <label className="flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm">
+        <input
+          type="checkbox"
+          className="size-4 accent-[var(--primary)]"
+          checked={stepFree}
+          onChange={(e) => setStepFree(e.target.checked)}
+        />
+        <span>
+          Step-free copy on this SAMPLE walk
+          <span className="block text-xs text-muted-foreground">
+            Relabels the escalator step as elevators. Not a surveyed accessible route.
+          </span>
+        </span>
+      </label>
+
       <SuggestionCard
         suggestion={{
           id: "nav-timing",
           kind: "route",
           title: `About ${mins} min left · now on Level ${step.floor}`,
           body: step.altitudeHint ?? step.detail,
-          why: "Altitude-aware sample steps. 255 is one floor above 155.",
+          why: "Altitude-aware SAMPLE steps. 255 is one floor above 155. Not live positioning.",
           sessionId: LATE_SESSION_ID,
           actions: ["view"],
         }}

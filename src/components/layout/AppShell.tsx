@@ -77,12 +77,12 @@ export function AppShell() {
           <ScrollArea className="min-h-0 min-w-0 w-full flex-1">
             <div className="flex w-full min-w-0 max-w-full flex-col gap-3 overflow-x-clip p-3 pb-4 lg:gap-4 lg:p-5">
               {view !== "tools" && <SearchStatus />}
-              {view !== "navigate" && view !== "tools" && <SuggestionRail />}
+              {view !== "navigate" && view !== "tools" && view !== "agenda" && <SuggestionRail />}
               {view === "map" && <SessionDetail />}
               {view === "agenda" && (
                 <>
-                  <FeaturedPanel />
                   <RankedList />
+                  <FeaturedPanel />
                 </>
               )}
               {view === "plan" && <AgendaPanel />}

@@ -6,6 +6,7 @@ import { catalog, LATE_SESSION_ID } from "@/lib/catalog";
 import { RANK_LABEL } from "@/lib/ranking";
 import { prefLabel } from "@/lib/sponsor-prefs";
 import { formatInZone } from "@/lib/timezone";
+import { sheetForFocus } from "@/lib/venue-schematic";
 import { useAppState } from "@/state/app-state";
 import { Bell, Bookmark, Navigation } from "lucide-react";
 import { CrowdTake } from "./CrowdTake";
@@ -26,6 +27,8 @@ export function SessionDetail() {
     cancelReminder,
     reminderJobs,
     setMapSurface,
+    setVenueLayer,
+    setSchematicSheet,
     scheduleNote,
     pushStatus,
     requestMapFocus,
@@ -176,6 +179,9 @@ export function SessionDetail() {
             else if (item.track === "Solutions Showcase") setMapSurface("expo");
             else {
               setMapSurface("venue");
+              setVenueLayer("schematic");
+              const sheet = sheetForFocus(item.roomId);
+              if (sheet) setSchematicSheet(sheet);
               requestMapFocus(item.roomId);
             }
           }}
