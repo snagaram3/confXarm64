@@ -1,0 +1,168 @@
+import type { MapSurface } from "./types";
+import type { SchematicSheetId } from "./venue-schematic";
+
+export type MapProjection = "flat" | "3d";
+
+/** 200 South entrance on the official venue room list. */
+export const SOUTH_ENTRANCE_ID = "87690";
+
+/** CrowdCompass simulated node ids → Floorwise official room ids. Schematic layout, not GPS. */
+const ORIGIN_ALIASES: Record<string, string> = {
+  "entrance-south": SOUTH_ENTRANCE_ID,
+  "entrance_south": SOUTH_ENTRANCE_ID,
+  south: SOUTH_ENTRANCE_ID,
+  "200-south": SOUTH_ENTRANCE_ID,
+  "200south": SOUTH_ENTRANCE_ID,
+  [SOUTH_ENTRANCE_ID]: SOUTH_ENTRANCE_ID,
+  "hall-de": "82947",
+  "room-250-ac": "87421",
+  "room-250-df": "87422",
+  "room-251-ac": "87423",
+  "room-251-df": "87424",
+  "room-254": "87425",
+  "room-255-bc": "82953",
+  "room-255-ef": "82954",
+};
+
+export interface MapQuery {
+  projection: MapProjection | null;
+  surface: MapSurface | null;
+  origin: string | null;
+  destination: string | null;
+  stepFree: boolean | null;
+  mapPath: boolean;
+}
+
+export function parseMapQuery(search: string, pathname: string): MapQuery {
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const view = params.get("view");
+  const surfaceRaw = params.get("surface");
+  const surface =
+    surfaceRaw === "expo" || surfaceRaw === "venue" || surfaceRaw === "sample" ? surfaceRaw : null;
+  const step = params.get("stepFree");
+  const path = pathname.replace(/\/+$/, "") || "/";
+  return {
+    projection: view === "3d" ? "3d" : view === "2d" ? "flat" : null,
+    surface,
+    origin: params.get("origin"),
+    destination: params.get("destination"),
+    stepFree: step == null ? null : step !== "false",
+    mapPath: path === "/map",
+  };
+}
+
+export function resolveOriginRoomId(origin: string | null | undefined): string | null {
+  if (!origin) return null;
+  const key = origin.trim().toLowerCase();
+  return ORIGIN_ALIASES[key] ?? ORIGIN_ALIASES[origin.trim()] ?? (/^\d+$/.test(origin.trim()) ? origin.trim() : null);
+}
+
+export function originSheet(roomId: string | null): SchematicSheetId | null {
+  if (!roomId) return null;
+  if (roomId === SOUTH_ENTRANCE_ID || roomId === "82947") return "salt-l1";
+  if (roomId.startsWith("874") || roomId === "82953" || roomId === "82954") return "salt-l2";
+  return null;
+}
+
+export function detectWebGL(): boolean {
+  if (typeof document === "undefined") return false;
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+export function initialMapProjection(input: {
+  requested: MapProjection | null;
+  reducedMotion: boolean;
+  webgl: boolean;
+}): { projection: MapProjection; notice: string | null } {
+  if (input.requested === "3d" && input.reducedMotion) {
+    return {
+      projection: "flat",
+      notice: "Reduced motion is on, so the flat map is open. You can switch to 3D. Selection stays the same.",
+    };
+  }
+  if (input.requested === "3d" && !input.webgl) {
+    return {
+      projection: "flat",
+      notice: "This browser has no WebGL, so the flat map is showing. Selection is unchanged.",
+    };
+  }
+  if (input.requested === "3d") return { projection: "3d", notice: null };
+  return { projection: "flat", notice: null };
+}
+
+export function resolveMapProjection(requested: MapProjection, webgl: boolean): { projection: MapProjection; error: string | null } {
+  if (requested === "3d" && !webgl) {
+    return {
+      projection: "flat",
+      error: "3D needs WebGL, which this browser does not have. The flat map is showing and your place is unchanged.",
+    };
+  }
+  return { projection: requested, error: null };
+}
+
+export function roomIdToShareParam(id: string): string {
+  return id === SOUTH_ENTRANCE_ID ? "entrance-south" : id;
+}
+
+export function serializeMapSearch(input: {
+  projection: MapProjection;
+  surface: MapSurface;
+  originId: string | null;
+  destinationId?: string | null;
+  stepFree: boolean;
+}): string {
+  const params = new URLSearchParams();
+  if (input.originId) params.set("origin", roomIdToShareParam(input.originId));
+  if (input.destinationId && input.destinationId !== input.originId) {
+    params.set("destination", roomIdToShareParam(input.destinationId));
+  }
+  params.set("stepFree", String(input.stepFree));
+  if (input.projection === "3d") params.set("view", "3d");
+  if (input.surface !== "expo") params.set("surface", input.surface);
+  const q = params.toString();
+  return q ? `?${q}` : "";
+}
+
+export function mapSharePath(pathname: string): "/map" | "/" | null {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (path.startsWith("/tools") || path.startsWith("/sponsor") || path.startsWith("/connect")) return null;
+  if (path === "/map") return "/map";
+  return "/";
+}
+
+export interface MapBootstrap {
+  projectionRequested: MapProjection | null;
+  surface: MapSurface | null;
+  originId: string | null;
+  destinationId: string | null;
+  focusId: string | null;
+  sheet: SchematicSheetId | null;
+  stepFree: boolean | null;
+  openMap: boolean;
+  shareActive: boolean;
+}
+
+/** Apply CrowdCompass-style /map query onto Floorwise rooms. No A* route is implied. */
+export function bootstrapMapState(search: string, pathname: string): MapBootstrap {
+  const q = parseMapQuery(search, pathname);
+  const originId = resolveOriginRoomId(q.origin);
+  const destinationId = resolveOriginRoomId(q.destination);
+  const focusId = destinationId ?? originId;
+  const shareActive = Boolean(q.mapPath || q.projection || q.origin || q.destination || q.stepFree != null || q.surface);
+  return {
+    projectionRequested: q.projection,
+    surface: q.surface ?? (originId || destinationId || q.mapPath ? "venue" : null),
+    originId,
+    destinationId,
+    focusId,
+    sheet: focusId ? originSheet(focusId) : null,
+    stepFree: q.stepFree,
+    openMap: Boolean(q.mapPath || q.projection === "3d" || originId || destinationId),
+    shareActive,
+  };
+}

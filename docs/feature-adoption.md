@@ -2,7 +2,7 @@
 
 The attached Git bundle was CrowdCompass (`crowdcompass-map-ask-rescue` @ `1a8b650`), a sibling Next.js/Fastify hackathon app. It has **no LICENSE**. Floorwise adapted the *ideas* independently: no occupancy heartbeats, no simulated graph coordinates presented as Salt Palace, no MiniLM model files, no CrowdCompass env/secrets, no git history.
 
-Bundle inspected in isolation at `/tmp/fw-ref/` on this VM. Floorwise remotes and checkout were not overwritten.
+Bundle inspected in isolation at `/tmp/fw-ref/` and `/tmp/fw-ref-3d/` on this VM. Floorwise remotes and checkout were not overwritten. 3D source recovered from `apps/web/src/components/venue-map-3d.tsx` and `packages/venue/src/scene.ts` (CrowdCompass `1a8b650` / `main`).
 
 ## Adopted
 
@@ -12,14 +12,15 @@ Bundle inspected in isolation at `/tmp/fw-ref/` on this VM. Floorwise remotes an
 | Ask parser (origins, leftover query, chips) | **Adapted.** Origins are Floorwise (West Temple/expo, Salt Palace, Hyatt, sample 255), plus day + step-free. Not CrowdCompass node ids. | **For you** → Ask “step-free eBPF near Hyatt on Tuesday”. Chips appear; ranking query gets `eBPF`; map can jump to the Hyatt schematic. |
 | Best Pick + Rescue | **Adapted** to honest Floorwise signals: sold out, agenda overlap, ended (planner clock), colocated All-Access, unplaced room. **Not** host occupancy / Full latch. | **For you** Best pick card. Save two overlapping talks on Agenda, then Rescue appears. **Take me there** focuses the schematic (or SAMPLE 255). |
 | Day chips + include-ended | **Ported** onto the official 8–12 Nov 2026 days. | **For you** day chips. Planner clock on Agenda can hide ended talks unless **Include ended** is on. |
-| Step-free toggle | **Adapted** on the SAMPLE 255 walk only (escalator copy → elevator copy). Does not invent a new polyline or claim an official accessible route. | **255** tab → **Step-free copy on this SAMPLE walk**. |
+| Step-free toggle | **Adapted** on the SAMPLE 255 walk only (escalator copy → elevator copy). Does not invent a new polyline or claim an official accessible route. Share URLs may include `stepFree=true` as a **planning preference**. | **255** tab → **Step-free copy on this SAMPLE walk**. |
+| Optional WebGL 3D map | **Adapted independently** from CrowdCompass `venue-map-3d.tsx` (R3F Canvas + OrbitControls + CameraRig + extruded schematic plates). Floorwise 3D uses Floorwise schematic rooms and official images — not CrowdCompass occupancy tones, A* tubes, or invented booth buildings. Reduced motion / missing WebGL open the flat map; **3D map** can still be chosen when WebGL exists. | Open `/map?origin=entrance-south&stepFree=true&view=3d`, or tap **3D map**. Orbit / two-finger pan / pinch zoom. **SP L1 / SP L2 / Hyatt** still selects a level. **Fit** resets the camera. Expo 3D is the official floorplan on a plane with image-relative pins. |
 
 ## Skipped (intentionally)
 
 | Reference idea | Why |
 | --- | --- |
 | Live occupancy / host Full / organizer board | Simulated hall counts. Floorwise must not relabel synthetic crowd as actual. |
-| 3D WebGL map + A* graph distances | Invented geometry and ETAs. Stacked SVG overview covers the multi-level *interaction* without claiming meters or stairs. |
+| A* graph distances, ETAs, occupancy-colored rooms | Simulated meters and host Full latch. 3D shows Floorwise selection/focus only. |
 | MiniLM / Xenova model files | Extra dependency; Floorwise already has ES hybrid BM25+kNN. |
 | Dash0 / Sonar / Radar signup | Still blocked / needs keys. Do not retry Dash0 signup. Tools tabs stay honest. |
 | Replacing expo PDF with showcase schematic booths | User asked to keep official booth map. Showcase labels on Salt Palace L1 are dashed and point at Expo. |
@@ -30,4 +31,5 @@ Bundle inspected in isolation at `/tmp/fw-ref/` on this VM. Floorwise remotes an
 - Schematic disclaimer is on the map: not to scale, not GPS, not walking time.
 - `LABEL` on a block means the room is on the official schedule but was **not** a verified pin on `venue.pdf`.
 - Portal chips are **schematic links** between sheets, not surveyed bridges.
+- 3D venue geometry is an extrusion of that schematic. Expo 3D keeps the official image; pins are not buildings.
 - Synthetic Dash0 dashboard is unchanged and still labeled SAMPLE.

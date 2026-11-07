@@ -52,7 +52,7 @@ Event-inspired colors sampled from the live [KubeCon + CloudNativeCon North Amer
 ## What you get
 
 1. **Expo map** — official `expo.pdf` rendered as a zoom/pan floorplan. Catalog exhibitor logos sit on PDF-text booth numbers (image-relative anchors, not indoor GPS). Tap a logo for a clamped popover, Must/Maybe/Meh bots, and booth actions. Unplaced exhibitors (if any) are listed with a reason instead of an invented pin.
-2. **Venue map** — interactive **multi-level schematic** is the default Venue layer (Salt Palace L1, Salt Palace L2, Hyatt). It is illustrative and not to scale: room names and floor assignments come from the official schedule; block positions are a readable layout, not surveyed coordinates, GPS, or walking distances. Unmapped rooms (TBD / off-site) stay listed. **Official floor plan** remains one tap away as the `venue.pdf` reference with verified image-relative pins. Expo hall booths stay on the official expo floorplan — they are not replaced with invented geometry. Hyatt talks are never routed to the sample 255 walk.
+2. **Venue map** — interactive **multi-level schematic** is the default Venue layer (Salt Palace L1, Salt Palace L2, Hyatt). It is illustrative and not to scale: room names and floor assignments come from the official schedule; block positions are a readable layout, not surveyed coordinates, GPS, or walking distances. Unmapped rooms (TBD / off-site) stay listed. **Official floor plan** remains one tap away as the `venue.pdf` reference with verified image-relative pins. Expo hall booths stay on the official expo floorplan — they are not replaced with invented geometry. Hyatt talks are never routed to the sample 255 walk. **3D map** is an optional WebGL view (orbit / pan / pinch) of the same data: schematic rooms are extruded illustratively; expo and official venue stay as the official image on a plane plus known pins — not invented booth buildings. `/map?origin=entrance-south&stepFree=true&view=3d` opens Venue 3D on the 200 South entrance. Missing WebGL or reduced motion opens the flat map first; you can still switch to 3D when WebGL exists. Step-free in that URL is a planning preference, not a verified accessible route.
 3. **Official schedule** — 601 main-schedule records (registration, breaks, showcases, and talks — not 601 technical talks), 715 speakers, 37 room labels. Source timezone America/Denver (−07:00) for 8–12 Nov 2026. Related colocated feeds (229 / 14 / 38) stay distinct. Elasticsearch hybrid search ranks the official catalog.
 4. **Personal agenda** — add/remove, per-day timeline, upcoming/ongoing/finished, next-session countdown, overlap warnings, planning-buffer gaps labeled as estimates. Display timezone: conference America/Denver or America/Chicago. Stored only in this browser. Optional ICS download; Floorwise never writes to a real calendar.
 5. **Keynote picks** — curated from the official Keynote Sessions track. Names, titles, photos, and bios come from the published schedule. Not a popularity ranking.
@@ -93,12 +93,13 @@ npm run sponsor:provision -- elastic
 
 Default profile is **Staff Platform Engineer · Kubernetes · observability · platform engineering · eBPF · OpenTelemetry**.
 
-1. **Expo logos** — Map tab, Expo floor. Pinch/scroll zoom, tap Elastic / Grafana / Docker logos. Preference bots bounce then idle (Must green / Maybe amber / Meh gray / Unrated). Reduced-motion OS setting stops the animation.
-2. **Official talk** — For you. Search `keynote` or `eBPF`. Open a result. Add to agenda. Hall DE is on the venue map; Hyatt rooms stay on Hyatt.
-3. **Agenda** — Agenda tab. Switch timezone Denver ↔ Chicago. Set a 10 min planning buffer. Watch overlap and gap copy. Download ICS if you want a file; nothing is written to a calendar.
-4. **Keynote picks** — For you, above the ranking. Sourced from the Keynote Sessions track.
-5. **Remind me** — Enable notifications, then Remind on a future talk (or use the planner clock). Cancel reschedules cleanly. Removing from the agenda cancels the job.
-6. **Sample 255** — 255 tab is still the labeled sample walk, not a live indoor route.
+1. **Expo logos** — Map tab, Expo floor. Pinch/scroll zoom, tap Elastic / Grafana / Docker logos. Preference bots bounce then idle (Must green / Maybe amber / Meh gray / Unrated). Reduced-motion OS setting stops the animation. **3D map** puts the same official image on a plane with cylindrical pins.
+2. **3D venue** — Map → Venue → **3D map**, or open `/map?origin=entrance-south&stepFree=true&view=3d`. Drag to orbit, two-finger pan, pinch to zoom, tap a room. **Fit** recenters. This is not indoor GPS.
+3. **Official talk** — For you. Search `keynote` or `eBPF`. Open a result. Add to agenda. Hall DE is on the venue map; Hyatt rooms stay on Hyatt.
+4. **Agenda** — Agenda tab. Switch timezone Denver ↔ Chicago. Set a 10 min planning buffer. Watch overlap and gap copy. Download ICS if you want a file; nothing is written to a calendar.
+5. **Keynote picks** — For you, above the ranking. Sourced from the Keynote Sessions track.
+6. **Remind me** — Enable notifications, then Remind on a future talk (or use the planner clock). Cancel reschedules cleanly. Removing from the agenda cancels the job.
+7. **Sample 255** — 255 tab is still the labeled sample walk, not a live indoor route.
 
 ## Elasticsearch track
 

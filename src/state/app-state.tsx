@@ -32,6 +32,15 @@ import {
 import { parseAsk, type ConferenceDayId } from "@/lib/ask";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { sheetForFocus, type SchematicSheetId } from "@/lib/venue-schematic";
+import {
+  bootstrapMapState,
+  detectWebGL,
+  initialMapProjection,
+  mapSharePath,
+  resolveMapProjection,
+  serializeMapSearch,
+  type MapProjection,
+} from "@/lib/map-query";
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
@@ -131,6 +140,11 @@ interface AppStateValue {
   setVenueLayer: (layer: VenueLayer) => void;
   schematicSheet: SchematicSheetId;
   setSchematicSheet: (sheet: SchematicSheetId) => void;
+  mapProjection: MapProjection;
+  setMapProjection: (projection: MapProjection) => void;
+  map3dNotice: string | null;
+  mapCameraReset: number;
+  resetMapCamera: () => void;
   stepFree: boolean;
   setStepFree: (value: boolean) => void;
   dayFilter: ConferenceDayId | "all";
@@ -205,7 +219,16 @@ function readSponsorPrefs(): Record<string, Rank> {
 
 const AppStateContext = createContext<AppStateValue | null>(null);
 
+function readMapBootstrap() {
+  if (typeof window === "undefined" || parseToolsPath(window.location.pathname)) {
+    return bootstrapMapState("", "/");
+  }
+  return bootstrapMapState(window.location.search, window.location.pathname);
+}
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const boot = useMemo(() => readMapBootstrap(), []);
+  const mapQueryActive = useRef(boot.shareActive);
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [searchQuery, setSearchQuery] = useState("");
   const [retryTick, setRetryTick] = useState(0);
@@ -215,7 +238,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     parseToolsPath(window.location.pathname) ? "tools" : "map",
   );
   const [floor, setFloor] = useState<Floor>(2);
-  const [selection, setSelection] = useState<Selection>(null);
+  const [selection, setSelection] = useState<Selection>(() =>
+    boot.focusId ? { kind: "space", id: boot.focusId } : null,
+  );
   const [navigating, setNavigating] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [sponsorBoothId, setSponsorBoothId] = useState(FEATURED_BOOTH_ID);
@@ -231,10 +256,24 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [scheduleNote, setScheduleNote] = useState("");
   const [featured, setFeatured] = useState<AppStateValue["featured"]>(null);
   const [roomAnchors, setRoomAnchors] = useState<AppStateValue["roomAnchors"]>([]);
-  const [mapSurface, setMapSurface] = useState<MapSurface>("expo");
+  const [mapSurface, setMapSurface] = useState<MapSurface>(boot.surface ?? "expo");
   const [venueLayer, setVenueLayer] = useState<VenueLayer>("schematic");
-  const [schematicSheet, setSchematicSheet] = useState<SchematicSheetId>("salt-l1");
-  const [stepFree, setStepFree] = useState(false);
+  const [schematicSheet, setSchematicSheet] = useState<SchematicSheetId>(boot.sheet ?? "salt-l1");
+  const [preferredProjection, setPreferredProjection] = useState<MapProjection>(
+    boot.projectionRequested === "3d" ? "3d" : "flat",
+  );
+  const [mapProjection, setMapProjectionState] = useState<MapProjection>(
+    boot.projectionRequested === "3d" ? "3d" : "flat",
+  );
+  const [map3dNotice, setMap3dNotice] = useState<string | null>(() =>
+    boot.projectionRequested === "3d" && !motionEnabled(readMotionPref())
+      ? "Reduced motion is on, so the flat map is open. You can switch to 3D. Selection stays the same."
+      : null,
+  );
+  const [mapCameraReset, setMapCameraReset] = useState(0);
+  const [mapOriginId] = useState<string | null>(boot.originId);
+  const [mapDestinationId, setMapDestinationId] = useState<string | null>(boot.destinationId);
+  const [stepFree, setStepFree] = useState(boot.stepFree ?? false);
   const [dayFilter, setDayFilter] = useState<ConferenceDayId | "all">("all");
   const [includeEnded, setIncludeEnded] = useState(false);
   const [askUnderstood, setAskUnderstood] = useState<string[]>([]);
@@ -289,6 +328,52 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const requestMapFocus = useCallback((id: string) => {
     setMapFocus({ id, token: Date.now() });
   }, []);
+
+  const setMapProjection = useCallback((requested: MapProjection) => {
+    const gl = detectWebGL();
+    const resolved = resolveMapProjection(requested, gl);
+    setPreferredProjection(requested);
+    setMapProjectionState(resolved.projection);
+    if (resolved.error) {
+      setMap3dNotice(resolved.error);
+      return;
+    }
+    mapQueryActive.current = true;
+    const reduced = !motionEnabled(motionPref);
+    setMap3dNotice(
+      requested === "3d" && reduced
+        ? "Reduced motion is on, so 3D orbit has no easing. Selection is unchanged."
+        : null,
+    );
+  }, [motionPref]);
+
+  const resetMapCamera = useCallback(() => {
+    setMapCameraReset((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    if (parseToolsPath(window.location.pathname)) return;
+    const reduced = !motionEnabled(readMotionPref());
+    const gl = detectWebGL();
+    const initial = initialMapProjection({
+      requested: boot.projectionRequested,
+      reducedMotion: reduced,
+      webgl: gl,
+    });
+    setPreferredProjection(boot.projectionRequested === "3d" ? "3d" : "flat");
+    setMapProjectionState(initial.projection);
+    setMap3dNotice(initial.notice);
+    if (boot.openMap) setView("map");
+    if (boot.focusId) requestMapFocus(boot.focusId);
+    // Projection and origin apply once from the share URL.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- boot is stable
+  }, []);
+
+  useEffect(() => {
+    if (!boot.focusId) return;
+    const sheet = boot.sheet ?? sheetForFocus(boot.focusId, roomAnchors.length ? roomAnchors : undefined);
+    if (sheet) setSchematicSheet(sheet);
+  }, [boot.focusId, boot.sheet, roomAnchors]);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -433,6 +518,27 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [sessionIndex],
   );
 
+  useEffect(() => {
+    const share = mapSharePath(window.location.pathname);
+    if (!share) return;
+    if (!mapQueryActive.current && mapProjection !== "3d") return;
+    mapQueryActive.current = true;
+    const session = selection?.kind === "session" ? resolveSession(selection.id) : null;
+    const selectedId = selectedRoomId(selection, session);
+    const originId = mapOriginId ?? selectedId;
+    const destinationId =
+      selectedId && originId && selectedId !== originId ? selectedId : mapDestinationId;
+    const next = `${share}${serializeMapSearch({
+      projection: mapProjection === "3d" || preferredProjection === "3d" ? "3d" : "flat",
+      surface: mapSurface,
+      originId,
+      destinationId,
+      stepFree,
+    })}`;
+    const current = `${window.location.pathname}${window.location.search}`;
+    if (current !== next) window.history.replaceState(window.history.state, "", next);
+  }, [mapProjection, preferredProjection, mapSurface, stepFree, selection, mapOriginId, mapDestinationId, resolveSession]);
+
   const setTimeZone = useCallback((tz: DisplayTimeZone) => {
     setTimeZoneState(tz);
     localStorage.setItem(TZ_KEY, tz);
@@ -513,6 +619,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           setSessionIndex((prev) => ({ ...prev, [id]: { ...prev[id], ...d.session } }));
         })
         .catch(() => undefined);
+      if (session.roomId && mapOriginId && session.roomId !== mapOriginId) {
+        setMapDestinationId(session.roomId);
+      }
       if (opts?.jump !== false) {
         if (session.dataset === "sample") {
           setMapSurface("sample");
@@ -527,7 +636,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setView("map");
       }
     },
-    [sessionIndex, requestMapFocus, roomAnchors],
+    [sessionIndex, requestMapFocus, roomAnchors, mapOriginId],
   );
 
   const applyAsk = useCallback((raw: string) => {
@@ -574,10 +683,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
       setSelection({ kind: "space", id });
+      if (mapOriginId && id !== mapOriginId) setMapDestinationId(id);
       const nextSheet = sheetForFocus(id, roomAnchors.length ? roomAnchors : undefined);
       if (nextSheet) setSchematicSheet(nextSheet);
     },
-    [selectSession, officialSessions, roomAnchors],
+    [selectSession, officialSessions, roomAnchors, mapOriginId],
   );
 
   const clearSelection = useCallback(() => setSelection(null), []);
@@ -663,6 +773,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setVenueLayer,
       schematicSheet,
       setSchematicSheet,
+      mapProjection,
+      setMapProjection,
+      map3dNotice,
+      mapCameraReset,
+      resetMapCamera,
       stepFree,
       setStepFree,
       dayFilter,
@@ -733,6 +848,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       mapSurface,
       venueLayer,
       schematicSheet,
+      mapProjection,
+      setMapProjection,
+      map3dNotice,
+      mapCameraReset,
+      resetMapCamera,
       stepFree,
       dayFilter,
       includeEnded,
