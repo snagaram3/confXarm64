@@ -1,15 +1,17 @@
 import { OnboardingFlow } from "@/components/planner/OnboardingFlow";
 import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { conflictGroups } from "@/lib/agenda";
 import { CONFERENCE_DAYS } from "@/lib/ask";
+import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { catalog } from "@/lib/catalog";
+import { mustGoBooths } from "@/lib/expo-pins";
 import { PLANNER_GOALS, profileDisplayName } from "@/lib/planner-profile";
 import { filterRankedSessions, hasInterestMatch } from "@/lib/ranked-filter";
 import { pickSponsorSuggestion } from "@/lib/suggestions";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
+import { Star } from "lucide-react";
 import { useMemo } from "react";
 
 export function HomeDashboard() {
@@ -26,9 +28,8 @@ export function HomeDashboard() {
     officialSessions,
     toggleSaved,
     selectBooth,
+    openExpoBooth,
     setView,
-    setMapSurface,
-    requestMapFocus,
     setSponsorPref,
     sponsorPrefs,
     plannerIso,
@@ -91,6 +92,7 @@ export function HomeDashboard() {
     .filter((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)
     .filter((row) => row.item.id !== sponsor?.boothId)
     .slice(0, 3);
+  const personalMustGo = mustGoBooths(catalog.booths, sponsorPrefs);
   const days = CONFERENCE_DAYS.filter((day) => profile.attendanceDays.includes(day.id));
   const emphasizeBooths = profile.goals.includes("exhibitors");
 
@@ -223,21 +225,59 @@ export function HomeDashboard() {
             )}
           </section>
 
-          {(emphasizeBooths || exhibitors.length > 0 || sponsor) && (
+          {(emphasizeBooths || exhibitors.length > 0 || sponsor || personalMustGo.length > 0) && (
             <section className="rounded-2xl border border-border bg-card p-4">
               <h2 className="font-display text-lg font-semibold">Exhibitors for your topics</h2>
               <p className="mt-1 text-xs text-muted-foreground">
                 Official catalog tags overlapping your interests. Not a paid placement and not walking distance.
               </p>
+              {personalMustGo.length > 0 && (
+                <div className="mt-3 rounded-xl border border-highlight/70 bg-highlight/20 p-2">
+                  <p className="px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <Star className="mr-1 inline size-3 fill-highlight text-highlight" aria-hidden="true" />
+                    Your Must go
+                  </p>
+                  <ul className="mt-1 flex gap-1.5 overflow-x-auto" aria-label="Must go booths">
+                    {personalMustGo.map((booth) => (
+                      <li key={booth.id} className="shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => openExpoBooth(booth.id)}
+                          aria-label={`${booth.sponsor}, booth ${booth.boothNumber}${booth.pinAvailable ? ", show on Expo" : ", unplaced on expo.pdf"}`}
+                          className="flex min-h-11 min-w-[8.5rem] items-center gap-2 rounded-xl border border-border bg-background px-2 py-1.5 text-left hover:bg-accent"
+                        >
+                          <SponsorLogo booth={booth} className="size-8" />
+                          <span className="min-w-0">
+                            <span className="block truncate text-xs font-semibold leading-tight">
+                              {booth.sponsor.replace(/,.*/, "")}
+                            </span>
+                            <span className="block font-mono text-[10px] text-muted-foreground">
+                              {booth.pinAvailable ? `Find #${booth.boothNumber}` : "Unplaced"}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {sponsor && (
-                <button
-                  type="button"
-                  className="mt-3 w-full rounded-xl border border-border px-3 py-2 text-left hover:bg-accent"
-                  onClick={() => (sponsor.boothId ? selectBooth(sponsor.boothId) : undefined)}
-                >
+                <div className="mt-3 rounded-xl border border-border px-3 py-2">
                   <p className="text-sm font-semibold">{sponsor.title}</p>
                   <p className="text-xs text-muted-foreground">{sponsor.why}</p>
-                </button>
+                  {sponsor.boothId && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button type="button" size="sm" onClick={() => openExpoBooth(sponsor.boothId!)}>
+                        {catalog.booths.find((booth) => booth.id === sponsor.boothId)?.pinAvailable
+                          ? "Show on Expo"
+                          : "Booth in catalog — no pin"}
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={() => selectBooth(sponsor.boothId!)}>
+                        Booth details
+                      </Button>
+                    </div>
+                  )}
+                </div>
               )}
               {exhibitors.map((row) => {
                 const pin = catalog.booths.find((booth) => booth.id === row.item.id);
@@ -253,25 +293,22 @@ export function HomeDashboard() {
                     <p className="mt-1 text-xs text-muted-foreground">{row.why}</p>
                   </button>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {sponsorPrefs[row.item.id] ? (
-                      <Badge variant={sponsorPrefs[row.item.id]}>Your mark</Badge>
+                    {sponsorPrefs[row.item.id] === "must" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSponsorPref(row.item.id, undefined)}
+                      >
+                        Remove Must go
+                      </Button>
                     ) : (
                       <Button type="button" variant="outline" size="sm" onClick={() => setSponsorPref(row.item.id, "must")}>
                         Mark Must go
                       </Button>
                     )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        selectBooth(row.item.id, { jump: false });
-                        setMapSurface("expo");
-                        requestMapFocus(row.item.id);
-                        setView("map");
-                      }}
-                    >
-                      {pinAvailable ? "Show booth on map" : "Unplaced — no expo pin"}
+                    <Button type="button" variant="outline" size="sm" onClick={() => openExpoBooth(row.item.id)}>
+                      {pinAvailable ? "Show on Expo" : "Booth in catalog — no pin"}
                     </Button>
                   </div>
                 </div>

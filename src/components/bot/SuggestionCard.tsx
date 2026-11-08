@@ -60,7 +60,11 @@ export function SuggestionCard({
               className="min-h-11 min-w-11"
               onClick={() => onAction(action, suggestion)}
             >
-              {action === "save" && saved ? "Saved" : ACTION_LABEL[action]}
+              {action === "save" && saved
+                ? "Saved"
+                : action === "view" && suggestion.boothId
+                  ? "Show on Expo"
+                  : ACTION_LABEL[action]}
             </Button>
           ))}
         </div>

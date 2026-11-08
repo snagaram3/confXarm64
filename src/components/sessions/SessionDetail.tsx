@@ -18,6 +18,7 @@ export function SessionDetail() {
     sponsorPrefs,
     startNavTo255,
     selectBooth,
+    openExpoBooth,
     savedIds,
     toggleSaved,
     rankStatus,
@@ -56,7 +57,12 @@ export function SessionDetail() {
             : " · unplaced — booth number not verified on the expo PDF"}
         </p>
         {booth.pinMethod && <p className="text-[11px] text-muted-foreground">{booth.pinMethod}</p>}
-        <Button onClick={() => selectBooth(booth.id)}>Open booth card</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => selectBooth(booth.id)}>Open booth card</Button>
+          <Button type="button" variant="outline" onClick={() => openExpoBooth(booth.id)}>
+            {booth.pinAvailable ? "Show on Expo" : "Booth in catalog — no pin"}
+          </Button>
+        </div>
       </div>
     );
   }

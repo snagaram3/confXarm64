@@ -2,6 +2,10 @@ import type { Rank } from "./types";
 
 export const PREF_STORAGE_KEY = "floorwise.sponsorPrefs";
 
+export function prefStorageKey(attendeeId: string): string {
+  return `${PREF_STORAGE_KEY}.${attendeeId}`;
+}
+
 export const PREF_OPTIONS = ["must", "maybe", "meh"] as const;
 
 export const PREF_LABEL: Record<Rank | "unrated", string> = {
@@ -28,6 +32,27 @@ export function parseSponsorPrefs(raw: string | null): Record<string, Rank> {
   } catch {
     return {};
   }
+}
+
+type PrefStorage = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+};
+
+/**
+ * Attendee-scoped Must/Maybe/Meh. An empty scoped bag wins over the legacy
+ * global key so clearing Must go survives refresh and does not leak to another UUID.
+ */
+export function readAttendeeSponsorPrefs(storage: PrefStorage, attendeeId: string): Record<string, Rank> {
+  const scopedRaw = storage.getItem(prefStorageKey(attendeeId));
+  if (scopedRaw !== null) return parseSponsorPrefs(scopedRaw);
+  const legacy = parseSponsorPrefs(storage.getItem(PREF_STORAGE_KEY));
+  if (Object.keys(legacy).length) {
+    storage.setItem(prefStorageKey(attendeeId), JSON.stringify(legacy));
+    storage.removeItem(PREF_STORAGE_KEY);
+  }
+  return legacy;
 }
 
 /** Clicking the same rank again clears it so Unrated stays distinct from Meh. */

@@ -1,5 +1,5 @@
+import { ExpoBoothPin } from "@/components/map/ExpoBoothPin";
 import { PrefBot } from "@/components/sponsor/PrefBot";
-import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { Button } from "@/components/ui/button";
 import type { Booth, Rank } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ export interface MapPin {
   booth?: Booth;
   pref?: Rank;
   recommended?: boolean;
+  mustGo?: boolean;
 }
 
 export function ImageFloorMap({
@@ -68,7 +69,7 @@ export function ImageFloorMap({
     const pin = pins.find((p) => p.id === focusId);
     if (!pin) return;
     const narrow = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
-    pan.focusPin(pin.nx, pin.ny, narrow ? 0.34 : 0.46);
+    pan.focusPin(pin.nx, pin.ny, narrow ? 0.3 : 0.4, pin.booth ? 1.6 : 2.15);
   }, [focusToken, imageSize]);
 
   return (
@@ -114,6 +115,21 @@ export function ImageFloorMap({
             {pins.map((pin, i) => {
               const selected = selectedId === pin.id;
               const rec = recommendedId === pin.id;
+              if (pin.booth) {
+                return (
+                  <ExpoBoothPin
+                    key={pin.id}
+                    pin={pin}
+                    selected={selected}
+                    mustGo={pin.pref === "must"}
+                    motion={motion}
+                    onSelect={(id) => {
+                      if (pan.consumeIgnoreClick()) return;
+                      onSelect(id);
+                    }}
+                  />
+                );
+              }
               return (
                 <div
                   key={pin.id}
@@ -136,12 +152,11 @@ export function ImageFloorMap({
                   className={cn(
                     "pin-hit absolute z-10 flex items-center justify-center rounded-full",
                     selected && "z-20",
-                    motion && "fw-motion pin-enter",
                   )}
                   style={{
                     left: `${pin.nx * 100}%`,
                     top: `${pin.ny * 100}%`,
-                    animationDelay: motion ? `${Math.min(i * 55, 480)}ms` : "0ms",
+                    animationDelay: motion && selected ? `${Math.min(i * 55, 480)}ms` : "0ms",
                   }}
                 >
                   <span
@@ -149,38 +164,23 @@ export function ImageFloorMap({
                       "pin-mark relative flex items-center justify-center rounded-full ring-2 ring-white shadow-md",
                       selected && "ring-4 ring-primary pin-selected",
                       rec && !selected && "pin-recommended",
-                      pin.pref === "must" && "ring-must/70",
-                      pin.pref === "maybe" && "ring-maybe/70",
-                      pin.pref === "meh" && "ring-meh/50",
                     )}
                   >
-                    {pin.booth ? (
-                      <>
-                        <SponsorLogo booth={pin.booth} className="size-10 sm:size-11" />
-                        {(selected || rec || pin.pref) && (
-                          <span className="absolute -right-1.5 -top-1.5">
-                            <PrefBot
-                              pref={pin.pref}
-                              delayMs={0}
-                              size="sm"
-                              showLabel={false}
-                              attention={selected || rec}
-                            />
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span
-                        className={cn(
-                          "flex size-8 items-center justify-center rounded-full text-[10px] font-bold",
-                          selected
-                            ? "bg-primary text-primary-foreground"
-                            : rec
-                              ? "bg-must text-must-fg"
-                              : "bg-primary/90 text-primary-foreground",
-                        )}
-                      >
-                        {pin.sublabel?.slice(0, 3) ?? "•"}
+                    <span
+                      className={cn(
+                        "flex size-8 items-center justify-center rounded-full text-[10px] font-bold",
+                        selected
+                          ? "bg-primary text-primary-foreground"
+                          : rec
+                            ? "bg-must text-must-fg"
+                            : "bg-primary/90 text-primary-foreground",
+                      )}
+                    >
+                      {pin.sublabel?.slice(0, 3) ?? "•"}
+                    </span>
+                    {pin.pref && (
+                      <span className="absolute -right-1.5 -top-1.5">
+                        <PrefBot pref={pin.pref} delayMs={0} size="sm" showLabel={false} attention={selected || rec} />
                       </span>
                     )}
                   </span>

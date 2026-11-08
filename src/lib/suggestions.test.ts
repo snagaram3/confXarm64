@@ -136,5 +136,7 @@ describe("buildSuggestions", () => {
       rankedBooths: [booth({ id: "radar", sponsor: "Radar", boothNumber: "365", pinAvailable: false })],
     });
     assert.match(tips[0].body, /not a verified pin/);
+    assert.deepEqual(tips[0].actions, ["view"]);
+    assert.equal(tips[0].boothId, "radar");
   });
 });

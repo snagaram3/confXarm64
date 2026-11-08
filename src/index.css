@@ -247,6 +247,26 @@
   animation: rec-glow 1.6s ease-out 2;
 }
 
+@keyframes pin-must-halo {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--highlight) 75%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--highlight) 0%, transparent);
+  }
+}
+
+.pin-must-halo {
+  animation: pin-must-halo 1.35s ease-out 2;
+}
+
+.pin-must-ring {
+  box-shadow:
+    0 0 0 3px var(--highlight),
+    0 0 0 5px #0b0f1f;
+}
+
 .rec-enter {
   animation: rec-rise 0.48s cubic-bezier(0.22, 1.2, 0.36, 1) both;
 }
@@ -287,6 +307,7 @@ html[data-motion="reduced"] .fw-motion,
 html[data-motion="reduced"] .pin-enter,
 html[data-motion="reduced"] .pin-selected,
 html[data-motion="reduced"] .pin-recommended,
+html[data-motion="reduced"] .pin-must-halo,
 html[data-motion="reduced"] .rec-enter,
 html[data-motion="reduced"] .bot-attention,
 html[data-motion="reduced"] .map-path,
@@ -299,6 +320,7 @@ html[data-motion="reduced"] .you-are-here {
   .pin-enter,
   .pin-selected,
   .pin-recommended,
+  .pin-must-halo,
   .rec-enter,
   .bot-attention,
   .map-path,

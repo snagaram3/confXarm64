@@ -19,7 +19,7 @@ export function SuggestionRail() {
     savedIds,
     rankedSessionById,
     sponsorPrefs,
-    selectBooth,
+    openExpoBooth,
     rankedBooths,
     requestMapFocus,
     stepFree,
@@ -65,9 +65,7 @@ export function SuggestionRail() {
       return;
     }
     if (suggestion.boothId) {
-      selectBooth(suggestion.boothId, { jump: false });
-      requestMapFocus(suggestion.boothId);
-      setView("map");
+      openExpoBooth(suggestion.boothId);
       return;
     }
     if (suggestion.sessionId) {

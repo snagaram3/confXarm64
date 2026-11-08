@@ -15,13 +15,11 @@ export function SponsorView() {
     sponsorBoothId,
     setSponsorBoothId,
     selectBooth,
+    openExpoBooth,
     rankedVisitors,
     sponsorPrefs,
     setSponsorPref,
     rankByBooth,
-    setView,
-    setMapSurface,
-    requestMapFocus,
   } = useAppState();
   const booth = catalog.booths.find((b) => b.id === sponsorBoothId) ?? catalog.booths[0];
   const visitors = rankedVisitors;
@@ -77,17 +75,8 @@ export function SponsorView() {
           ) : (
             <Badge variant="outline">Search fit pending</Badge>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              selectBooth(booth.id, { jump: false });
-              setMapSurface("expo");
-              requestMapFocus(booth.id);
-              setView("map");
-            }}
-          >
-            {booth.pinAvailable ? "Show booth on map" : "Unplaced — no expo pin"}
+          <Button type="button" variant="outline" onClick={() => openExpoBooth(booth.id)}>
+            {booth.pinAvailable ? "Show on Expo" : "Booth in catalog — no pin"}
           </Button>
         </div>
         <div className="mt-4 border-t border-border pt-3">

@@ -1,4 +1,7 @@
+import { ExpoBoothSheet } from "@/components/map/ExpoBoothSheet";
+import { ExpoMustGoRail } from "@/components/map/ExpoMustGoRail";
 import { ImageFloorMap, type MapPin } from "@/components/map/ImageFloorMap";
+import { canPinOnExpo, placedExpoPins } from "@/lib/expo-pins";
 import { Map3DSurface } from "@/components/map/Map3DSurface";
 import type { Map3DPin } from "@/components/map/Map3DView";
 import { JourneyHud, journeyStatus } from "@/components/map/JourneyHud";
@@ -96,6 +99,7 @@ export function VenueMap() {
   const [journey, setJourney] = useState<"hero" | "sample" | null>(null);
   const [followActive, setFollowActive] = useState(false);
   const [explored, setExplored] = useState(false);
+  const [mustOnly, setMustOnly] = useState(false);
   const motion = motionEnabled(motionPref);
   const reducedMotion = !motion;
 
@@ -120,21 +124,26 @@ export function VenueMap() {
     rankedBooths.find((b) => b.rank === "must")?.item;
   const topicalBooth = rankedBooths.find((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)?.item;
 
-  const expoPins = catalog.booths
-    .filter((b) => b.pinAvailable && b.pinNx != null && b.pinNy != null)
-    .map((b) => ({
-      id: b.id,
-      nx: b.pinNx as number,
-      ny: b.pinNy as number,
-      label: `${b.sponsor}, booth ${b.boothNumber}`,
-      booth: b,
-      pref: sponsorPrefs[b.id],
-      recommended: mustBooth?.id === b.id,
-      kind: "booth" as const,
-      logoSrc: b.logo,
-      logoOnDark: b.logoOnDark,
-    }));
+  const expoPins = placedExpoPins(catalog.booths, sponsorPrefs).map((pin) => ({
+    id: pin.id,
+    nx: pin.nx,
+    ny: pin.ny,
+    label: pin.label,
+    booth: pin.booth,
+    pref: pin.pref,
+    recommended: pin.mustGo || mustBooth?.id === pin.id,
+    kind: "booth" as const,
+    logoSrc: pin.booth.logo,
+    logoOnDark: pin.booth.logoOnDark,
+    mustGo: pin.mustGo,
+  }));
+  const visibleExpoPins = mustOnly ? expoPins.filter((pin) => pin.pref === "must") : expoPins;
   const unplacedBooths = catalog.booths.filter((b) => !b.pinAvailable);
+
+  useEffect(() => {
+    if (mapSurface !== "expo") return;
+    if (selectedBooth) setDetailsOpen(true);
+  }, [selectedBooth, mapSurface]);
 
   const venuePins = useMemo(
     () =>
@@ -283,6 +292,15 @@ export function VenueMap() {
     if (journey === "hero") setJourney(null);
   };
 
+  const pickExpoBooth = (id: string) => {
+    stopHeroForExplore();
+    setConnectorId(null);
+    setDetailsOpen(true);
+    selectBooth(id, { jump: false });
+    const booth = catalog.booths.find((item) => item.id === id);
+    if (booth && canPinOnExpo(booth)) requestMapFocus(id);
+  };
+
   const onSelectRoom = (id: string) => {
     if (!isHeroDemoId(id)) stopHeroForExplore();
     if (VENUE_CONNECTORS.some((c) => c.id === id)) {
@@ -428,7 +446,7 @@ export function VenueMap() {
   const threeSelected =
     mapSurface === "expo" ? selectedBooth : connectorId ?? (journey === "hero" && !detailsOpen ? heroSelected : roomId);
   const threeRecommended = mapSurface === "expo" ? recommendedExpo : recommendedVenue;
-  const threePins = mapSurface === "expo" ? expoPins : mapSurface === "venue" && venueLayer === "official" ? threeVenuePins : [];
+  const threePins = mapSurface === "expo" ? visibleExpoPins : mapSurface === "venue" && venueLayer === "official" ? threeVenuePins : [];
   const resetToken = mapCameraReset + (mapFocus?.token ?? 0);
 
   const flatLayers = (
@@ -442,7 +460,7 @@ export function VenueMap() {
       selectedBooth={selectedBooth}
       recommendedExpo={recommendedExpo}
       recommendedVenue={recommendedVenue}
-      expoPins={expoPins}
+      expoPins={visibleExpoPins}
       venuePins={[...venuePins, ...connectorPins]}
       unplaced={unplaced}
       building={building}
@@ -450,7 +468,7 @@ export function VenueMap() {
       level={level}
       setLevel={setLevel}
       onSelectRoom={onSelectRoom}
-      selectBooth={selectBooth}
+      selectBooth={pickExpoBooth}
       roomAnchors={roomAnchors}
       mapFocus={mapFocus}
       motion={motion}
@@ -475,11 +493,7 @@ export function VenueMap() {
           focusSheet={schematicSheet}
           onSelect={(id) => {
             if (mapSurface === "expo") {
-              stopHeroForExplore();
-              setConnectorId(null);
-              setDetailsOpen(true);
-              selectBooth(id, { jump: false });
-              requestMapFocus(id);
+              pickExpoBooth(id);
               return;
             }
             onSelectRoom(id);
@@ -598,20 +612,46 @@ export function VenueMap() {
           <p className="rounded-xl border border-border bg-card/95 px-2.5 py-1.5 text-[11px] text-foreground shadow-sm">{map3dNotice}</p>
         </div>
       ) : null}
+      {mapSurface === "expo" && (
+        <div className="pointer-events-none absolute left-2 right-2 top-[3.35rem] z-40 flex flex-col gap-1 sm:right-auto sm:max-w-md lg:top-14">
+          <ExpoMustGoRail
+            prefs={sponsorPrefs}
+            selectedId={selectedBooth}
+            mustOnly={mustOnly}
+            onMustOnly={(value) => {
+              setMustOnly(value);
+              if (value && selectedBooth && sponsorPrefs[selectedBooth] !== "must") {
+                setDetailsOpen(false);
+                if (selection?.kind === "booth") clearSelection();
+              }
+            }}
+            onOpen={pickExpoBooth}
+          />
+        </div>
+      )}
+      {mapSurface === "expo" && detailsOpen && selectedBooth && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[60] p-2 pr-[4.35rem] pb-[calc(0.45rem+env(safe-area-inset-bottom))] sm:pr-2">
+          <ExpoBoothSheet
+            boothId={selectedBooth}
+            prefs={sponsorPrefs}
+            rankedBooths={rankedBooths}
+            onClose={() => {
+              setDetailsOpen(false);
+              if (selection?.kind === "booth") clearSelection();
+            }}
+            onSetPref={setSponsorPref}
+            onOpen={pickExpoBooth}
+          />
+        </div>
+      )}
+      {mapSurface !== "expo" && (
       <JourneyHud
-        journey={mapSurface === "expo" ? null : journey}
+        journey={journey}
         selectedBoothId={selectedBooth}
         selectedRoom={selectedRoomChip}
         roomsOnSheet={roomsOnSheet}
         sponsorPrefs={sponsorPrefs}
-        onSelectBooth={(id) => {
-          stopHeroForExplore();
-          setMapSurface("expo");
-          selectBooth(id, { jump: false });
-          requestMapFocus(id);
-          setConnectorId(null);
-          setDetailsOpen(true);
-        }}
+        onSelectBooth={pickExpoBooth}
         onSelectRoom={(id) => {
           setConnectorId(null);
           setDetailsOpen(true);
@@ -705,8 +745,8 @@ export function VenueMap() {
           setDetailsOpen(false);
           setExplored(true);
         }}
-        showRecs={explored && mapSurface !== "expo"}
-        showJourneyBar={mapSurface !== "expo"}
+        showRecs={explored}
+        showJourneyBar
         onStep={(delta) => {
           const next = Math.min(HERO_STEPS.length - 1, Math.max(0, heroStepIndex(navProgress) + delta));
           const step = HERO_STEPS[next]!;
@@ -724,6 +764,7 @@ export function VenueMap() {
           label: heroStepAt(navProgress).label,
         })}
       />
+      )}
       {mapProjection === "3d" && (
         <div className="pointer-events-none absolute right-2 top-[3.7rem] z-30 hidden sm:block lg:top-[3.55rem]">
           <Button
@@ -755,7 +796,9 @@ export function VenueMap() {
             <ul className="mt-1 text-muted-foreground">
               {unplacedBooths.map((b) => (
                 <li key={b.id}>
-                  {b.sponsor} · booth {b.boothNumber} not verified on expo.pdf
+                  <button type="button" className="min-h-11 text-left underline-offset-2 hover:underline" onClick={() => pickExpoBooth(b.id)}>
+                    {b.sponsor} · booth {b.boothNumber} not verified on expo.pdf
+                  </button>
                 </li>
               ))}
             </ul>

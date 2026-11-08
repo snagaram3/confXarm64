@@ -46,7 +46,7 @@ import {
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { composeRankQuery, readPlannerProfile, writePlannerProfile } from "@/lib/planner-profile";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
-import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
+import { prefStorageKey, readAttendeeSponsorPrefs } from "@/lib/sponsor-prefs";
 import { parseToolsPath } from "@/lib/tools";
 import type {
   AppView,
@@ -93,6 +93,7 @@ interface AppStateValue {
   selection: Selection;
   selectSession: (id: string, opts?: { jump?: boolean }) => void;
   selectBooth: (id: string, opts?: { jump?: boolean }) => void;
+  openExpoBooth: (id: string) => void;
   selectSpace: (id: string) => void;
   clearSelection: () => void;
   navigating: boolean;
@@ -231,7 +232,7 @@ function readSaved(): string[] {
 
 function readSponsorPrefs(): Record<string, Rank> {
   try {
-    return parseSponsorPrefs(localStorage.getItem(PREF_STORAGE_KEY));
+    return readAttendeeSponsorPrefs(localStorage, attendeeId());
   } catch {
     return {};
   }
@@ -528,7 +529,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const next = { ...prev };
       if (!pref) delete next[boothId];
       else next[boothId] = pref;
-      localStorage.setItem(PREF_STORAGE_KEY, JSON.stringify(next));
+      try {
+        localStorage.setItem(prefStorageKey(attendeeId()), JSON.stringify(next));
+      } catch {
+        /* private mode */
+      }
       return next;
     });
   }, []);
@@ -742,6 +747,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, [requestMapFocus]);
 
+  const openExpoBooth = useCallback((id: string) => {
+    const booth = catalog.booths.find((b) => b.id === id);
+    if (!booth) return;
+    setSelection({ kind: "booth", id });
+    setSponsorBoothId(id);
+    setMapSurface("expo");
+    setFloor(booth.floor);
+    setView("map");
+    if (booth.pinAvailable) requestMapFocus(id);
+  }, [requestMapFocus, setView]);
+
   const selectSpace = useCallback(
     (id: string) => {
       const official = officialSessions.find((s) => s.roomId === id);
@@ -822,6 +838,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       selection,
       selectSession,
       selectBooth,
+      openExpoBooth,
       selectSpace,
       clearSelection,
       navigating,
@@ -902,6 +919,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       selection,
       selectSession,
       selectBooth,
+      openExpoBooth,
       selectSpace,
       clearSelection,
       navigating,

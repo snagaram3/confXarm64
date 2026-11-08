@@ -1,7 +1,9 @@
 import { Edges, Html, OrbitControls, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { ExpoBoothHtmlPin } from "@/components/map/ExpoBoothPin";
 import { PALETTE } from "@/theme/tokens";
 import { venue } from "@/lib/catalog";
+import type { Booth } from "@/lib/types";
 import {
   WORLD_FLOOR_GAP,
   WORLD_SCALE,
@@ -33,6 +35,8 @@ export interface Map3DPin {
   logoSrc?: string | null;
   logoOnDark?: boolean;
   sublabel?: string;
+  mustGo?: boolean;
+  booth?: Booth;
 }
 
 const CAMERA_FOV = 42;
@@ -92,7 +96,7 @@ export default function Map3DView({
   const hero = journeyMode === "hero";
 
   return (
-    <div className="absolute inset-0 min-h-0 min-w-0 bg-map-canvas pt-[6.6rem] pb-[9.75rem] sm:pb-[8.5rem] lg:pt-14 lg:pb-28">
+    <div className="absolute inset-0 z-0 min-h-0 min-w-0 isolate bg-map-canvas pt-[6.6rem] pb-[9.75rem] sm:pb-[8.5rem] lg:pt-14 lg:pb-28">
       <Canvas
         camera={{ fov: CAMERA_FOV, near: 0.1, far: 5000, position: [48, 72, 96] }}
         dpr={[1, 1.75]}
@@ -572,8 +576,37 @@ function ImagePlaneScene({
         const selectedPin = pin.id === selectedId;
         const rec = pin.id === recommendedId;
         const connector = pin.kind === "connector";
-        const booth = pin.kind === "booth";
+        const isBooth = pin.kind === "booth" && pin.booth;
         const showLabel = selectedPin || rec || connector;
+        if (isBooth && pin.booth) {
+          return (
+            <group key={pin.id} position={[x, 0.04, z]}>
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+                <circleGeometry args={[selectedPin ? 1.55 : pin.mustGo ? 1.3 : 1.05, 28]} />
+                <meshBasicMaterial
+                  color={selectedPin ? PALETTE.primary : pin.mustGo ? PALETTE.highlight : "#ffffff"}
+                  transparent
+                  opacity={selectedPin ? 0.55 : 0.38}
+                />
+              </mesh>
+              <Html
+                center
+                sprite
+                zIndexRange={[12, 0]}
+                style={{ pointerEvents: "auto" }}
+                position={[0, selectedPin ? 1.55 : 1.15, 0]}
+              >
+                <ExpoBoothHtmlPin
+                  booth={pin.booth}
+                  selected={selectedPin}
+                  mustGo={Boolean(pin.mustGo)}
+                  motion={!reducedMotion}
+                  onSelect={onSelect}
+                />
+              </Html>
+            </group>
+          );
+        }
         return (
           <group key={pin.id} position={[x, selectedPin ? 1.4 : 0.85, z]}>
             <mesh
@@ -591,8 +624,8 @@ function ImagePlaneScene({
             >
               <cylinderGeometry
                 args={[
-                  selectedPin ? 1.05 : booth ? 0.7 : 0.55,
-                  selectedPin ? 1.05 : booth ? 0.7 : 0.55,
+                  selectedPin ? 1.05 : 0.55,
+                  selectedPin ? 1.05 : 0.55,
                   selectedPin ? 2.4 : 1.2,
                   12,
                 ]}

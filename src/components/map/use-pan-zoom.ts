@@ -99,11 +99,11 @@ export function usePanZoom({
   );
 
   const focusPin = useCallback(
-    (nx: number, ny: number, biasY = 0.42) => {
+    (nx: number, ny: number, biasY = 0.42, zoom = 2.15) => {
       const m = measure();
       if (!m || !imageSize) return;
       const fitCam = fitContain(m.cw, m.ch, imageSize.w, imageSize.h);
-      const scale = clamp(fitCam.scale * 2.15, fitCam.scale * 1.35, fitCam.scale * 4);
+      const scale = clamp(fitCam.scale * zoom, fitCam.scale * 1.25, fitCam.scale * 4);
       userAdjusted.current = true;
       flyTo(focusOn(nx, ny, imageSize.w, imageSize.h, m.cw, m.ch, scale, 0.5, biasY));
     },
