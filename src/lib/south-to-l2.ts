@@ -90,7 +90,10 @@ export function shouldAutoplayHero(input: {
   originId: string | null;
   destinationId: string | null;
   alreadyPlayed: boolean;
+  /** Only the explicit South→L2 share URL may autoplay. Ordinary Map/Home never does. */
+  explicitShare?: boolean;
 }): boolean {
+  if (!input.explicitShare) return false;
   if (input.alreadyPlayed) return false;
   if (!input.webgl) return false;
   if (input.reducedMotion) return false;

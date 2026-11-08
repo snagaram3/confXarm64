@@ -1,6 +1,6 @@
 # Floorwise
 
-Private conference companion for Salt Palace + Hyatt during KubeCon + CloudNativeCon North America 2026. Find a talk, pin it on your agenda, see exhibitor logos on the official expo floorplan, and get an advance reminder.
+Private conference-trip companion for Salt Palace + Hyatt during KubeCon + CloudNativeCon North America 2026. Plan a visit from official sessions, save a day-by-day itinerary, then open the map only when you need a room or booth.
 
 Hackathon: WeMakeDevs Cloud Native Hackathon. Primary prize track: **Elasticsearch**. Product name: Floorwise. Not an official Linux Foundation, CNCF, Grok, or sponsor app.
 
@@ -39,7 +39,7 @@ curl -sS http://127.0.0.1:43181/api/health
 curl -sS http://127.0.0.1:43180/api/health
 ```
 
-Open [http://127.0.0.1:43180](http://127.0.0.1:43180). First boot can sit on **red** while Elasticsearch forms the cluster. The API waits up to **120s** for yellow/green and then indexes the official 601-record main schedule.
+Open [http://127.0.0.1:43180](http://127.0.0.1:43180) for the **trip planner home** (not the 3D map). First boot can sit on **red** while Elasticsearch forms the cluster. The API waits up to **120s** for yellow/green and then indexes the official 601-record main schedule.
 
 No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17 tarball and starts it on loopback `:19200`, then `npm run dev`.
 
@@ -51,8 +51,10 @@ Event-inspired colors sampled from the live [KubeCon + CloudNativeCon North Amer
 
 ## What you get
 
-1. **Expo map** — official `expo.pdf` rendered as a zoom/pan floorplan. Catalog exhibitor logos sit on PDF-text booth numbers (image-relative anchors, not indoor GPS). Tap a logo for a clamped popover, Must/Maybe/Meh bots, and booth actions. Unplaced exhibitors (if any) are listed with a reason instead of an invented pin.
-2. **Venue map** — **3D is the default** when WebGL is available and reduced motion is off (`view=2d` or a stored Flat choice still wins). A fresh visit plays a short **illustrative** South Entrance (official room `87690` / 200 South) → Salt Palace Level 2 (East Registration `87691`) preview on the schematic: Pause / Replay / Explore, keyboard Space / R / Esc / arrows. Direct URL: [`/?origin=entrance-south&destination=east-registration&view=3d`](http://127.0.0.1:43180/?origin=entrance-south&destination=east-registration&view=3d). The DEMO floor change is a marked schematic device, **not** a surveyed elevator and **not** a `venue.pdf` STAIRS/ELEVATOR label. Copy on the HUD: *Illustrative journey — not verified onsite navigation.* Reduced motion gets the completed ribbon and manual steps, not autoplay. Explicit Flat, no-WebGL, and a different `destination=` are respected. Tapping a recommended talk or booth focuses that place; it does **not** hijack the South→L2 demo as a route to that session. **Official PDF** remains one tap away. SAMPLE 255 walk is still on the Sample schematic only.
+1. **Trip planner home (`/`)** — first visit collects role (optional), catalog topics, goals, and on-site days (8–12 Nov 2026). Optional display name. No email, password, or payments. Returning visits show recommended official sessions with Elasticsearch match reasons, catalog exhibitors whose tags overlap, and the saved itinerary. Preferences persist in **this browser only**, keyed to a local attendee id — not a cloud account. A labeled **sample persona** (Alex Rivera) is opt-in, never the silent default.
+2. **For you / itinerary** — same ranking and agenda as before: Must/Maybe/Meh, overlap warnings, timezone, ICS download. SAMPLE 255 is not in the primary nav; it stays on the Map → Sample schematic.
+3. **Expo map** — official `expo.pdf` rendered as a zoom/pan floorplan. Catalog exhibitor logos sit on PDF-text booth numbers (image-relative anchors, not indoor GPS). Tap a logo for a clamped popover, Must/Maybe/Meh bots, and booth actions. Unplaced exhibitors (if any) are listed with a reason instead of an invented pin. The map is **not** mounted on Home (no background WebGL).
+4. **Venue map** — optional, at `/map` or a legacy share such as [`/?origin=entrance-south&destination=east-registration&view=3d`](http://127.0.0.1:43180/?origin=entrance-south&destination=east-registration&view=3d). 3D is the map default when WebGL is available and reduced motion is off (`view=2d` or stored Flat still wins). The illustrative South Entrance → L2 DEMO plays **only** on that explicit share, not on ordinary Home or Map. Pause / Replay / Explore remain. The DEMO floor change is **not** a surveyed elevator. Tapping a recommended talk or booth focuses that place; it does **not** hijack the South→L2 demo as a route to that session. SAMPLE 255 walk is still on the Sample schematic only.
 3. **Official schedule** — 601 main-schedule records (registration, breaks, showcases, and talks — not 601 technical talks), 715 speakers, 37 room labels. Source timezone America/Denver (−07:00) for 8–12 Nov 2026. Related colocated feeds (229 / 14 / 38) stay distinct. Elasticsearch hybrid search ranks the official catalog.
 4. **Personal agenda** — add/remove, per-day timeline, upcoming/ongoing/finished, next-session countdown, overlap warnings, planning-buffer gaps labeled as estimates. Display timezone: conference America/Denver or America/Chicago. Stored only in this browser. Optional ICS download; Floorwise never writes to a real calendar.
 5. **Keynote picks** — curated from the official Keynote Sessions track. Names, titles, photos, and bios come from the published schedule. Not a popularity ranking.
@@ -91,15 +93,14 @@ npm run sponsor:provision -- elastic
 
 ## Demo
 
-Default profile is **Staff Platform Engineer · Kubernetes · observability · platform engineering · eBPF · OpenTelemetry**.
+Fresh `/` does **not** assume Alex Rivera. Set your own topics, or tap **Preview with sample persona**.
 
-1. **Expo logos** — Map tab, Expo floor. Pinch/scroll zoom, tap Elastic / Grafana / Docker logos. Preference bots bounce then idle (Must green / Maybe amber / Meh gray / Unrated). Reduced-motion OS setting stops the animation. **3D map** puts the same official image on a plane with cylindrical pins.
-2. **3D venue** — Map → Venue → **3D map**, or open `/map?origin=entrance-south&stepFree=true&view=3d`. Drag to orbit, two-finger pan, pinch to zoom, tap a room. **Fit** recenters. This is not indoor GPS.
-3. **Official talk** — For you. Search `keynote` or `eBPF`. Open a result. Add to agenda. Hall DE is on the venue map; Hyatt rooms stay on Hyatt.
-4. **Agenda** — Agenda tab. Switch timezone Denver ↔ Chicago. Set a 10 min planning buffer. Watch overlap and gap copy. Download ICS if you want a file; nothing is written to a calendar.
-5. **Keynote picks** — For you, above the ranking. Sourced from the Keynote Sessions track.
-6. **Remind me** — Enable notifications, then Remind on a future talk (or use the planner clock). Cancel reschedules cleanly. Removing from the agenda cancels the job.
-7. **Sample 255** — 255 tab is still the labeled sample walk, not a live indoor route.
+1. **Onboarding** — pick topics (required), days on site (required), optional role/name/goals. Save. Rankings hit `POST /api/rank` with those interests.
+2. **Home** — recommended official talks with Why copy, add to itinerary, overlap warning if a saved talk collides. Exhibitors list catalog tag overlap, not ads.
+3. **Edit topics** — profile sheet. Saved talks stay. Ranked list changes.
+4. **Itinerary** — day-by-day, overlap, planning buffer, ICS. Stored in `localStorage` as `floorwise.savedSessions.<attendeeId>` (legacy unscoped key is migrated once). Changing topics does not wipe it.
+5. **Map** — Map tab mounts 3D/flat only then. Show on map focuses the real room or official booth, or explains an unmapped label. Illustrative South→L2 DEMO: `/map?origin=entrance-south&destination=east-registration&view=3d`.
+6. **Sample 255** — Map → Sample schematic, not a primary nav item.
 
 ## Elasticsearch track
 

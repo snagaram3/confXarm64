@@ -1,6 +1,6 @@
 export type Rank = "must" | "maybe" | "meh";
 export type Floor = 1 | 2 | 3;
-export type AppView = "map" | "agenda" | "navigate" | "sponsor" | "plan" | "tools";
+export type AppView = "home" | "map" | "agenda" | "navigate" | "sponsor" | "plan" | "tools";
 export type MapSurface = "expo" | "venue" | "sample";
 export type VenueLayer = "schematic" | "official";
 export type SpaceKind = "hall" | "room" | "entrance" | "vertical" | "lobby";
@@ -10,6 +10,10 @@ export interface Profile {
   name: string;
   role: string;
   interests: string[];
+  goals: string[];
+  attendanceDays: string[];
+  onboarded: boolean;
+  demoPersona: boolean;
 }
 
 export interface CrowdTake {

@@ -1,24 +1,22 @@
 import type { AppView } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { Building2, CalendarDays, ListOrdered, Map, Navigation } from "lucide-react";
+import { CalendarDays, Compass, Home, Map } from "lucide-react";
 
 const ITEMS: { id: AppView; label: string; icon: typeof Map }[] = [
+  { id: "home", label: "Home", icon: Home },
+  { id: "agenda", label: "For you", icon: Compass },
+  { id: "plan", label: "Itinerary", icon: CalendarDays },
   { id: "map", label: "Map", icon: Map },
-  { id: "agenda", label: "For you", icon: ListOrdered },
-  { id: "plan", label: "Agenda", icon: CalendarDays },
-  { id: "sponsor", label: "Booths", icon: Building2 },
-  { id: "navigate", label: "255", icon: Navigation },
 ];
 
 export function BottomNav() {
-  const { view, setView, startNavTo255, navigating, selectBooth, sponsorBoothId, setFloor } =
-    useAppState();
+  const { view, setView } = useAppState();
 
   return (
     <nav
       aria-label="Primary"
-      className="grid grid-cols-5 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
+      className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
     >
       {ITEMS.map((item) => {
         const active = view === item.id;
@@ -29,18 +27,9 @@ export function BottomNav() {
             type="button"
             aria-current={active ? "page" : undefined}
             onClick={() => {
-              if (item.id === "navigate") {
-                if (!navigating) startNavTo255();
-                else setView("navigate");
-                return;
-              }
-              if (item.id === "sponsor") {
-                selectBooth(sponsorBoothId);
-                setFloor(1);
-              }
               setView(item.id);
               if (window.location.pathname.startsWith("/tools")) {
-                window.history.pushState({}, "", "/");
+                window.history.pushState({}, "", item.id === "map" ? "/map" : "/");
               }
             }}
             className={cn(

@@ -1,4 +1,5 @@
-import type { Profile, Rank } from "./types";
+import { EMPTY_PROFILE } from "./planner-profile";
+import type { Rank } from "./types";
 
 export const RANK_LABEL: Record<Rank, string> = {
   must: "Must go",
@@ -6,11 +7,8 @@ export const RANK_LABEL: Record<Rank, string> = {
   meh: "Meh",
 };
 
-export const DEFAULT_PROFILE: Profile = {
-  name: "Alex Rivera",
-  role: "Staff Platform Engineer",
-  interests: ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"],
-};
+/** Empty visitor profile. The labeled Alex Rivera sample lives on DEMO_PROFILE. */
+export const DEFAULT_PROFILE = EMPTY_PROFILE;
 
 export function rankWeight(rank: Rank): number {
   if (rank === "must") return 3;

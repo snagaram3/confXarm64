@@ -14,7 +14,9 @@ import {
   EAST_REGISTRATION_ID,
   SOUTH_ENTRANCE_ID,
   detectWebGL,
+  parseMapQuery,
   readStoredProjection,
+  resolveOriginRoomId,
 } from "@/lib/map-query";
 import { interpolateNav, sample255Keyframes } from "@/lib/nav-playback";
 import { motionEnabled } from "@/lib/motion";
@@ -91,7 +93,7 @@ export function VenueMap() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [navPlaying, setNavPlaying] = useState(false);
   const [navProgress, setNavProgress] = useState(0);
-  const [journey, setJourney] = useState<"hero" | "sample" | null>("hero");
+  const [journey, setJourney] = useState<"hero" | "sample" | null>(null);
   const [followActive, setFollowActive] = useState(false);
   const [explored, setExplored] = useState(false);
   const motion = motionEnabled(motionPref);
@@ -180,6 +182,10 @@ export function VenueMap() {
       Boolean(roomId) && !isHeroDemoId(roomId) && roomId !== EAST_REGISTRATION_ID && mapSurface !== "venue"
         ? true
         : Boolean(roomId) && !isHeroDemoId(roomId) && roomId !== HERO_DESTINATION_ID && roomId !== SOUTH_ENTRANCE_ID;
+    const share = parseMapQuery(window.location.search, window.location.pathname);
+    const explicitShare =
+      resolveOriginRoomId(share.origin) === SOUTH_ENTRANCE_ID &&
+      resolveOriginRoomId(share.destination) === HERO_DESTINATION_ID;
     const auto = shouldAutoplayHero({
       reducedMotion,
       webgl: detectWebGL(),
@@ -189,9 +195,16 @@ export function VenueMap() {
       originId: SOUTH_ENTRANCE_ID,
       destinationId: conflicting ? roomId : HERO_DESTINATION_ID,
       alreadyPlayed: readHeroPreviewPlayed(),
+      explicitShare,
     });
     if (mapSurface !== "venue" || conflicting) {
       if (conflicting) setJourney(null);
+      return;
+    }
+    if (!explicitShare) {
+      setJourney(null);
+      setNavPlaying(false);
+      setFollowActive(false);
       return;
     }
     if (reducedMotion) {

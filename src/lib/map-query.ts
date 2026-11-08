@@ -165,11 +165,11 @@ export function serializeMapSearch(input: {
   return q ? `?${q}` : "";
 }
 
-export function mapSharePath(pathname: string): "/map" | "/" | null {
+export function mapSharePath(pathname: string): "/map" | null {
   const path = pathname.replace(/\/+$/, "") || "/";
   if (path.startsWith("/tools") || path.startsWith("/sponsor") || path.startsWith("/connect")) return null;
   if (path === "/map") return "/map";
-  return "/";
+  return null;
 }
 
 export interface MapBootstrap {
@@ -199,7 +199,7 @@ export function bootstrapMapState(search: string, pathname: string): MapBootstra
     focusId,
     sheet: focusId ? originSheet(focusId) : null,
     stepFree: q.stepFree,
-    openMap: Boolean(q.mapPath || q.projection === "3d" || originId || destinationId),
+    openMap: Boolean(q.mapPath || q.projection != null || originId || destinationId || q.surface),
     shareActive,
   };
 }

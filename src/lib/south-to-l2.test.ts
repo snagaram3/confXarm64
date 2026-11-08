@@ -79,7 +79,7 @@ describe("South Entrance → L2 illustrative journey", () => {
     assert.ok(wideBox.max.x - wideBox.min.x >= phoneBox.max.x - phoneBox.min.x);
   });
 
-  it("autoplays only on a fresh normal-motion 3D venue visit", () => {
+  it("autoplays only on an explicit South→L2 share, never on ordinary home/map", () => {
     const base = {
       reducedMotion: false,
       webgl: true,
@@ -89,7 +89,9 @@ describe("South Entrance → L2 illustrative journey", () => {
       originId: null,
       destinationId: null,
       alreadyPlayed: false,
+      explicitShare: true,
     } as const;
+    assert.equal(shouldAutoplayHero({ ...base, explicitShare: false }), false);
     assert.equal(shouldAutoplayHero(base), true);
     assert.equal(shouldAutoplayHero({ ...base, originId: SOUTH_ENTRANCE_ID, destinationId: HERO_DESTINATION_ID }), true);
     assert.equal(shouldAutoplayHero({ ...base, reducedMotion: true }), false);

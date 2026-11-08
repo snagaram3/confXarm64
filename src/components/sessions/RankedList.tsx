@@ -1,16 +1,16 @@
+import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
 import { BestPick } from "@/components/sessions/BestPick";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { CONFERENCE_DAYS } from "@/lib/ask";
 import { pickBest } from "@/lib/rescue";
-import { filterRankedSessions, matchContribution } from "@/lib/ranked-filter";
+import { filterRankedSessions } from "@/lib/ranked-filter";
 import { RANK_LABEL } from "@/lib/ranking";
 import { LATE_SESSION_ID } from "@/lib/catalog";
-import type { Rank, Ranked, Session } from "@/lib/types";
-import { sanitizeHtml } from "@/lib/sanitize";
+import type { Rank } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { Bookmark, MapPin, Search } from "lucide-react";
+import { Bookmark, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 const ORDER: Rank[] = ["must", "maybe", "meh"];
@@ -18,13 +18,13 @@ const ORDER: Rank[] = ["must", "maybe", "meh"];
 export function RankedList() {
   const {
     rankedSessions,
-    selection,
     selectSession,
-    setView,
     profile,
     searchQuery,
     setSearchQuery,
     rankStatus,
+    rankError,
+    retryRank,
     rankMeta,
     savedIds,
     officialSessions,
@@ -42,15 +42,20 @@ export function RankedList() {
     requestMapFocus,
   } = useAppState();
   const [askDraft, setAskDraft] = useState("");
-  const selectedId = selection?.kind === "session" ? selection.id : null;
   const clock = plannerIso === "live" ? new Date() : new Date(plannerIso);
   const savedTimings = officialSessions
     .filter((s) => savedIds.includes(s.id) && s.startIso && s.endIso)
     .map((s) => ({ id: s.id, title: s.title, startIso: s.startIso!, endIso: s.endIso! }));
 
   const visible = useMemo(
-    () => filterRankedSessions(rankedSessions, { day: dayFilter, includeEnded, clock }),
-    [rankedSessions, dayFilter, includeEnded, clock],
+    () =>
+      filterRankedSessions(rankedSessions, {
+        day: dayFilter,
+        includeEnded,
+        clock,
+        attendanceDays: profile.attendanceDays,
+      }),
+    [rankedSessions, dayFilter, includeEnded, clock, profile.attendanceDays],
   );
   const savedRows = visible.filter((row) => savedIds.includes(row.item.id));
   const best = useMemo(
@@ -69,7 +74,7 @@ export function RankedList() {
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
           Find the right talk
         </p>
-        <h2 className="mt-1 font-display text-2xl font-semibold">Your personal ranking</h2>
+        <h2 className="mt-1 font-display text-2xl font-semibold">Talks for your topics</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Elasticsearch hybrid over the official 2026 main schedule. This is your interest
           fit, not a global popularity score.
@@ -119,7 +124,12 @@ export function RankedList() {
           />
         </div>
         <div className="mt-3 flex flex-wrap gap-1" role="tablist" aria-label="Conference day">
-          <DayChip id="all" label="All days" active={dayFilter === "all"} onSelect={() => setDayFilter("all")} />
+          <DayChip
+            id="all"
+            label={profile.attendanceDays.length ? "Your days" : "All days"}
+            active={dayFilter === "all"}
+            onSelect={() => setDayFilter("all")}
+          />
           {CONFERENCE_DAYS.map((day) => (
             <DayChip
               key={day.id}
@@ -168,6 +178,15 @@ export function RankedList() {
       {rankStatus === "loading" && rankedSessions.length === 0 && (
         <p className="text-sm text-muted-foreground">Querying Elasticsearch…</p>
       )}
+      {rankStatus === "error" && (
+        <div className="rounded-2xl border border-destructive/30 p-4 text-sm" role="alert">
+          <p className="font-semibold">Search is unavailable</p>
+          <p className="mt-1 text-muted-foreground">{rankError ?? "Elasticsearch did not return a ranking."} Floorwise will not invent talks here.</p>
+          <button type="button" className="mt-2 text-sm font-semibold text-primary" onClick={retryRank}>
+            Retry ranking
+          </button>
+        </div>
+      )}
       {profile.interests.length === 0 && !searchQuery && rankStatus === "ready" && (
         <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
           Pick an interest in your profile, or type a keyword, to pull Must / Maybe ranks.
@@ -184,15 +203,7 @@ export function RankedList() {
             <Bookmark className="size-3.5" /> Saved
           </header>
           {savedRows.map((row) => (
-            <SessionRow
-              key={`saved-${row.item.id}`}
-              row={row}
-              selected={selectedId === row.item.id}
-              onSelect={() => {
-                selectSession(row.item.id);
-                setView("map");
-              }}
-            />
+            <SessionPlanCard key={`saved-${row.item.id}`} row={row} />
           ))}
         </section>
       )}
@@ -206,15 +217,7 @@ export function RankedList() {
               <span className="text-xs text-muted-foreground">{rows.length}</span>
             </header>
             {rows.map((row) => (
-              <SessionRow
-                key={row.item.id}
-                row={row}
-                selected={selectedId === row.item.id}
-                onSelect={() => {
-                  selectSession(row.item.id);
-                  setView("map");
-                }}
-              />
+              <SessionPlanCard key={row.item.id} row={row} />
             ))}
           </section>
         );
@@ -247,51 +250,6 @@ function DayChip({
     >
       {label}
       <span className="sr-only"> {id === "all" ? "" : id}</span>
-    </button>
-  );
-}
-
-function SessionRow({
-  row,
-  selected,
-  onSelect,
-}: {
-  row: Ranked<Session>;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  const { item, rank, why, highlights } = row;
-  const match = matchContribution(row);
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        "min-h-11 w-full rounded-2xl border p-3 text-left transition-colors",
-        selected ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent/70",
-      )}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p className="font-display text-[16px] font-semibold leading-snug">{item.title}</p>
-        <Badge variant={rank}>{RANK_LABEL[rank]}</Badge>
-      </div>
-      <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1 font-mono text-primary">
-          <MapPin className="size-3" />
-          {item.roomLabel ?? item.roomId}{item.level != null ? ` · L${item.level}` : ""}
-        </span>
-        <span>
-          {item.start}–{item.end}
-        </span>
-        <span>{item.speaker}</span>
-        <Badge variant="outline">{match}</Badge>
-      </p>
-      {highlights[0] && (
-        <p className="mt-1 text-[12px] text-muted-foreground" dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlights[0]) }} />
-      )}
-      {rank === "must" && (
-        <p className="mt-2 text-[12px] leading-snug text-foreground/80">Why · {why}</p>
-      )}
     </button>
   );
 }

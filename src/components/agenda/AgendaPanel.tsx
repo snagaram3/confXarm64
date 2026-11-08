@@ -41,72 +41,11 @@ export function AgendaPanel() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Personal agenda</p>
-        <h2 className="font-display text-2xl font-semibold">Your talks</h2>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">My itinerary</p>
+        <h2 className="font-display text-2xl font-semibold">Day by day</h2>
         <p className="text-sm text-muted-foreground">
-          Stored only on this device. Sponsors never see this list. Times use IANA zones, not naive wall clocks.
+          Stored only in this browser. Changing topics does not wipe this list. Sponsors never see it. Times use IANA zones, not naive wall clocks.
         </p>
-      </div>
-
-      <label className="grid gap-1 text-sm">
-        <span className="text-xs font-medium">Display timezone</span>
-        <select
-          className="h-11 rounded-md border border-input bg-card px-3 text-sm"
-          value={timeZone}
-          onChange={(e) => setTimeZone(e.target.value as DisplayTimeZone)}
-        >
-          {(Object.keys(TZ_LABEL) as DisplayTimeZone[]).map((z) => (
-            <option key={z} value={z}>
-              {TZ_LABEL[z]}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="grid gap-1 text-sm">
-        <span className="text-xs font-medium">Planner clock (preview, not a live venue clock)</span>
-        <input
-          type="datetime-local"
-          className="h-11 rounded-md border border-input bg-card px-3 text-sm"
-          value={plannerIso === "live" ? "" : plannerIso.slice(0, 16)}
-          onChange={(e) => setPlannerIso(new Date(e.target.value).toISOString())}
-        />
-        <Button type="button" variant="outline" onClick={() => setPlannerIso("live")}>
-          Use live clock
-        </Button>
-      </label>
-
-      <label className="grid gap-1 text-sm">
-        <span className="text-xs font-medium">Planning buffer</span>
-        <input
-          type="number"
-          min={0}
-          max={30}
-          className="h-11 rounded-md border border-input bg-card px-3"
-          value={bufferMinutes}
-          onChange={(e) => setBufferMinutes(Number(e.target.value))}
-        />
-        <span className="text-xs text-muted-foreground">
-          Subtracted from gaps between talks. Planning estimate, not measured walking duration.
-        </span>
-      </label>
-
-      <div className="rounded-xl border border-border bg-card p-3 text-sm">
-        <p className="font-medium">Reminders</p>
-        <p className="text-xs text-muted-foreground">{pushStatus?.notice}</p>
-        {pushStatus?.foregroundOnly && (
-          <p className="mt-1 text-xs text-maybe">Foreground / in-tab only until VAPID is provisioned.</p>
-        )}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {([5, 10, 15] as const).map((m) => (
-            <Button key={m} type="button" variant={reminderMinutes === m ? "default" : "outline"} onClick={() => setReminderMinutes(m)}>
-              {m} min
-            </Button>
-          ))}
-          <Button type="button" variant="outline" onClick={() => void enablePush()}>
-            Enable notifications
-          </Button>
-        </div>
       </div>
 
       {next && (
@@ -125,7 +64,7 @@ export function AgendaPanel() {
       )}
 
       {items.length === 0 && (
-        <p className="text-sm text-muted-foreground">Add a talk from search, keynotes, or session detail.</p>
+        <p className="text-sm text-muted-foreground">Add a talk from Home or For you. SAMPLE 255 is not mixed into this official list.</p>
       )}
 
       {days.map((day) => (
@@ -161,7 +100,8 @@ export function AgendaPanel() {
                     timeZone={timeZone}
                     now={clock}
                     reminded={reminderJobs.some((j) => j.sessionId === s.id && j.status === "scheduled")}
-                    onOpen={() => selectSession(s.id)}
+                    onOpen={() => selectSession(s.id, { jump: false })}
+                    onMap={() => selectSession(s.id)}
                     onRemove={() => toggleSaved(s.id)}
                     onRemind={() => void scheduleReminder(s.id)}
                     onCancelRemind={() => void cancelReminder(s.id)}
@@ -178,6 +118,71 @@ export function AgendaPanel() {
           Download ICS
         </Button>
       )}
+
+      <details className="rounded-xl border border-border bg-card p-3">
+        <summary className="min-h-11 cursor-pointer text-sm font-semibold">
+          Timezone, buffer, and reminders
+        </summary>
+        <div className="mt-3 flex flex-col gap-3">
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs font-medium">Display timezone</span>
+            <select
+              className="h-11 rounded-md border border-input bg-card px-3 text-sm"
+              value={timeZone}
+              onChange={(e) => setTimeZone(e.target.value as DisplayTimeZone)}
+            >
+              {(Object.keys(TZ_LABEL) as DisplayTimeZone[]).map((z) => (
+                <option key={z} value={z}>
+                  {TZ_LABEL[z]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs font-medium">Planner clock (preview, not a live venue clock)</span>
+            <input
+              type="datetime-local"
+              className="h-11 rounded-md border border-input bg-card px-3 text-sm"
+              value={plannerIso === "live" ? "" : plannerIso.slice(0, 16)}
+              onChange={(e) => setPlannerIso(new Date(e.target.value).toISOString())}
+            />
+            <Button type="button" variant="outline" onClick={() => setPlannerIso("live")}>
+              Use live clock
+            </Button>
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="text-xs font-medium">Planning buffer</span>
+            <input
+              type="number"
+              min={0}
+              max={30}
+              className="h-11 rounded-md border border-input bg-card px-3"
+              value={bufferMinutes}
+              onChange={(e) => setBufferMinutes(Number(e.target.value))}
+            />
+            <span className="text-xs text-muted-foreground">
+              Subtracted from gaps between talks. Planning estimate, not measured walking duration.
+            </span>
+          </label>
+          <div className="text-sm">
+            <p className="font-medium">Reminders</p>
+            <p className="text-xs text-muted-foreground">{pushStatus?.notice}</p>
+            {pushStatus?.foregroundOnly && (
+              <p className="mt-1 text-xs text-maybe">Foreground / in-tab only until VAPID is provisioned.</p>
+            )}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {([5, 10, 15] as const).map((m) => (
+                <Button key={m} type="button" variant={reminderMinutes === m ? "default" : "outline"} onClick={() => setReminderMinutes(m)}>
+                  {m} min
+                </Button>
+              ))}
+              <Button type="button" variant="outline" onClick={() => void enablePush()}>
+                Enable notifications
+              </Button>
+            </div>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
@@ -188,6 +193,7 @@ function AgendaRow({
   now,
   reminded,
   onOpen,
+  onMap,
   onRemove,
   onRemind,
   onCancelRemind,
@@ -197,6 +203,7 @@ function AgendaRow({
   now: Date;
   reminded: boolean;
   onOpen: () => void;
+  onMap: () => void;
   onRemove: () => void;
   onRemind: () => void;
   onCancelRemind: () => void;
@@ -218,6 +225,9 @@ function AgendaRow({
         <p className="text-xs text-muted-foreground">{session.roomLabel ?? session.roomId}</p>
       </button>
       <div className="mt-2 flex flex-wrap gap-2">
+        <Button type="button" variant="outline" onClick={onMap}>
+          Show on map
+        </Button>
         <Button type="button" variant="outline" onClick={onRemove}>
           Remove
         </Button>

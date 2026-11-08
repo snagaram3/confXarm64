@@ -7,6 +7,16 @@ export function TopBar() {
   const { profile, setProfileOpen, esHealth, rankStatus, motionPref, setMotionPref, view, setView } =
     useAppState();
   const searchReady = esHealth?.ok && rankStatus === "ready";
+  const identity = profile.onboarded
+    ? profile.demoPersona
+      ? "Sample persona"
+      : profile.name.trim() || "Your trip"
+    : "Set up trip";
+  const identityDetail = profile.onboarded
+    ? profile.demoPersona
+      ? "Alex Rivera · labeled demo"
+      : profile.role || "Edit preferences"
+    : "Topics & days";
 
   return (
     <header className="flex shrink-0 items-center gap-2 overflow-x-clip px-2 py-2 max-[500px]:py-1 sm:px-4">
@@ -14,10 +24,14 @@ export function TopBar() {
         <Logo />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="font-display text-lg font-semibold leading-none tracking-tight">
+            <button
+              type="button"
+              className="font-display text-lg font-semibold leading-none tracking-tight"
+              onClick={() => setView("home")}
+            >
               Floorwise
-            </p>
-            <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground">
+            </button>
+            <span className="hidden rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground sm:inline">
               Private companion
             </span>
           </div>
@@ -76,10 +90,10 @@ export function TopBar() {
         </span>
         <span className="min-w-0">
           <span className="block truncate text-xs font-semibold leading-tight">
-            {profile.name}
+            {identity}
           </span>
           <span className="block truncate text-[11px] text-muted-foreground">
-            {profile.role}
+            {identityDetail}
           </span>
         </span>
       </button>

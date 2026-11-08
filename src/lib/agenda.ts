@@ -18,6 +18,10 @@ export function sessionStatus(session: SessionTiming, now: Date): AgendaStatus {
   return "ongoing";
 }
 
+export function overlappingSaved(candidate: SessionTiming, saved: SessionTiming[]): SessionTiming[] {
+  return saved.filter((item) => item.id !== candidate.id && overlaps(candidate, item));
+}
+
 export function overlaps(a: SessionTiming, b: SessionTiming): boolean {
   const as = parseInstant(a.startIso).getTime();
   const ae = parseInstant(a.endIso).getTime();

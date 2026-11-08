@@ -28,8 +28,6 @@ import {
   sessionsInRoom,
   wayfinding,
 } from "@/lib/catalog";
-import { HERO_DESTINATION_ID } from "@/lib/south-to-l2";
-import { SOUTH_ENTRANCE_ID } from "@/lib/map-query";
 import { parseAsk, type ConferenceDayId } from "@/lib/ask";
 import { CONFERENCE_TZ, type DisplayTimeZone } from "@/lib/timezone";
 import { sheetForFocus, type SchematicSheetId } from "@/lib/venue-schematic";
@@ -39,12 +37,14 @@ import {
   detectWebGL,
   initialMapProjection,
   mapSharePath,
+  parseMapQuery,
   readStoredProjection,
   resolveMapProjection,
   serializeMapSearch,
   type MapProjection,
 } from "@/lib/map-query";
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
+import { composeRankQuery, readPlannerProfile, writePlannerProfile } from "@/lib/planner-profile";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
 import { PREF_STORAGE_KEY, parseSponsorPrefs } from "@/lib/sponsor-prefs";
 import { parseToolsPath } from "@/lib/tools";
@@ -202,11 +202,28 @@ function attendeeId(): string {
   }
 }
 
+function savedStorageKey(id: string): string {
+  return `${SAVED_KEY}.${id}`;
+}
+
+function parseSavedList(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
 function readSaved(): string[] {
   try {
-    const raw = localStorage.getItem(SAVED_KEY);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(parsed) ? parsed.map(String) : [];
+    const id = attendeeId();
+    const scoped = parseSavedList(localStorage.getItem(savedStorageKey(id)));
+    if (scoped.length) return scoped;
+    const legacy = parseSavedList(localStorage.getItem(SAVED_KEY));
+    if (legacy.length) localStorage.setItem(savedStorageKey(id), JSON.stringify(legacy));
+    return legacy;
   } catch {
     return [];
   }
@@ -232,19 +249,44 @@ function readMapBootstrap() {
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const boot = useMemo(() => readMapBootstrap(), []);
   const mapQueryActive = useRef(boot.shareActive);
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const [profile, setProfileState] = useState<Profile>(() => {
+    try {
+      return readPlannerProfile(attendeeId());
+    } catch {
+      return DEFAULT_PROFILE;
+    }
+  });
+  const setProfile = useCallback((next: Profile) => {
+    setProfileState(next);
+    writePlannerProfile(attendeeId(), next);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [retryTick, setRetryTick] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(readSaved);
   const [sponsorPrefs, setSponsorPrefs] = useState<Record<string, Rank>>(readSponsorPrefs);
-  const [view, setView] = useState<AppView>(() =>
-    parseToolsPath(window.location.pathname) ? "tools" : "map",
-  );
+  const [view, setViewState] = useState<AppView>(() => {
+    if (parseToolsPath(window.location.pathname)) return "tools";
+    if (boot.openMap) return "map";
+    return "home";
+  });
+  const setView = useCallback((next: AppView) => {
+    setViewState(next);
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+    const query = parseMapQuery(window.location.search, path);
+    if (next === "tools") return;
+    if (next === "map") {
+      if (path !== "/map" && !query.mapPath && !query.projection && !query.origin && !query.destination) {
+        window.history.pushState({}, "", "/map");
+      }
+      return;
+    }
+    if (path === "/map" || path.startsWith("/tools")) {
+      window.history.pushState({}, "", "/");
+    }
+  }, []);
   const [floor, setFloor] = useState<Floor>(1);
   const [selection, setSelection] = useState<Selection>(() =>
-    boot.focusId && boot.focusId !== SOUTH_ENTRANCE_ID
-      ? { kind: "space", id: boot.focusId }
-      : { kind: "space", id: SOUTH_ENTRANCE_ID },
+    boot.focusId ? { kind: "space", id: boot.focusId } : null,
   );
   const [navigating, setNavigating] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
@@ -276,13 +318,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       : null,
   );
   const [mapCameraReset, setMapCameraReset] = useState(0);
-  const [mapOriginId] = useState<string | null>(boot.originId ?? SOUTH_ENTRANCE_ID);
-  const [mapDestinationId, setMapDestinationId] = useState<string | null>(
-    boot.destinationId ??
-      (boot.focusId && boot.focusId !== SOUTH_ENTRANCE_ID && boot.focusId !== HERO_DESTINATION_ID
-        ? boot.focusId
-        : HERO_DESTINATION_ID),
-  );
+  const [mapOriginId] = useState<string | null>(boot.originId ?? null);
+  const [mapDestinationId, setMapDestinationId] = useState<string | null>(boot.destinationId ?? boot.focusId ?? null);
   const [stepFree, setStepFree] = useState(boot.stepFree ?? false);
   const [dayFilter, setDayFilter] = useState<ConferenceDayId | "all">("all");
   const [includeEnded, setIncludeEnded] = useState(false);
@@ -367,6 +404,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const onPop = () => {
+      const path = window.location.pathname.replace(/\/+$/, "") || "/";
+      const tab = parseToolsPath(path);
+      if (tab) {
+        setViewState("tools");
+        return;
+      }
+      const next = bootstrapMapState(window.location.search, path);
+      setViewState(next.openMap ? "map" : "home");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
     if (parseToolsPath(window.location.pathname)) return;
     const reduced = !motionEnabled(readMotionPref());
     const gl = detectWebGL();
@@ -402,7 +454,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const map: Record<string, Session> = {};
         for (const s of data.sessions) map[s.id] = s;
         setSessionIndex(map);
-        setSelection((prev) => prev ?? { kind: "space", id: SOUTH_ENTRANCE_ID });
+        /* keep an empty selection on planner home */
       })
       .catch(() => undefined);
     fetchReminderStatus()
@@ -418,7 +470,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const ac = new AbortController();
     const timer = window.setTimeout(() => {
       setRankStatus((prev) => (prev === "ready" ? prev : "loading"));
-      fetchRank(profile, searchQuery, ac.signal)
+      fetchRank(profile, composeRankQuery(profile, searchQuery), ac.signal)
         .then((res) => {
           setRankedSessions(res.sessions);
           setRankedBooths(res.booths);
@@ -453,7 +505,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setSavedIds((prev) => {
       const removing = prev.includes(sessionId);
       const next = removing ? prev.filter((id) => id !== sessionId) : [...prev, sessionId];
-      localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+      try {
+        localStorage.setItem(savedStorageKey(attendeeId()), JSON.stringify(next));
+      } catch {
+        /* private mode */
+      }
       if (removing) {
         const timer = foregroundTimers.current.get(sessionId);
         if (timer) window.clearTimeout(timer);
@@ -535,16 +591,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    if (view !== "map") return;
     const share = mapSharePath(window.location.pathname);
-    if (!share) return;
-    if (!mapQueryActive.current && mapProjection !== "3d") return;
-    mapQueryActive.current = true;
+    if (!share && !mapQueryActive.current) return;
+    if (!mapQueryActive.current) return;
     const session = selection?.kind === "session" ? resolveSession(selection.id) : null;
     const selectedId = selectedRoomId(selection, session);
     const originId = mapOriginId ?? selectedId;
     const destinationId =
       selectedId && originId && selectedId !== originId ? selectedId : mapDestinationId;
-    const next = `${share}${serializeMapSearch({
+    const next = `/map${serializeMapSearch({
       projection: mapProjection === "3d" || preferredProjection === "3d" ? "3d" : "flat",
       surface: mapSurface,
       originId,
@@ -553,7 +609,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     })}`;
     const current = `${window.location.pathname}${window.location.search}`;
     if (current !== next) window.history.replaceState(window.history.state, "", next);
-  }, [mapProjection, preferredProjection, mapSurface, stepFree, selection, mapOriginId, mapDestinationId, resolveSession]);
+  }, [view, mapProjection, preferredProjection, mapSurface, stepFree, selection, mapOriginId, mapDestinationId, resolveSession]);
 
   const setTimeZone = useCallback((tz: DisplayTimeZone) => {
     setTimeZoneState(tz);

@@ -1,0 +1,298 @@
+import { OnboardingFlow } from "@/components/planner/OnboardingFlow";
+import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { conflictGroups } from "@/lib/agenda";
+import { CONFERENCE_DAYS } from "@/lib/ask";
+import { catalog } from "@/lib/catalog";
+import { PLANNER_GOALS, profileDisplayName } from "@/lib/planner-profile";
+import { filterRankedSessions, hasInterestMatch } from "@/lib/ranked-filter";
+import { pickSponsorSuggestion } from "@/lib/suggestions";
+import { cn } from "@/lib/utils";
+import { useAppState } from "@/state/app-state";
+import { useMemo } from "react";
+
+export function HomeDashboard() {
+  const {
+    profile,
+    setProfileOpen,
+    rankedSessions,
+    rankedBooths,
+    rankStatus,
+    rankError,
+    retryRank,
+    rankMeta,
+    savedIds,
+    officialSessions,
+    toggleSaved,
+    selectBooth,
+    setView,
+    setMapSurface,
+    requestMapFocus,
+    setSponsorPref,
+    sponsorPrefs,
+    plannerIso,
+    dayFilter,
+    setDayFilter,
+    includeEnded,
+    scheduleNote,
+  } = useAppState();
+
+  const visible = useMemo(() => {
+    const clock = plannerIso === "live" ? new Date() : new Date(plannerIso);
+    return filterRankedSessions(rankedSessions, {
+      day: dayFilter,
+      includeEnded,
+      clock,
+      attendanceDays: profile.attendanceDays,
+    });
+  }, [rankedSessions, dayFilter, includeEnded, plannerIso, profile.attendanceDays]);
+
+  if (!profile.onboarded) return <OnboardingFlow />;
+  const talks = visible
+    .filter((row) => {
+      if (row.item.dataset === "sample") return false;
+      if (!hasInterestMatch(row)) return false;
+      const track = row.item.track ?? "";
+      const types = row.item.sessionTypeLabels ?? [];
+      if (/registration/i.test(track) || types.some((label) => /registration/i.test(label))) return false;
+      return true;
+    })
+    .slice(0, 5);
+  const saved = officialSessions.filter((session) => savedIds.includes(session.id) && session.startIso);
+  const conflicts = conflictGroups(
+    saved
+      .filter((session) => session.startIso && session.endIso)
+      .map((session) => ({
+        id: session.id,
+        title: session.title,
+        startIso: session.startIso!,
+        endIso: session.endIso!,
+      })),
+  );
+  const sponsor = pickSponsorSuggestion({
+    rankStatus,
+    navigating: false,
+    mustSessions: [],
+    lateSession: undefined,
+    remainingSec: 0,
+    mustBooth: catalog.booths
+      .filter((booth) => sponsorPrefs[booth.id] === "must")
+      .map((booth) => ({
+        id: booth.id,
+        sponsor: booth.sponsor,
+        boothNumber: booth.boothNumber,
+        pinAvailable: booth.pinAvailable,
+      }))[0],
+    mustBoothFromPref: catalog.booths.some((booth) => sponsorPrefs[booth.id] === "must"),
+    rankedBooths,
+  });
+  const exhibitors = rankedBooths
+    .filter((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)
+    .filter((row) => row.item.id !== sponsor?.boothId)
+    .slice(0, 3);
+  const days = CONFERENCE_DAYS.filter((day) => profile.attendanceDays.includes(day.id));
+  const emphasizeBooths = profile.goals.includes("exhibitors");
+
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-5 sm:py-8">
+      {profile.demoPersona && (
+        <p className="rounded-2xl border border-highlight/80 bg-highlight px-3 py-2 text-sm text-highlight-fg" role="status">
+          You are previewing the labeled sample persona “Alex Rivera”. This is not your identity. Preferences stay in this browser.
+        </p>
+      )}
+
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your KCNA visit</p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">{profileDisplayName(profile)}</h1>
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            {profile.role ? `${profile.role} · ` : ""}
+            {profile.interests.slice(0, 4).join(" · ") || "Add topics to rank talks"}
+            . Rankings use Elasticsearch over the official main schedule
+            {rankMeta ? ` · last query ${rankMeta.tookMs} ms` : ""}. Stored only in this browser — no cloud account.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={() => setProfileOpen(true)}>
+            Edit preferences
+          </Button>
+          <Button type="button" variant="outline" onClick={() => setView("map")}>
+            Open map
+          </Button>
+        </div>
+      </header>
+
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Days you marked">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={dayFilter === "all"}
+          className={cn(
+            "min-h-11 rounded-full border px-3 text-xs font-semibold",
+            dayFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+          )}
+          onClick={() => setDayFilter("all")}
+        >
+          Your days
+        </button>
+        {days.map((day) => (
+          <button
+            key={day.id}
+            type="button"
+            role="tab"
+            aria-selected={dayFilter === day.id}
+            className={cn(
+              "min-h-11 rounded-full border px-3 text-xs font-semibold",
+              dayFilter === day.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+            )}
+            onClick={() => setDayFilter(day.id)}
+          >
+            {day.weekday}
+          </button>
+        ))}
+      </div>
+
+      {rankStatus === "loading" && rankedSessions.length === 0 && (
+        <p className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground" role="status">
+          Ranking the official 2026 schedule in Elasticsearch…
+        </p>
+      )}
+      {rankStatus === "error" && (
+        <div className="rounded-2xl border border-destructive/30 bg-card px-4 py-3 text-sm" role="alert">
+          <p className="font-semibold">Search is unavailable</p>
+          <p className="mt-1 text-muted-foreground">
+            {rankError ?? "Elasticsearch did not return a ranking."} Floorwise will not invent talks to fill this space.
+          </p>
+          <Button type="button" className="mt-3" variant="outline" onClick={retryRank}>
+            Retry ranking
+          </Button>
+        </div>
+      )}
+
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)]">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-end justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Recommended talks</p>
+              <h2 className="font-display text-xl font-semibold">What to do, and why</h2>
+            </div>
+            <Button type="button" variant="ghost" onClick={() => setView("agenda")}>
+              All matches
+            </Button>
+          </div>
+          {rankStatus === "ready" && talks.length === 0 && (
+            <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+              No official talks matched these topics on the days you picked. Try another topic or include another day. This is not a live hall count.
+            </p>
+          )}
+          {talks.map((row) => (
+            <SessionPlanCard key={row.item.id} row={row} />
+          ))}
+        </div>
+
+        <aside className="flex flex-col gap-4">
+          <section className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-display text-lg font-semibold">My itinerary</h2>
+              <Button type="button" variant="ghost" onClick={() => setView("plan")}>
+                Open
+              </Button>
+            </div>
+            {conflicts.length > 0 && (
+              <p className="mt-2 text-xs text-maybe">
+                {conflicts.length} overlap{conflicts.length > 1 ? "s" : ""} on saved talks. Not a seat hold.
+              </p>
+            )}
+            {saved.length === 0 ? (
+              <p className="mt-2 text-sm text-muted-foreground">Nothing saved yet. Add a recommended talk — that list stays on this device.</p>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-2">
+                {saved.slice(0, 4).map((session) => (
+                  <li key={session.id} className="rounded-xl border border-border px-3 py-2">
+                    <p className="text-sm font-semibold leading-snug">{session.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.start} · {session.roomLabel ?? session.roomId}
+                    </p>
+                    <button type="button" className="mt-1 text-xs font-semibold text-primary" onClick={() => toggleSaved(session.id)}>
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {(emphasizeBooths || exhibitors.length > 0 || sponsor) && (
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <h2 className="font-display text-lg font-semibold">Exhibitors for your topics</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Official catalog tags overlapping your interests. Not a paid placement and not walking distance.
+              </p>
+              {sponsor && (
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-xl border border-border px-3 py-2 text-left hover:bg-accent"
+                  onClick={() => (sponsor.boothId ? selectBooth(sponsor.boothId) : undefined)}
+                >
+                  <p className="text-sm font-semibold">{sponsor.title}</p>
+                  <p className="text-xs text-muted-foreground">{sponsor.why}</p>
+                </button>
+              )}
+              {exhibitors.map((row) => {
+                const pin = catalog.booths.find((booth) => booth.id === row.item.id);
+                const pinAvailable = pin?.pinAvailable ?? row.item.pinAvailable;
+                return (
+                <div key={row.item.id} className="mt-2 rounded-xl border border-border px-3 py-2">
+                  <button type="button" className="w-full text-left hover:opacity-90" onClick={() => selectBooth(row.item.id)}>
+                    <p className="text-sm font-semibold">{row.item.sponsor}</p>
+                    <p className="font-mono text-[11px] text-primary">
+                      Booth {pin?.boothNumber ?? row.item.boothNumber}
+                      {pinAvailable ? " · official expo pin" : " · unplaced on expo.pdf"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{row.why}</p>
+                  </button>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {sponsorPrefs[row.item.id] ? (
+                      <Badge variant={sponsorPrefs[row.item.id]}>Your mark</Badge>
+                    ) : (
+                      <Button type="button" variant="outline" size="sm" onClick={() => setSponsorPref(row.item.id, "must")}>
+                        Mark Must go
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        selectBooth(row.item.id, { jump: false });
+                        setMapSurface("expo");
+                        requestMapFocus(row.item.id);
+                        setView("map");
+                      }}
+                    >
+                      {pinAvailable ? "Show booth on map" : "Unplaced — no expo pin"}
+                    </Button>
+                  </div>
+                </div>
+              );
+              })}
+            </section>
+          )}
+
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            {scheduleNote || "Official schedule snapshot."} Map remains an optional schematic — not verified onsite navigation.
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            Goals:{" "}
+            {profile.goals.length
+              ? PLANNER_GOALS.filter((goal) => profile.goals.includes(goal.id))
+                  .map((goal) => goal.label)
+                  .join(" · ")
+              : "none beyond your topics"}
+          </p>
+        </aside>
+      </section>
+    </div>
+  );
+}

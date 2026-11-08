@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterRankedSessions, matchContribution } from "./ranked-filter.ts";
+import { filterRankedSessions, hasInterestMatch, matchContribution } from "./ranked-filter.ts";
 import type { Ranked, Session } from "./types.ts";
 
 function row(id: string, startIso: string, endIso: string): Ranked<Session> {
@@ -43,6 +43,24 @@ describe("filterRankedSessions", () => {
     assert.deepEqual(hidden.map((r) => r.item.id), ["wed"]);
     const shown = filterRankedSessions([tue, wed], { day: "all", includeEnded: true, clock });
     assert.equal(shown.length, 2);
+    const attending = filterRankedSessions([tue, wed], {
+      day: "all",
+      includeEnded: true,
+      clock,
+      attendanceDays: ["2026-11-11"],
+    });
+    assert.deepEqual(attending.map((r) => r.item.id), ["wed"]);
+  });
+});
+
+describe("hasInterestMatch", () => {
+  it("rejects kNN-only neighbors without tag or keyword evidence", () => {
+    const knn = row("coat", "2026-11-10T07:30:00-07:00", "2026-11-12T20:00:00-07:00");
+    knn.matchedQueries = [];
+    knn.matchedTags = [];
+    knn.why = "ES hybrid 8.0 · kNN cosine on dense_vector";
+    assert.equal(hasInterestMatch(knn), false);
+    assert.equal(hasInterestMatch(row("talk", "2026-11-10T09:00:00-07:00", "2026-11-10T09:30:00-07:00")), true);
   });
 });
 

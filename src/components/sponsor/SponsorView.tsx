@@ -3,6 +3,7 @@ import { PrefBot } from "@/components/sponsor/PrefBot";
 import { PrefPicker } from "@/components/sponsor/PrefPicker";
 import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { catalog } from "@/lib/catalog";
 import { RANK_LABEL } from "@/lib/ranking";
 import { prefLabel } from "@/lib/sponsor-prefs";
@@ -18,6 +19,9 @@ export function SponsorView() {
     sponsorPrefs,
     setSponsorPref,
     rankByBooth,
+    setView,
+    setMapSurface,
+    requestMapFocus,
   } = useAppState();
   const booth = catalog.booths.find((b) => b.id === sponsorBoothId) ?? catalog.booths[0];
   const visitors = rankedVisitors;
@@ -73,6 +77,18 @@ export function SponsorView() {
           ) : (
             <Badge variant="outline">Search fit pending</Badge>
           )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              selectBooth(booth.id, { jump: false });
+              setMapSurface("expo");
+              requestMapFocus(booth.id);
+              setView("map");
+            }}
+          >
+            {booth.pinAvailable ? "Show booth on map" : "Unplaced — no expo pin"}
+          </Button>
         </div>
         <div className="mt-4 border-t border-border pt-3">
           <ConnectCta booth={booth} />

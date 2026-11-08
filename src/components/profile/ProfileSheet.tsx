@@ -1,4 +1,5 @@
 import { catalog } from "@/lib/catalog";
+import { CONFERENCE_DAYS } from "@/lib/ask";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { DEFAULT_PROFILE } from "@/lib/ranking";
+import { DEMO_PROFILE, EMPTY_PROFILE, PLANNER_GOALS } from "@/lib/planner-profile";
 
 export function ProfileSheet() {
-  const { profile, setProfile, profileOpen, setProfileOpen, rankedSessions } =
-    useAppState();
+  const { profile, setProfile, profileOpen, setProfileOpen, rankedSessions, savedIds } = useAppState();
   const mustCount = rankedSessions.filter((r) => r.rank === "must").length;
   const maybeCount = rankedSessions.filter((r) => r.rank === "maybe").length;
 
@@ -23,20 +23,24 @@ export function ProfileSheet() {
     <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
       <SheetContent side="bottom" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Your floor profile</SheetTitle>
+          <SheetTitle>Trip preferences</SheetTitle>
           <SheetDescription>
-            Interests re-rank the official 2026 main schedule in Elasticsearch. Map
-            colors update to Must, Maybe, and Meh. Personal fit, not a popularity score.
+            Topics re-rank the official 2026 main schedule in Elasticsearch. Saved talks are not changed when you edit interests. Preferences stay in this browser — no cloud account.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-5 p-6 pt-4">
+          {profile.demoPersona && (
+            <p className="rounded-xl bg-highlight px-3 py-2 text-sm text-highlight-fg">
+              Labeled sample persona is on. This is not treated as your identity.
+            </p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Display name (optional)</Label>
               <Input
                 id="name"
                 value={profile.name}
-                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value, demoPersona: false })}
               />
             </div>
             <div className="grid gap-1.5">
@@ -44,7 +48,7 @@ export function ProfileSheet() {
               <Input
                 id="role"
                 value={profile.role}
-                onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+                onChange={(e) => setProfile({ ...profile, role: e.target.value, demoPersona: false })}
                 list="roles"
               />
               <datalist id="roles">
@@ -56,11 +60,7 @@ export function ProfileSheet() {
           </div>
 
           <div className="grid gap-2">
-            <Label>Interests</Label>
-            <p className="text-xs text-muted-foreground">
-              Sample demo profile is Staff Platform Engineer · Kubernetes · observability.
-              Toggle tags to watch the map recolor.
-            </p>
+            <Label>Topics</Label>
             <div className="flex flex-wrap gap-2">
               {catalog.interests.map((tag) => {
                 const on = profile.interests.includes(tag);
@@ -72,10 +72,10 @@ export function ProfileSheet() {
                       const next = on
                         ? profile.interests.filter((t) => t !== tag)
                         : [...profile.interests, tag];
-                      setProfile({ ...profile, interests: next });
+                      setProfile({ ...profile, interests: next, demoPersona: false });
                     }}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-sm transition-colors",
+                      "min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors",
                       on
                         ? "border-primary/50 bg-primary/15 text-primary"
                         : "border-border bg-muted/40 text-muted-foreground hover:bg-accent",
@@ -88,20 +88,79 @@ export function ProfileSheet() {
             </div>
           </div>
 
+          <div className="grid gap-2">
+            <Label>Days on site</Label>
+            <div className="flex flex-wrap gap-2">
+              {CONFERENCE_DAYS.map((day) => {
+                const on = profile.attendanceDays.includes(day.id);
+                return (
+                  <button
+                    key={day.id}
+                    type="button"
+                    onClick={() => {
+                      const attendanceDays = on
+                        ? profile.attendanceDays.filter((item) => item !== day.id)
+                        : [...profile.attendanceDays, day.id];
+                      setProfile({ ...profile, attendanceDays, demoPersona: false });
+                    }}
+                    className={cn(
+                      "min-h-11 rounded-full border px-3 text-sm font-semibold",
+                      on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+                    )}
+                  >
+                    {day.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Goals</Label>
+            <div className="flex flex-wrap gap-2">
+              {PLANNER_GOALS.map((goal) => {
+                const on = profile.goals.includes(goal.id);
+                return (
+                  <button
+                    key={goal.id}
+                    type="button"
+                    onClick={() => {
+                      const goals = on ? profile.goals.filter((item) => item !== goal.id) : [...profile.goals, goal.id];
+                      setProfile({ ...profile, goals, demoPersona: false });
+                    }}
+                    className={cn(
+                      "min-h-11 rounded-full border px-3 text-sm",
+                      on ? "border-primary bg-primary/10 text-primary" : "border-border bg-card",
+                    )}
+                  >
+                    {goal.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              Sample rank ·{" "}
-              <span className="text-must font-semibold">{mustCount} Must</span>
-              {" · "}
-              <span className="text-maybe font-semibold">{maybeCount} Maybe</span>
+              {mustCount} Must · {maybeCount} Maybe
+              {savedIds.length ? ` · ${savedIds.length} saved talks kept` : ""}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setProfile(DEFAULT_PROFILE)}
-            >
-              Reset sample profile
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setProfile({ ...DEMO_PROFILE })}
+              >
+                Load labeled sample persona
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setProfile({ ...EMPTY_PROFILE, attendanceDays: profile.attendanceDays, onboarded: false })}
+              >
+                Clear topics
+              </Button>
+            </div>
           </div>
         </div>
       </SheetContent>

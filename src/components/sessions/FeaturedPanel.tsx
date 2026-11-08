@@ -35,11 +35,11 @@ export function FeaturedPanel() {
           </ul>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Why · {pick.why}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button type="button" onClick={() => selectSession(pick.sessionId)}>
-              Open
+            <Button type="button" onClick={() => toggleSaved(pick.sessionId)}>
+              {savedIds.includes(pick.sessionId) ? "On itinerary" : "Add to itinerary"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => toggleSaved(pick.sessionId)}>
-              {savedIds.includes(pick.sessionId) ? "On agenda" : "Add to agenda"}
+            <Button type="button" variant="outline" onClick={() => selectSession(pick.sessionId)}>
+              Show on map
             </Button>
             <Button type="button" variant="outline" onClick={() => void scheduleReminder(pick.sessionId)}>
               Remind me

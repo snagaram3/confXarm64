@@ -45,6 +45,13 @@ describe("parseMapQuery", () => {
 });
 
 describe("bootstrapMapState", () => {
+  it("does not open the map on a clean planner home", () => {
+    const boot = bootstrapMapState("", "/");
+    assert.equal(boot.openMap, false);
+    assert.equal(boot.shareActive, false);
+    assert.equal(mapSharePath("/"), null);
+  });
+
   it("opens venue 3D on the reference share URL and keeps step-free as a preference", () => {
     const boot = bootstrapMapState("origin=entrance-south&stepFree=true&view=3d", "/map");
     assert.equal(boot.projectionRequested, "3d");
