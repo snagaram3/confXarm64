@@ -47,3 +47,8 @@ web:
 config:
   radarUiUrl: "https://confxarm64.cnh.radarhq.io"
   syntheticOtel: "0"
+  # Public Dash0 endpoints only (no tokens). Empty defaults in values.yaml
+  # would wipe a live ConfigMap patch on the next Argo CD self-heal.
+  otelExporterEndpoint: "https://ingress.us-east-1.aws.dash0.com"
+  dash0:
+    apiBaseUrl: "https://api.us-east-1.aws.dash0.com"
