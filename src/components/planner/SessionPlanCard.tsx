@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { overlappingSaved } from "@/lib/agenda";
 import { RANK_LABEL } from "@/lib/ranking";
 import { matchContribution } from "@/lib/ranked-filter";
+import { ensureTaste, tasteMatchPercent, whyTaste } from "@/lib/taste";
 import type { Ranked, Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
@@ -26,6 +27,7 @@ export function SessionPlanCard({
     setMapSurface,
     setVenueLayer,
     roomAnchors,
+    profile,
   } = useAppState();
   const saved = savedIds.includes(row.item.id);
   const savedTimings = officialSessions
@@ -47,6 +49,9 @@ export function SessionPlanCard({
   const unmapped = Boolean(row.item.roomId) && room != null && !room.placed;
   const sample = row.item.dataset === "sample" || row.item.roomId === "255";
   const match = matchContribution(row);
+  const taste = ensureTaste(profile);
+  const matchPct = tasteMatchPercent(row.item, taste, officialSessions);
+  const tasteWhy = whyTaste(row.item, taste, officialSessions);
 
   const showOnMap = () => {
     selectSession(row.item.id, { jump: true });
@@ -89,9 +94,14 @@ export function SessionPlanCard({
         </span>
         {row.item.speaker ? <span>{row.item.speaker}</span> : null}
         <Badge variant="outline">{match}</Badge>
+        {matchPct > 0 && (
+          <Badge variant="highlight">{matchPct}% taste match</Badge>
+        )}
       </p>
       <p id={`talk-why-${row.item.id}`} className="mt-2 text-[13px] leading-snug text-foreground/85">
         Why · {row.why}
+        {tasteWhy ? ` · ${tasteWhy}` : ""}
+        {matchPct > 0 ? ` · ${matchPct}% overlap with your weights, not a popularity score.` : ""}
       </p>
       <SearchHitSnippets row={row} />
       {clashes.length > 0 && !saved && (

@@ -16,7 +16,7 @@ export function TopBar() {
     ? profile.demoPersona
       ? "Alex Rivera · labeled demo"
       : profile.role || "Edit preferences"
-    : "Topics & days";
+    : "Days & taste";
 
   return (
     <header className="flex shrink-0 flex-wrap items-center gap-2 overflow-x-clip px-2 py-2 max-[500px]:py-1 sm:px-4">

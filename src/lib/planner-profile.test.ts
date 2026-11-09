@@ -46,7 +46,7 @@ describe("planner profile", () => {
     assert.deepEqual(roundTrip.interests, DEMO_PROFILE.interests);
   });
 
-  it("requires topics and attendance days before finish", () => {
+  it("requires attendance days; swipe/topics are skippable", () => {
     assert.equal(canFinishOnboarding(EMPTY_PROFILE).ok, false);
     assert.equal(
       canFinishOnboarding({ ...EMPTY_PROFILE, interests: ["security"] }).ok,
@@ -55,11 +55,28 @@ describe("planner profile", () => {
     assert.equal(
       canFinishOnboarding({
         ...EMPTY_PROFILE,
-        interests: ["security"],
         attendanceDays: ["2026-11-10"],
       }).ok,
       true,
     );
+  });
+
+  it("migrates a stored profile without taste and does not wipe interests or onboarded", () => {
+    const stored = parsePlannerProfile(
+      JSON.stringify({
+        name: "Jordan",
+        role: "Security Engineer",
+        interests: ["eBPF", "security"],
+        goals: ["talks"],
+        attendanceDays: ["2026-11-10"],
+        onboarded: true,
+        demoPersona: false,
+      }),
+    );
+    assert.equal(stored.onboarded, true);
+    assert.deepEqual(stored.interests, ["eBPF", "security"]);
+    assert.ok(stored.taste.topicWeights.eBPF >= 1);
+    assert.ok(stored.taste.topicWeights.security >= 1);
   });
 
   it("two interest sets produce different ranking queries and do not invent match percents", () => {

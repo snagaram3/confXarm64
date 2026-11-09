@@ -14,9 +14,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { DEMO_PROFILE, EMPTY_PROFILE, PLANNER_GOALS } from "@/lib/planner-profile";
+import { ensureTaste, setTopicWeight, withTaste } from "@/lib/taste";
 
 export function ProfileSheet() {
-  const { profile, setProfile, profileOpen, setProfileOpen, rankedSessions, savedIds } = useAppState();
+  const { profile, setProfile, profileOpen, setProfileOpen, rankedSessions, savedIds, setTasteDeckOpen, setView } = useAppState();
   const mustCount = rankedSessions.filter((r) => r.rank === "must").length;
   const maybeCount = rankedSessions.filter((r) => r.rank === "maybe").length;
 
@@ -26,7 +27,7 @@ export function ProfileSheet() {
         <SheetHeader>
           <SheetTitle>Trip preferences</SheetTitle>
           <SheetDescription>
-            Topics re-rank the official 2026 main schedule in Elasticsearch. Saved talks are not changed when you edit interests. Preferences stay in this browser — no cloud account.
+            Taste weights re-rank the official 2026 main schedule. Saved talks and sponsor pins are not wiped when you edit topics. Preferences stay in this browser — no cloud account.
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-5 p-6 pt-4">
@@ -70,10 +71,8 @@ export function ProfileSheet() {
                     key={tag}
                     type="button"
                     onClick={() => {
-                      const next = on
-                        ? profile.interests.filter((t) => t !== tag)
-                        : [...profile.interests, tag];
-                      setProfile({ ...profile, interests: next, demoPersona: false });
+                      const nextTaste = setTopicWeight(ensureTaste(profile), tag, on ? 0 : 1);
+                      setProfile({ ...withTaste(profile, nextTaste), demoPersona: false });
                     }}
                     className={cn(
                       "min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors",
@@ -149,6 +148,17 @@ export function ProfileSheet() {
               {savedIds.length ? ` · ${savedIds.length} saved talks kept` : ""}
             </p>
             <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setProfileOpen(false);
+                  setView("home");
+                  setTasteDeckOpen(true);
+                }}
+              >
+                Replay This or That
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

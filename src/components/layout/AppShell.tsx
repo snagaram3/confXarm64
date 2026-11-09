@@ -3,6 +3,7 @@ import { SuggestionRail } from "@/components/layout/SuggestionRail";
 import { ToolsPanel } from "@/components/tools/ToolsPanel";
 import { VenueMap } from "@/components/map/VenueMap";
 import { HomeDashboard } from "@/components/planner/HomeDashboard";
+import { SwipeDeck } from "@/components/planner/SwipeDeck";
 import { ProfileSheet } from "@/components/profile/ProfileSheet";
 import { AgendaPanel } from "@/components/agenda/AgendaPanel";
 import { FeaturedPanel } from "@/components/sessions/FeaturedPanel";
@@ -19,7 +20,7 @@ import { BottomNav } from "./BottomNav";
 import { TopBar } from "./TopBar";
 
 export function AppShell() {
-  const { view, setView } = useAppState();
+  const { view, setView, profile, setProfile, tasteDeckOpen, setTasteDeckOpen } = useAppState();
   const [toolTab, setToolTab] = useState<ToolTab>(() => parseToolsPath(window.location.pathname) ?? "elasticsearch");
 
   useEffect(() => {
@@ -96,6 +97,26 @@ export function AppShell() {
         )}
       </div>
       <BottomNav />
+      {profile.onboarded && tasteDeckOpen && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-background/95 px-4 py-8"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="swipe-heading"
+        >
+          <div className="mx-auto max-w-2xl">
+            <SwipeDeck
+              profile={profile}
+              onChange={setProfile}
+              onDone={(next) => {
+                setProfile(next);
+                setTasteDeckOpen(false);
+              }}
+              onSkip={() => setTasteDeckOpen(false)}
+            />
+          </div>
+        </div>
+      )}
       <ProfileSheet />
     </div>
   );

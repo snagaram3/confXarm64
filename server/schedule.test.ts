@@ -22,6 +22,12 @@ describe("official schedule", () => {
     );
   });
 
+  it("maps official Audience Level onto sessions when Sessionize published it", () => {
+    const mentoring = sessionById.get("1345969");
+    assert.equal(mentoring?.audienceLevel, "Beginner");
+    assert.ok(officialSessions.some((session) => session.audienceLevel === "Advanced"));
+  });
+
   it("keeps Hyatt rooms off the sample 255 id", () => {
     const hyatt = officialSessions.filter((s) => s.building === "Hyatt Regency");
     assert.ok(hyatt.length > 0);

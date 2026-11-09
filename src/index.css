@@ -339,8 +339,11 @@ html[data-motion="reduced"] .pin-must-halo,
 html[data-motion="reduced"] .rec-enter,
 html[data-motion="reduced"] .bot-attention,
 html[data-motion="reduced"] .map-path,
-html[data-motion="reduced"] .you-are-here {
+html[data-motion="reduced"] .you-are-here,
+html[data-motion="reduced"] .swipe-card,
+html[data-motion="reduced"] .taste-bubble {
   animation: none !important;
+  transition: none !important;
 }
 
 html[data-text-size="large"] {
@@ -385,6 +388,24 @@ html[data-contrast="high"] .skip-link:focus {
   outline-width: 3px;
 }
 
+.swipe-stage {
+  min-height: 22rem;
+}
+
+.swipe-card {
+  touch-action: none;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+  will-change: transform;
+}
+
+.swipe-card-static {
+  transition: none;
+}
+
+.taste-bubble {
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fw-motion,
   .pin-enter,
@@ -394,8 +415,11 @@ html[data-contrast="high"] .skip-link:focus {
   .rec-enter,
   .bot-attention,
   .map-path,
-  .you-are-here {
+  .you-are-here,
+  .swipe-card,
+  .taste-bubble {
     animation: none !important;
+    transition: none !important;
   }
   .fw-stack {
     perspective: none;

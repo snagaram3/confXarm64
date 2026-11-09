@@ -23,14 +23,27 @@ Open [http://127.0.0.1:43180](http://127.0.0.1:43180). API is `:43181`. Floorwis
 ## 0:00–0:20 — Overall (planner, honesty)
 
 1. Show `/` — onboarding or **Your KCNA visit**, not a WebGL homepage.
-2. If needed: **Preview with sample persona** (labeled Alex Rivera) or pick topics + days and save.
+2. If needed: **Preview with sample persona** (labeled Alex Rivera) or pick days and continue.
 3. Point at the footer: map is **not verified step-free navigation**. Quiet rooms come from official amenities; there is **no captioned-session filter** because the schedule snapshot does not publish that field.
 
 Judges should hear: private companion, official 601-record snapshot, no invented routes or live occupancy.
 
 ---
 
-## 0:20–1:20 — Elasticsearch (“Find the Right Talk”)
+## 0:20–0:40 — This or That (taste, not official filters)
+
+The Linux Foundation schedule already filters by audience level / track / type. Floorwise must look like a **taste deck**, not another chip row.
+
+1. Onboarding: pick days → **Deal official talks**. (Already onboarded: Home → **Deal official talks**.)
+2. Show a real card: title, track, audience level, room, time from the official snapshot — not a mock.
+3. **Love** one talk (or swipe right / →). Taste bubbles resize. Live itinerary preview fills with a **Why** line (`Matches: …; you loved N similar talks`).
+4. **Skip** or **Maybe** a second card. Recommended talks **reorder** (taste match %). Say out loud: this is not `?audience-level=advanced`.
+
+Keyboard backup: ← skip · → love · ↓ maybe. Skip the deck anytime.
+
+---
+
+## 0:40–1:20 — Elasticsearch (“Find the Right Talk”)
 
 Criteria: ES is the data layer; keyword / semantic / hybrid; why-it-matched; fast.
 
@@ -103,6 +116,7 @@ Floorwise: Elasticsearch hybrid over the real schedule, honest accessibility, Ku
 
 | Track | Click / type |
 | --- | --- |
+| Taste | Days → Deal official talks → Love / Skip → watch interest map + live preview + recs reorder |
 | Search | Home → Find the right talk → `something on eBPF and security` → How search works → Keyword / Semantic / Hybrid |
 | Merge Forward | Tab → Skip to content → Accessibility → High contrast → Larger text → Inclusion rooms → Map → Expo → keyboard booth list |
 | Radar | `kubectl -n floorwise get pods` → port-forward web 43180 → Radar Helm or `kubectl radar` |

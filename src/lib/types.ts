@@ -6,6 +6,26 @@ export type VenueLayer = "schematic" | "official";
 export type SpaceKind = "hall" | "room" | "entrance" | "vertical" | "lobby";
 export type DisplayTimeZone = "America/Denver" | "America/Chicago";
 
+export type SwipeChoice = "love" | "maybe" | "skip";
+
+export interface TasteSwipe {
+  sessionId: string;
+  choice: SwipeChoice;
+}
+
+export interface TasteProfile {
+  topicWeights: Record<string, number>;
+  levelWeights: Record<string, number>;
+  formatWeights: { talks: number; handsOn: number };
+  /** 0 = broad overview (Beginner), 1 = deep-dive (Advanced). */
+  depth: number;
+  /** 0 = talks-first, 1 = hands-on / expo time. */
+  expoShare: number;
+  /** 0 = relaxed day, 1 = packed day. */
+  packed: number;
+  swipes: TasteSwipe[];
+}
+
 export interface Profile {
   name: string;
   role: string;
@@ -14,6 +34,7 @@ export interface Profile {
   attendanceDays: string[];
   onboarded: boolean;
   demoPersona: boolean;
+  taste: TasteProfile;
 }
 
 export interface CrowdTake {
@@ -57,6 +78,8 @@ export interface Session {
   sessionUrl?: string;
   speakers?: SessionSpeaker[];
   sessionTypeLabels?: string[];
+  /** Official Sessionize “Audience Level” when published: Beginner, Advanced, Any Level. */
+  audienceLevel?: string | null;
   crowdTakes: CrowdTake[];
   access?: {
     soldOut: boolean;

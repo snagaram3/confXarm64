@@ -12,6 +12,40 @@ const FIXTURE = `<!doctype html>
       <button type="button" aria-haspopup="dialog">Accessibility</button>
     </header>
     <main id="main-content">
+      <section aria-labelledby="swipe-heading">
+        <h1 id="swipe-heading">This or that</h1>
+        <progress max="10" value="2" aria-label="Taste deck progress, 2 of 10"></progress>
+        <article aria-labelledby="swipe-card-1">
+          <h2 id="swipe-card-1">Runtime security with eBPF</h2>
+          <p>Security · Advanced · Salt Palace | Level 2 | 251 · 11:05 AM–11:40 AM</p>
+          <button type="button">Skip</button>
+          <button type="button">Maybe</button>
+          <button type="button">Love</button>
+        </article>
+      </section>
+      <section aria-labelledby="taste-map-heading">
+        <h2 id="taste-map-heading">Interest map</h2>
+        <ul aria-label="Topic weights">
+          <li>
+            <button type="button" aria-label="Mute Security">Mute</button>
+            <div role="slider" tabindex="0" aria-valuemin="-1" aria-valuemax="2" aria-valuenow="1" aria-label="Security">Security</div>
+            <button type="button" aria-label="Boost Security">Boost</button>
+          </li>
+        </ul>
+        <label>
+          Deep-dive vs overview
+          <input type="range" min="0" max="100" value="70" aria-valuetext="Deep-dive (Advanced)" />
+        </label>
+      </section>
+      <section aria-labelledby="live-plan-heading">
+        <h2 id="live-plan-heading">What the plan would look like</h2>
+        <ol>
+          <li>
+            <p>Runtime security with eBPF</p>
+            <p>Why · Matches: Security, Advanced; you loved 2 similar talks</p>
+          </li>
+        </ol>
+      </section>
       <section aria-labelledby="talk-search-heading">
         <h1 id="talk-search-heading">Search the official schedule</h1>
         <label>

@@ -37,6 +37,7 @@ interface RawSession {
   speakers: Array<{ id?: string; name?: string; fullName?: string; tagline?: string }>;
   session_url: string;
   session_type_labels: string[];
+  categories?: Record<string, string[]>;
   is_service_session: boolean;
   is_plenum_session: boolean;
   access_constraints: {
@@ -79,6 +80,7 @@ export interface MappedSession {
   sessionUrl: string;
   speakers: MappedSpeaker[];
   sessionTypeLabels: string[];
+  audienceLevel: string | null;
   crowdTakes: [];
   access: {
     soldOut: boolean;
@@ -184,6 +186,7 @@ export const officialSessions: MappedSession[] = rawSessions.map((s) => {
     sessionUrl: s.session_url,
     speakers,
     sessionTypeLabels: s.session_type_labels ?? [],
+    audienceLevel: s.categories?.["Audience Level"]?.[0] ?? null,
     crowdTakes: [],
     access: {
       soldOut: Boolean(s.access_constraints?.sold_out_label),

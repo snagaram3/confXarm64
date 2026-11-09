@@ -121,6 +121,8 @@ interface AppStateValue {
   setSponsorBoothId: (id: string) => void;
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
+  tasteDeckOpen: boolean;
+  setTasteDeckOpen: (open: boolean) => void;
   retryRank: () => void;
   savedIds: string[];
   toggleSaved: (sessionId: string) => void;
@@ -313,6 +315,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [sponsorBoothId, setSponsorBoothId] = useState(FEATURED_BOOTH_ID);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [tasteDeckOpen, setTasteDeckOpen] = useState(false);
   const [rankedSessions, setRankedSessions] = useState<Ranked<Session>[]>([]);
   const [rankedBooths, setRankedBooths] = useState<Ranked<Booth>[]>([]);
   const [rankedVisitors, setRankedVisitors] = useState<Ranked<Visitor>[]>([]);
@@ -900,6 +903,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setSponsorBoothId,
       profileOpen,
       setProfileOpen,
+      tasteDeckOpen,
+      setTasteDeckOpen,
       retryRank,
       savedIds,
       toggleSaved,
@@ -985,6 +990,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       goToStep,
       sponsorBoothId,
       profileOpen,
+      tasteDeckOpen,
+      setTasteDeckOpen,
       retryRank,
       savedIds,
       toggleSaved,

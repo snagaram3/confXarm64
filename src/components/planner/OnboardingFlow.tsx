@@ -1,14 +1,11 @@
+import { SwipeDeck } from "@/components/planner/SwipeDeck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CONFERENCE_DAYS } from "@/lib/ask";
 import { catalog } from "@/lib/catalog";
-import {
-  DEMO_PROFILE,
-  EMPTY_PROFILE,
-  PLANNER_GOALS,
-  canFinishOnboarding,
-} from "@/lib/planner-profile";
+import { DEMO_PROFILE, EMPTY_PROFILE, canFinishOnboarding } from "@/lib/planner-profile";
+import { emptyTaste } from "@/lib/taste";
 import type { Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
@@ -16,16 +13,14 @@ import { useState } from "react";
 
 const STEPS = [
   { id: "welcome", title: "Plan this visit" },
-  { id: "role", title: "Your role" },
-  { id: "topics", title: "Topics" },
-  { id: "goals", title: "Goals" },
   { id: "days", title: "Days on site" },
+  { id: "swipe", title: "This or that" },
 ] as const;
 
 export function OnboardingFlow() {
   const { setProfile } = useAppState();
   const [step, setStep] = useState(0);
-  const [draft, setDraft] = useState<Profile>({ ...EMPTY_PROFILE });
+  const [draft, setDraft] = useState<Profile>({ ...EMPTY_PROFILE, taste: emptyTaste() });
   const finish = canFinishOnboarding(draft);
   const current = STEPS[step]!;
 
@@ -46,12 +41,7 @@ export function OnboardingFlow() {
         <ol className="mt-2 flex gap-1" aria-label="Setup steps">
           {STEPS.map((item, index) => (
             <li key={item.id} className="min-w-0 flex-1">
-              <span
-                className={cn(
-                  "block h-1.5 rounded-full",
-                  index <= step ? "bg-primary" : "bg-border",
-                )}
-              />
+              <span className={cn("block h-1.5 rounded-full", index <= step ? "bg-primary" : "bg-border")} />
               <span className="sr-only">
                 {item.title}
                 {index === step ? " (current)" : ""}
@@ -64,22 +54,20 @@ export function OnboardingFlow() {
       {step === 0 && (
         <section className="flex flex-col gap-4">
           <p className="text-base leading-relaxed text-foreground">
-            Build a shortlist from the official KCNA 2026 schedule, save a day-by-day itinerary, and open the map only when you need a room or booth.
+            Deal real KCNA 2026 session cards, love or skip them, and watch a day plan appear. This is not the official
+            schedule’s audience-level filter.
           </p>
           <p className="text-sm text-muted-foreground">
-            We will not invent walking times, live attendance, or a hotel/flight plan. Rankings are your topic fit via Elasticsearch, not a popularity score.
+            We will not invent walking times, live attendance, or a hotel/flight plan. Rankings are your taste over
+            Elasticsearch, not a popularity score.
           </p>
           <div className="rounded-2xl border border-dashed border-border bg-card p-4">
             <p className="text-sm font-semibold">Optional labeled sample</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Preview as “Alex Rivera, Staff Platform Engineer” — a sample persona, not your identity. Your real itinerary is not overwritten until you save.
+              Preview as “Alex Rivera, Staff Platform Engineer” — a sample persona, not your identity. Your real
+              itinerary is not overwritten until you save.
             </p>
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-3"
-              onClick={() => save({ ...DEMO_PROFILE })}
-            >
+            <Button type="button" variant="outline" className="mt-3" onClick={() => save({ ...DEMO_PROFILE })}>
               Preview with sample persona
             </Button>
           </div>
@@ -87,99 +75,10 @@ export function OnboardingFlow() {
       )}
 
       {step === 1 && (
-        <section className="flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">Optional. Used as extra keywords on the official schedule, not as a job title we store in the cloud.</p>
-          <div className="flex flex-wrap gap-2">
-            {catalog.roles.map((role) => {
-              const on = draft.role === role;
-              return (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => setDraft({ ...draft, role: on ? "" : role })}
-                  className={cn(
-                    "min-h-11 rounded-full border px-3 text-sm font-semibold",
-                    on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:bg-accent",
-                  )}
-                >
-                  {role}
-                </button>
-              );
-            })}
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="custom-role">Or write your own</Label>
-            <Input
-              id="custom-role"
-              value={catalog.roles.includes(draft.role) ? "" : draft.role}
-              onChange={(e) => setDraft({ ...draft, role: e.target.value })}
-              placeholder="e.g. Cluster operator"
-            />
-          </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section className="flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">Required. These are catalog topics from the Floorwise schedule, not invented tags.</p>
-          <div className="flex flex-wrap gap-2">
-            {catalog.interests.map((tag) => {
-              const on = draft.interests.includes(tag);
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    const interests = on ? draft.interests.filter((item) => item !== tag) : [...draft.interests, tag];
-                    setDraft({ ...draft, interests });
-                  }}
-                  className={cn(
-                    "min-h-11 rounded-full border px-3 text-sm font-semibold",
-                    on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:bg-accent",
-                  )}
-                >
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
-          {draft.interests.length === 0 && (
-            <p className="text-sm text-maybe" role="status">
-              Pick at least one topic to continue.
-            </p>
-          )}
-        </section>
-      )}
-
-      {step === 3 && (
-        <section className="flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">Optional. Goals only change which official query words we add and which cards we emphasize.</p>
-          {PLANNER_GOALS.map((goal) => {
-            const on = draft.goals.includes(goal.id);
-            return (
-              <button
-                key={goal.id}
-                type="button"
-                onClick={() => {
-                  const goals = on ? draft.goals.filter((item) => item !== goal.id) : [...draft.goals, goal.id];
-                  setDraft({ ...draft, goals });
-                }}
-                className={cn(
-                  "min-h-11 rounded-2xl border p-3 text-left",
-                  on ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-accent/60",
-                )}
-              >
-                <p className="font-semibold">{goal.label}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{goal.detail}</p>
-              </button>
-            );
-          })}
-        </section>
-      )}
-
-      {step === 4 && (
         <section className="flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">Required. Only 8–12 Nov 2026 at Salt Palace + Hyatt. No flight or hotel dates.</p>
+          <p className="text-sm text-muted-foreground">
+            Required. Only 8–12 Nov 2026 at Salt Palace + Hyatt. No flight or hotel dates.
+          </p>
           <div className="flex flex-wrap gap-2">
             {CONFERENCE_DAYS.map((day) => {
               const on = draft.attendanceDays.includes(day.id);
@@ -203,6 +102,25 @@ export function OnboardingFlow() {
               );
             })}
           </div>
+          <p className="text-sm text-muted-foreground">Optional role — extra keywords, not a job title we store in the cloud.</p>
+          <div className="flex flex-wrap gap-2">
+            {catalog.roles.map((role) => {
+              const on = draft.role === role;
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setDraft({ ...draft, role: on ? "" : role })}
+                  className={cn(
+                    "min-h-11 rounded-full border px-3 text-sm font-semibold",
+                    on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:bg-accent",
+                  )}
+                >
+                  {role}
+                </button>
+              );
+            })}
+          </div>
           <div className="grid gap-1.5">
             <Label htmlFor="display-name">Display name (optional)</Label>
             <Input
@@ -221,27 +139,32 @@ export function OnboardingFlow() {
         </section>
       )}
 
-      <div className="flex flex-wrap gap-2 pb-8">
-        {step > 0 && (
-          <Button type="button" variant="outline" onClick={() => setStep((n) => n - 1)}>
-            Back
-          </Button>
-        )}
-        {step < STEPS.length - 1 ? (
+      {step === 2 && (
+        <SwipeDeck
+          profile={draft}
+          onChange={setDraft}
+          onDone={(next) => save({ ...next, demoPersona: false, onboarded: true })}
+          onSkip={() => save({ ...draft, demoPersona: false, onboarded: true })}
+        />
+      )}
+
+      {step < 2 && (
+        <div className="flex flex-wrap gap-2 pb-8">
+          {step > 0 && (
+            <Button type="button" variant="outline" onClick={() => setStep((n) => n - 1)}>
+              Back
+            </Button>
+          )}
           <Button
             type="button"
             className="flex-1"
-            disabled={step === 2 && draft.interests.length === 0}
+            disabled={step === 1 && !finish.ok}
             onClick={() => setStep((n) => n + 1)}
           >
-            Continue
+            {step === 0 ? "Continue" : "Deal official talks"}
           </Button>
-        ) : (
-          <Button type="button" className="flex-1" disabled={!finish.ok} onClick={() => save({ ...draft, demoPersona: false, onboarded: true })}>
-            Save trip preferences
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

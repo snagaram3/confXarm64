@@ -1,5 +1,6 @@
 import { CONFERENCE_DAYS, type ConferenceDayId } from "./ask";
-import type { Profile } from "./types";
+import { emptyTaste, ensureTaste, parseTaste, tasteFromInterests, vibeQueryExtras, withTaste } from "./taste";
+import type { Profile, TasteProfile } from "./types";
 
 export const PLANNER_PROFILE_KEY_PREFIX = "floorwise.plannerProfile.";
 
@@ -40,28 +41,53 @@ export const EMPTY_PROFILE: Profile = {
   attendanceDays: [],
   onboarded: false,
   demoPersona: false,
+  taste: emptyTaste(),
 };
+
+const DEMO_INTERESTS = ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"];
+const DEMO_GOALS = ["talks", "keynotes"];
 
 /** Labeled sample only — never applied unless the visitor chooses it. */
 export const DEMO_PROFILE: Profile = {
   name: "Alex Rivera",
   role: "Staff Platform Engineer",
-  interests: ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"],
-  goals: ["talks", "keynotes"],
+  interests: DEMO_INTERESTS,
+  goals: DEMO_GOALS,
   attendanceDays: CONFERENCE_DAYS.map((day) => day.id),
   onboarded: true,
   demoPersona: true,
+  taste: tasteFromInterests(DEMO_INTERESTS, DEMO_GOALS),
 };
 
 export function profileStorageKey(attendeeId: string): string {
   return `${PLANNER_PROFILE_KEY_PREFIX}${attendeeId}`;
 }
 
+function hydrateTaste(interests: string[], goals: string[], rawTaste: unknown): TasteProfile {
+  const parsed = parseTaste(rawTaste);
+  if (parsed) {
+    if (Object.keys(parsed.topicWeights).length === 0 && interests.length > 0) {
+      const derived = tasteFromInterests(interests, goals);
+      return {
+        ...parsed,
+        topicWeights: derived.topicWeights,
+        formatWeights: {
+          talks: Math.max(parsed.formatWeights.talks, derived.formatWeights.talks),
+          handsOn: Math.max(parsed.formatWeights.handsOn, derived.formatWeights.handsOn),
+        },
+      };
+    }
+    return parsed;
+  }
+  if (interests.length > 0) return tasteFromInterests(interests, goals);
+  return emptyTaste();
+}
+
 export function parsePlannerProfile(raw: string | null): Profile {
-  if (!raw) return { ...EMPTY_PROFILE };
+  if (!raw) return { ...EMPTY_PROFILE, taste: emptyTaste() };
   try {
-    const parsed = JSON.parse(raw) as Partial<Profile>;
-    if (!parsed || typeof parsed !== "object") return { ...EMPTY_PROFILE };
+    const parsed = JSON.parse(raw) as Partial<Profile> & { taste?: unknown };
+    if (!parsed || typeof parsed !== "object") return { ...EMPTY_PROFILE, taste: emptyTaste() };
     const attendanceDays = Array.isArray(parsed.attendanceDays)
       ? parsed.attendanceDays.filter((day): day is ConferenceDayId =>
           typeof day === "string" && CONFERENCE_DAYS.some((item) => item.id === day),
@@ -71,6 +97,7 @@ export function parsePlannerProfile(raw: string | null): Profile {
       ? parsed.goals.filter((goal): goal is string => PLANNER_GOALS.some((item) => item.id === goal))
       : [];
     const interests = Array.isArray(parsed.interests) ? parsed.interests.map(String).filter(Boolean) : [];
+    const taste = hydrateTaste(interests, goals, parsed.taste);
     return {
       name: typeof parsed.name === "string" ? parsed.name.slice(0, 80) : "",
       role: typeof parsed.role === "string" ? parsed.role.slice(0, 80) : "",
@@ -79,9 +106,10 @@ export function parsePlannerProfile(raw: string | null): Profile {
       attendanceDays,
       onboarded: parsed.onboarded === true,
       demoPersona: parsed.demoPersona === true,
+      taste,
     };
   } catch {
-    return { ...EMPTY_PROFILE };
+    return { ...EMPTY_PROFILE, taste: emptyTaste() };
   }
 }
 
@@ -89,7 +117,7 @@ export function readPlannerProfile(attendeeId: string): Profile {
   try {
     return parsePlannerProfile(localStorage.getItem(profileStorageKey(attendeeId)));
   } catch {
-    return { ...EMPTY_PROFILE };
+    return { ...EMPTY_PROFILE, taste: emptyTaste() };
   }
 }
 
@@ -103,7 +131,8 @@ export function writePlannerProfile(attendeeId: string, profile: Profile): void 
 
 export function composeRankQuery(profile: Profile, searchQuery: string): string {
   const extras = PLANNER_GOALS.filter((goal) => profile.goals.includes(goal.id) && goal.query).map((goal) => goal.query);
-  return [searchQuery.trim(), ...extras].filter(Boolean).join(" ").trim();
+  const vibe = searchQuery.trim() ? [] : vibeQueryExtras(ensureTaste(profile));
+  return [searchQuery.trim(), ...extras, ...vibe].filter(Boolean).join(" ").trim();
 }
 
 export function profileDisplayName(profile: Profile): string {
@@ -114,11 +143,10 @@ export function profileDisplayName(profile: Profile): string {
 }
 
 export function canFinishOnboarding(profile: Profile): { ok: boolean; message: string | null } {
-  if (profile.interests.length < 1) {
-    return { ok: false, message: "Pick at least one topic so we can rank the official schedule." };
-  }
   if (profile.attendanceDays.length < 1) {
     return { ok: false, message: "Pick the conference days you will be on site." };
   }
   return { ok: true, message: null };
 }
+
+export { withTaste };

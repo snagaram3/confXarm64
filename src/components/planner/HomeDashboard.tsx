@@ -1,6 +1,10 @@
 import { QuietRooms } from "@/components/a11y/QuietRooms";
+import { AnimatedStack } from "@/components/planner/AnimatedStack";
+import { LiveItinerary } from "@/components/planner/LiveItinerary";
 import { OnboardingFlow } from "@/components/planner/OnboardingFlow";
 import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
+import { TasteShareCard } from "@/components/planner/TasteShareCard";
+import { TasteStudio } from "@/components/planner/TasteStudio";
 import { TalkSearch } from "@/components/search/TalkSearch";
 import { Button } from "@/components/ui/button";
 import { conflictGroups } from "@/lib/agenda";
@@ -10,6 +14,7 @@ import { mustGoBooths } from "@/lib/expo-pins";
 import { PLANNER_GOALS, profileDisplayName } from "@/lib/planner-profile";
 import { filterRankedSessions, hasInterestMatch } from "@/lib/ranked-filter";
 import { pickSponsorSuggestion } from "@/lib/suggestions";
+import { ensureTaste, overlayTasteRank, rankedTopicEntries, tasteMatchPercent } from "@/lib/taste";
 import { useAppState } from "@/state/app-state";
 import { Star } from "lucide-react";
 import { useMemo } from "react";
@@ -39,6 +44,7 @@ export function HomeDashboard() {
     searchQuery,
     trackFilter,
   } = useAppState();
+  const taste = ensureTaste(profile);
 
   const searching = searchQuery.trim().length > 0;
   const visible = useMemo(() => {
@@ -53,17 +59,23 @@ export function HomeDashboard() {
   }, [rankedSessions, dayFilter, includeEnded, plannerIso, profile.attendanceDays, trackFilter]);
 
   if (!profile.onboarded) return <OnboardingFlow />;
-  const talks = visible
+  const tasted = overlayTasteRank(visible, taste);
+  const talks = tasted
     .filter((row) => {
       if (row.item.dataset === "sample") return false;
-      if (!searching && !hasInterestMatch(row)) return false;
       if (searching) return true;
       const track = row.item.track ?? "";
       const types = row.item.sessionTypeLabels ?? [];
       if (/registration/i.test(track) || types.some((label) => /registration/i.test(label))) return false;
+      const match = tasteMatchPercent(row.item, taste, officialSessions);
+      if (!hasInterestMatch(row) && match < 20) return false;
       return true;
     })
     .slice(0, searching ? 12 : 5);
+  const topTopics = rankedTopicEntries(taste)
+    .filter((row) => row.weight >= 0.35)
+    .slice(0, 4)
+    .map((row) => row.topic);
   const saved = officialSessions.filter((session) => savedIds.includes(session.id) && session.startIso);
   const conflicts = conflictGroups(
     saved
@@ -113,8 +125,8 @@ export function HomeDashboard() {
           <h1 className="font-display text-3xl font-semibold tracking-tight">{profileDisplayName(profile)}</h1>
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
             {profile.role ? `${profile.role} · ` : ""}
-            {profile.interests.slice(0, 4).join(" · ") || "Add topics to rank talks"}
-            . Rankings use Elasticsearch over the official main schedule
+            {topTopics.join(" · ") || "Swipe talks or boost a topic"}
+            . Rankings use Elasticsearch plus your taste weights over the official main schedule
             {rankMeta ? ` · last query ${rankMeta.tookMs} ms` : ""}. Stored only in this browser — no cloud account.
           </p>
         </div>
@@ -127,6 +139,9 @@ export function HomeDashboard() {
           </Button>
         </div>
       </header>
+
+      <TasteStudio />
+      <LiveItinerary />
 
       <TalkSearch prominent />
 
@@ -166,12 +181,16 @@ export function HomeDashboard() {
             <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
               {searching
                 ? "No official talks matched that query on the days and track you picked. Try keyword or hybrid, or another day. Floorwise will not invent sessions."
-                : "No official talks matched these topics on the days you picked. Try another topic or include another day. This is not a live hall count."}
+                : "No official talks matched this taste yet. Boost a topic on the map or deal a few cards. Floorwise will not invent sessions."}
             </p>
           )}
-          {talks.map((row) => (
-            <SessionPlanCard key={row.item.id} row={row} />
-          ))}
+          <AnimatedStack>
+            {talks.map((row) => (
+              <div key={row.item.id} data-flip-id={row.item.id}>
+                <SessionPlanCard row={row} />
+              </div>
+            ))}
+          </AnimatedStack>
         </div>
 
         <aside className="flex flex-col gap-4">
@@ -298,6 +317,7 @@ export function HomeDashboard() {
             </section>
           )}
 
+          <TasteShareCard />
           <QuietRooms />
           <p className="text-[11px] leading-relaxed text-muted-foreground">
             {scheduleNote || "Official schedule snapshot."} Map remains an optional schematic — not verified onsite or step-free navigation.
