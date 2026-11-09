@@ -1,6 +1,4 @@
-# Managed by .github/workflows/deploy.yaml on every push to main.
-# Do not hand-edit image tags — the Action overwrites them. GHCR names are
-# lowercase (repo on GitHub is confXarm64).
+# Managed by .github/workflows/deploy.yaml. Do not hand-edit image tags.
 image:
-  api: ghcr.io/snagaram3/confxarm64-api:latest
-  web: ghcr.io/snagaram3/confxarm64:latest
+  api: ghcr.io/snagaram3/confxarm64-api:3a018cc
+  web: ghcr.io/snagaram3/confxarm64:3a018cc
