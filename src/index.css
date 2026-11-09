@@ -118,6 +118,25 @@
     outline-offset: 2px;
   }
 
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -4rem;
+    z-index: 80;
+    border-radius: 999px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 0.6rem;
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+
   .search-hit em {
     background: var(--highlight);
     color: var(--highlight-fg);
@@ -322,6 +341,48 @@ html[data-motion="reduced"] .bot-attention,
 html[data-motion="reduced"] .map-path,
 html[data-motion="reduced"] .you-are-here {
   animation: none !important;
+}
+
+html[data-text-size="large"] {
+  font-size: 125%;
+}
+
+html[data-contrast="high"] {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --primary: #8cb8ff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #e8e8e8;
+  --accent: #1a1a1a;
+  --accent-foreground: #ffffff;
+  --destructive: #ff8a80;
+  --border: #ffffff;
+  --input: #ffffff;
+  --ring: #ffee88;
+  --cta: #ffb3e0;
+  --cta-fg: #000000;
+  --must: #5dff9a;
+  --must-fg: #000000;
+  --maybe: #ffd24a;
+  --maybe-fg: #000000;
+  --meh: #e8e8e8;
+  --meh-fg: #000000;
+  --highlight: #ffee88;
+  --highlight-fg: #000000;
+  --map-canvas: #111111;
+  --path: #8cb8ff;
+}
+
+html[data-contrast="high"] :focus-visible,
+html[data-contrast="high"] .skip-link:focus {
+  outline-width: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

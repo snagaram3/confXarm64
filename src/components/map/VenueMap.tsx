@@ -1,6 +1,8 @@
 import { ExpoBoothSheet } from "@/components/map/ExpoBoothSheet";
+import { ExpoKeyboardList } from "@/components/map/ExpoKeyboardList";
 import { ExpoMustGoRail } from "@/components/map/ExpoMustGoRail";
 import { ImageFloorMap, type MapPin } from "@/components/map/ImageFloorMap";
+import { STEP_FREE_MAP_NOTICE_SHORT } from "@/lib/amenities";
 import { canPinOnExpo, placedExpoPins } from "@/lib/expo-pins";
 import { Map3DSurface } from "@/components/map/Map3DSurface";
 import type { Map3DPin } from "@/components/map/Map3DView";
@@ -614,6 +616,9 @@ export function VenueMap() {
       ) : null}
       {mapSurface === "expo" && (
         <div className="pointer-events-none absolute left-2 right-2 top-[3.35rem] z-40 flex flex-col gap-1 sm:right-auto sm:max-w-md lg:top-14">
+          <p className="pointer-events-none rounded-xl border border-border bg-card/95 px-2 py-1 text-[11px] leading-snug text-foreground">
+            {STEP_FREE_MAP_NOTICE_SHORT}
+          </p>
           <ExpoMustGoRail
             prefs={sponsorPrefs}
             selectedId={selectedBooth}
@@ -627,6 +632,7 @@ export function VenueMap() {
             }}
             onOpen={pickExpoBooth}
           />
+          <ExpoKeyboardList pins={visibleExpoPins} selectedId={selectedBooth} onSelect={pickExpoBooth} />
         </div>
       )}
       {mapSurface === "expo" && detailsOpen && selectedBooth && (
@@ -887,7 +893,7 @@ function MapFlatLayers({
           pins={expoPins}
           selectedId={selectedBooth}
           onSelect={(id) => selectBooth(id, { jump: false })}
-          credit="Official expo.pdf · image-relative PDF anchors, not indoor GPS"
+          credit="Official expo.pdf · image-relative PDF anchors · not indoor GPS or verified step-free navigation"
           motion={motion}
           focusId={mapFocus?.id}
           focusToken={mapFocus?.token}
@@ -916,7 +922,7 @@ function MapFlatLayers({
             pins={venuePins}
             selectedId={connectorId ?? roomId}
             onSelect={onSelectRoom}
-            credit="Official venue.pdf · verified labels only · Hyatt stays on Hyatt"
+            credit="Official venue.pdf · verified labels only · Hyatt stays on Hyatt · not verified step-free navigation"
             motion={motion}
             focusId={mapFocus?.id}
             focusToken={mapFocus?.token}

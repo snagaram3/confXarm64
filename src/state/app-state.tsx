@@ -43,6 +43,15 @@ import {
   serializeMapSearch,
   type MapProjection,
 } from "@/lib/map-query";
+import {
+  CONTRAST_KEY,
+  TEXT_SIZE_KEY,
+  applyA11yPrefs,
+  readContrastPref,
+  readTextSizePref,
+  type ContrastPref,
+  type TextSizePref,
+} from "@/lib/a11y-prefs";
 import { MOTION_KEY, motionEnabled, readMotionPref, type MotionPref } from "@/lib/motion";
 import { composeRankQuery, readPlannerProfile, writePlannerProfile } from "@/lib/planner-profile";
 import { DEFAULT_PROFILE, rankWeight } from "@/lib/ranking";
@@ -186,6 +195,10 @@ interface AppStateValue {
   resolveSession: (id: string) => Session | undefined;
   motionPref: MotionPref;
   setMotionPref: (pref: MotionPref) => void;
+  contrastPref: ContrastPref;
+  setContrastPref: (pref: ContrastPref) => void;
+  textSizePref: TextSizePref;
+  setTextSizePref: (pref: TextSizePref) => void;
   mapFocus: { id: string; token: number } | null;
   requestMapFocus: (id: string) => void;
 }
@@ -365,16 +378,37 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [sessionIndex, setSessionIndex] = useState<Record<string, Session>>({});
   const foregroundTimers = useRef<Map<string, number>>(new Map());
   const [motionPref, setMotionPrefState] = useState<MotionPref>(readMotionPref);
+  const [contrastPref, setContrastPrefState] = useState<ContrastPref>(readContrastPref);
+  const [textSizePref, setTextSizePrefState] = useState<TextSizePref>(readTextSizePref);
   const [mapFocus, setMapFocus] = useState<{ id: string; token: number } | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.motion = motionEnabled(motionPref) ? "full" : "reduced";
-  }, [motionPref]);
+    applyA11yPrefs(document.documentElement, { contrast: contrastPref, textSize: textSizePref });
+  }, [motionPref, contrastPref, textSizePref]);
 
   const setMotionPref = useCallback((pref: MotionPref) => {
     setMotionPrefState(pref);
     try {
       localStorage.setItem(MOTION_KEY, pref);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setContrastPref = useCallback((pref: ContrastPref) => {
+    setContrastPrefState(pref);
+    try {
+      localStorage.setItem(CONTRAST_KEY, pref);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setTextSizePref = useCallback((pref: TextSizePref) => {
+    setTextSizePrefState(pref);
+    try {
+      localStorage.setItem(TEXT_SIZE_KEY, pref);
     } catch {
       /* ignore */
     }
@@ -912,6 +946,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       resolveSession,
       motionPref,
       setMotionPref,
+      contrastPref,
+      setContrastPref,
+      textSizePref,
+      setTextSizePref,
       mapFocus,
       requestMapFocus,
     }),
@@ -982,6 +1020,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       resolveSession,
       motionPref,
       setMotionPref,
+      contrastPref,
+      textSizePref,
       mapFocus,
       requestMapFocus,
     ],

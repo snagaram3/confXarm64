@@ -28,6 +28,7 @@ export function TopBar() {
               type="button"
               className="font-display text-lg font-semibold leading-none tracking-tight"
               onClick={() => setView("home")}
+              aria-label="Floorwise home"
             >
               Floorwise
             </button>
@@ -63,6 +64,14 @@ export function TopBar() {
         title="Motion: full respects OS reduced-motion. Reduced skips camera flight and pin pops."
       >
         Motion {motionPref === "full" ? "on" : "off"}
+      </button>
+      <button
+        type="button"
+        className="hidden min-h-11 shrink-0 items-center rounded-full border border-border px-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:bg-accent md:inline-flex md:px-3"
+        onClick={() => setProfileOpen(true)}
+        aria-haspopup="dialog"
+      >
+        Accessibility
       </button>
       <a
         href="/sponsor-portal"

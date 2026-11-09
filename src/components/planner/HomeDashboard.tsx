@@ -1,3 +1,4 @@
+import { QuietRooms } from "@/components/a11y/QuietRooms";
 import { OnboardingFlow } from "@/components/planner/OnboardingFlow";
 import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
 import { TalkSearch } from "@/components/search/TalkSearch";
@@ -297,8 +298,9 @@ export function HomeDashboard() {
             </section>
           )}
 
+          <QuietRooms />
           <p className="text-[11px] leading-relaxed text-muted-foreground">
-            {scheduleNote || "Official schedule snapshot."} Map remains an optional schematic — not verified onsite navigation.
+            {scheduleNote || "Official schedule snapshot."} Map remains an optional schematic — not verified onsite or step-free navigation.
           </p>
           <p className="text-[11px] text-muted-foreground">
             Goals:{" "}

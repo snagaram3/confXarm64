@@ -49,7 +49,7 @@ export function AgendaPanel() {
       </div>
 
       {next && (
-        <p className="rounded-xl bg-must/10 px-3 py-2 text-sm text-must">
+        <p className="rounded-xl bg-must/10 px-3 py-2 text-sm text-must" role="status">
           Next · {items.find((s) => s.id === next.id)?.title} ·{" "}
           {formatInZone(next.startIso, timeZone)} ({timeZone === CONFERENCE_TZ ? "conference" : "your zone"})
           {" · "}
@@ -213,16 +213,25 @@ function AgendaRow({
     now,
   );
   return (
-    <article className="rounded-xl border border-border bg-card p-3">
+    <article
+      className="rounded-xl border border-border bg-card p-3"
+      aria-labelledby={`itinerary-${session.id}`}
+    >
       <button type="button" className="w-full text-left" onClick={onOpen}>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={status === "ongoing" ? "must" : "outline"}>{status}</Badge>
           <span className="font-mono text-xs text-primary">
+            <span className="sr-only">Time </span>
             {timeHm(session.startIso!, timeZone)}–{timeHm(session.endIso!, timeZone)}
           </span>
         </div>
-        <p className="mt-1 font-medium leading-tight">{session.title}</p>
-        <p className="text-xs text-muted-foreground">{session.roomLabel ?? session.roomId}</p>
+        <p id={`itinerary-${session.id}`} className="mt-1 font-medium leading-tight">
+          {session.title}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          <span className="sr-only">Room </span>
+          {session.roomLabel ?? session.roomId}
+        </p>
       </button>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button type="button" variant="outline" onClick={onMap}>

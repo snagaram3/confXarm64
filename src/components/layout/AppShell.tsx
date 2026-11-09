@@ -1,3 +1,4 @@
+import { SkipLink } from "@/components/a11y/SkipLink";
 import { SuggestionRail } from "@/components/layout/SuggestionRail";
 import { ToolsPanel } from "@/components/tools/ToolsPanel";
 import { VenueMap } from "@/components/map/VenueMap";
@@ -41,15 +42,17 @@ export function AppShell() {
 
   return (
     <div className="flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] flex-col overflow-x-clip overflow-y-hidden border-t-[3px] border-primary bg-background">
+      <SkipLink />
       <TopBar />
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {view === "map" ? (
-          <section className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+          <section id="map-surface" className="relative min-h-0 min-w-0 flex-1 overflow-hidden" aria-label="Conference map">
             <VenueMap />
           </section>
         ) : (
           <ScrollArea className="min-h-0 min-w-0 flex-1">
             <main
+              id="main-content"
               className={cn(
                 "min-h-0 w-full",
                 view === "tools" && "mx-auto max-w-6xl px-3 py-4 sm:px-5",

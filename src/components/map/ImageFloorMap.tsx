@@ -222,7 +222,7 @@ export function ImageFloorMap({
           <span className="text-[11px] font-semibold">Fit</span>
         </Button>
       </div>
-      <p className="pointer-events-none absolute bottom-1 left-2 max-w-[min(70%,20rem)] truncate text-[10px] text-foreground/70">
+      <p className="pointer-events-none absolute bottom-1 left-2 max-w-[min(70%,22rem)] text-[10px] leading-snug text-foreground/80">
         {credit}
       </p>
     </div>

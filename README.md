@@ -45,6 +45,10 @@ No Docker on the machine? `npm run es` downloads the official Elasticsearch 8.17
 
 This cloud preview may point `ELASTICSEARCH_URL` at a local tarball on `:9200`. Mac / other hosts should keep **19200**.
 
+## Accessibility (Merge Forward)
+
+Profile → **Accessibility** (also TopBar on desktop): high contrast, larger text, and reduce motion. The OS reduced-motion setting always wins. Skip-to-content, labeled search, itinerary, and Expo pin keyboard list are in place. Quiet / prayer / first-aid rooms come from official `amenities.json` — Floorwise does **not** invent captioned-session filters or a verified step-free map.
+
 ## Palette
 
 Event-inspired colors sampled from the live [KubeCon + CloudNativeCon North America 2026](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/) site (navy `#113e82`, CTA pink `#d62293`, schedule gold `#ffee88`). Surfaces and contrast tints are Floorwise adjustments, not official brand hexes. Must/Maybe/Meh stay their own greens/amber/gray so they are not confused with event navy. See `docs/design-palette.md`. This is not an LF/CNCF app.

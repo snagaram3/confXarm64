@@ -1,3 +1,4 @@
+import { A11ySettings } from "@/components/a11y/A11ySettings";
 import { catalog } from "@/lib/catalog";
 import { CONFERENCE_DAYS } from "@/lib/ask";
 import { cn } from "@/lib/utils";
@@ -139,6 +140,8 @@ export function ProfileSheet() {
               })}
             </div>
           </div>
+
+          <A11ySettings />
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3">
             <p className="text-sm text-muted-foreground">
