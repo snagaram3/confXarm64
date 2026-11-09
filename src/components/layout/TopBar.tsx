@@ -19,7 +19,7 @@ export function TopBar() {
     : "Topics & days";
 
   return (
-    <header className="flex shrink-0 items-center gap-2 overflow-x-clip px-2 py-2 max-[500px]:py-1 sm:px-4">
+    <header className="flex shrink-0 flex-wrap items-center gap-2 overflow-x-clip px-2 py-2 max-[500px]:py-1 sm:px-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Logo />
         <div className="min-w-0">
@@ -44,7 +44,7 @@ export function TopBar() {
       <button
         type="button"
         className={cn(
-          "inline-flex min-h-11 shrink-0 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wide sm:px-3",
+          "hidden min-h-11 shrink-0 items-center rounded-full border px-2.5 text-[11px] font-semibold uppercase tracking-wide min-[420px]:inline-flex sm:px-3",
           view === "tools"
             ? "border-primary bg-primary text-primary-foreground"
             : "border-border text-muted-foreground hover:bg-accent",

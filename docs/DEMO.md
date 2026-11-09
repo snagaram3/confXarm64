@@ -1,0 +1,115 @@
+# Floorwise 3-minute demo — WeMakeDevs Cloud Native Hackathon (9 Nov 2026)
+
+Product: **Floorwise**, a private KCNA 2026 trip planner. Home is the planner (`/`), not 3D. Rankings come from Elasticsearch over the official main schedule. The map is a schematic of official labels — **not** verified step-free navigation.
+
+Run locally (Mac). Do **not** `docker compose down -v`, do **not** touch a foreign `:9200` cluster.
+
+```bash
+cd /path/to/Floorwise
+git fetch origin cursor/minimalist-map-ui-cde4
+git checkout cursor/minimalist-map-ui-cde4
+git pull --ff-only origin cursor/minimalist-map-ui-cde4
+docker compose -p floorwise up -d elasticsearch
+curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=90s"
+ELASTICSEARCH_URL=http://127.0.0.1:19200 npm run dev
+```
+
+Open [http://127.0.0.1:43180](http://127.0.0.1:43180). API is `:43181`. Floorwise ES is host **`:19200`**.
+
+**Wi-Fi backup:** this script is local. If venue Wi-Fi dies, keep `npm run dev` + `floorwise-es` running, demo from the laptop, skip Radar Cloud. Screenshots in this repo’s agent run are fallbacks. Do not reseed.
+
+---
+
+## 0:00–0:20 — Overall (planner, honesty)
+
+1. Show `/` — onboarding or **Your KCNA visit**, not a WebGL homepage.
+2. If needed: **Preview with sample persona** (labeled Alex Rivera) or pick topics + days and save.
+3. Point at the footer: map is **not verified step-free navigation**. Quiet rooms come from official amenities; there is **no captioned-session filter** because the schedule snapshot does not publish that field.
+
+Judges should hear: private companion, official 601-record snapshot, no invented routes or live occupancy.
+
+---
+
+## 0:20–1:20 — Elasticsearch (“Find the Right Talk”)
+
+Criteria: ES is the data layer; keyword / semantic / hybrid; why-it-matched; fast.
+
+1. On **Home**, the **Find the right talk** box is already visible. (Same control on **For you**.)
+2. Query: `something on eBPF and security`
+3. Wait ~160ms debounce. **How search works** shows `engine=elasticsearch mode=hybrid-bm25-knn retriever=… took=…ms`.
+4. Open a result: **Why** line (BM25 and/or kNN), **Matched fields**, gold `<em>` snippets from the abstract — even when “security” is not in the title (example: *Beyond Harnesses and Sandboxes: Runtime Protection for AI Agents with eBPF*).
+5. Toggle **Keyword / Semantic / Hybrid**. Scores and snippets change. Hybrid tries RRF of BM25 + kNN; this 8.17 cluster may fall back to `function_score` — say that out loud.
+6. Filter **Tue 10** and a track (e.g. Security) if you want a second beat.
+7. **Ask the schedule** RAG: skip. No `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` — Floorwise will not invent a summary.
+
+Backup query if the first is slow: `cilium network policy`.
+
+---
+
+## 1:20–2:10 — Merge Forward (inclusive / accessible)
+
+Criteria: real a11y, honest about what the data supports.
+
+1. Skip link: Tab once → **Skip to content**.
+2. TopBar **Accessibility** (or profile avatar → **Accessibility**).
+3. **High contrast** — navy/white flips to black + AA-tested fills. **Larger text** — 125%. **Reduce motion**.
+4. Scroll Home to **Inclusion rooms (official)** — quiet rooms, prayer, first aid from `amenities.json`. Each says **no verified step-free route**.
+5. **For you** / **Itinerary**: result cards and agenda rows expose title, time, room to screen readers (`Why ·`, `Room`, `Time`).
+6. **Map → Expo**: banner *Not verified step-free navigation*. Open **Booths on this floorplan (keyboard list)**, Tab/Enter a pin. Pins themselves are buttons (Enter/Space).
+
+Do **not** claim an accessible indoor graph.
+
+---
+
+## 2:10–2:50 — Radar (Kubernetes)
+
+Criteria: Floorwise runs on Kubernetes; Radar visualizes the cluster.
+
+If kind/k3d is already up (see README **Run on Kubernetes + Radar**):
+
+```bash
+kubectl -n floorwise get pods,svc,pvc
+kubectl -n floorwise port-forward svc/web 43180:80
+```
+
+Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `floorwise-seed`. curl `http://127.0.0.1:43180/api/health`.
+
+Skyhook Radar — **official** install only ([in-cluster](https://radarhq.io/docs/configuration/in-cluster)):
+
+```bash
+helm repo add skyhook https://skyhook-io.github.io/helm-charts
+helm repo update skyhook
+helm upgrade --install radar skyhook/radar -n radar --create-namespace
+kubectl port-forward svc/radar 9280:9280 -n radar
+```
+
+or local CLI: `curl -fsSL https://get.radarhq.io | sh` then `kubectl radar --port=9280 --no-browser`.
+
+Point Radar at namespace `floorwise`. This is **not** the Tools tab `api.radar.io` geofence adapter.
+
+**Venue-only:** organizers’ cluster/namespace, registry push, Radar Cloud account + `rhc_` token (shown once at app.radarhq.io). This laptop demo does not have those.
+
+**Wi-Fi / no Docker backup:** show `k8s/*.yaml` (StatefulSet, seed Job, probes, Secret placeholders) and README commands. Do not fake a cluster.
+
+---
+
+## 2:50–3:00 — Close
+
+Floorwise: Elasticsearch hybrid over the real schedule, honest accessibility, Kubernetes + Radar-ready. Home stays the planner.
+
+---
+
+## Exact clicks / queries cheat sheet
+
+| Track | Click / type |
+| --- | --- |
+| Search | Home → Find the right talk → `something on eBPF and security` → How search works → Keyword / Semantic / Hybrid |
+| Merge Forward | Tab → Skip to content → Accessibility → High contrast → Larger text → Inclusion rooms → Map → Expo → keyboard booth list |
+| Radar | `kubectl -n floorwise get pods` → port-forward web 43180 → Radar Helm or `kubectl radar` |
+| Overall | `/` is planner; map disclaimer; no RAG without a key |
+
+## What this environment verified vs not
+
+Verified in the agent VM: unit tests (including axe-core fixture + high-contrast AA), typecheck, live `POST /api/rank` hybrid on the existing **floorwise** ES (this VM publishes ES on `:9200`; Mac stays `:19200`), web `:43180` / API `:43181`.
+
+Not verified here: kind/k3d (no Docker in this VM), Radar Cloud, venue kubeconfig, LLM RAG.
