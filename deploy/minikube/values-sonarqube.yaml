@@ -1,0 +1,18 @@
+# Overlay for the official SonarQube Helm chart (optional — minikube-up.sh --with-sonar).
+# helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+# Host is overridden by the script. Community edition. No token in git.
+
+community:
+  enabled: true
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - name: sonarqube.local
+      path: /
+
+postgresql:
+  persistence:
+    enabled: true
+    size: 8Gi

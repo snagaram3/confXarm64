@@ -21,6 +21,7 @@ export type SonarSnapshot = {
   lastAnalysis: string | null;
   measures: Record<string, string | null>;
   issues: Array<{ key: string; type: string; severity: string; message: string }>;
+  uiUrl: string | null;
 };
 
 function sonarHost(): string | null {
@@ -80,6 +81,7 @@ export async function fetchSonar(): Promise<SonarSnapshot> {
     lastAnalysis: null,
     measures: {},
     issues: [],
+    uiUrl: sonarHost(),
   };
   if (missing.length) return empty;
 

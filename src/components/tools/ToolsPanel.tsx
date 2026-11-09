@@ -156,6 +156,7 @@ function SonarPane() {
   const { data, loading, error, refresh } = useTool<
     ToolFrame & {
       host: string | null;
+      uiUrl: string | null;
       projectKey: string | null;
       qualityGate: { status: string | null; conditions: Array<{ metric: string; status: string; actual?: string }> };
       lastAnalysis: string | null;
@@ -165,7 +166,15 @@ function SonarPane() {
   >("sonar");
   return (
     <Shell title="SonarQube" frame={data} loading={loading} error={error} onRefresh={refresh}>
-      {data?.configured && (
+          {data?.uiUrl ? (
+        <p className="text-sm">
+          <a className="font-semibold text-primary underline" href={data.uiUrl} target="_blank" rel="noreferrer">
+            Open SonarQube
+          </a>
+          <span className="text-muted-foreground"> — this is the server at SONAR_HOST_URL, not invented scan results.</span>
+        </p>
+      ) : null}
+          {data?.configured && (
         <>
           <div className="grid grid-cols-2 gap-2">
             <Metric label="Host" value={data.host} />
@@ -216,6 +225,8 @@ function Dash0Pane() {
         traces: Array<{ traceId: string; name: string }>;
         note: string;
       };
+      dashboardUrl: string | null;
+      floorwiseToolsPath: "/tools/dash0";
       syntheticOtel?: { enabled: boolean; note: string };
     }
   >("dash0");
@@ -229,6 +240,22 @@ function Dash0Pane() {
             <Metric label="Local API calls" value={data.local.requests} />
             <Metric label="Avg latency ms" value={data.local.avgLatencyMs} />
           </div>
+          <p className="text-sm">
+            This page is Floorwise Tools → Dash0 (<span className="font-mono">{data.floorwiseToolsPath}</span>). There is no
+            self-hosted Dash0 product in-cluster.
+          </p>
+          {data.dashboardUrl ? (
+            <p className="text-sm">
+              <a className="font-semibold text-primary underline" href={data.dashboardUrl} target="_blank" rel="noreferrer">
+                Open Dash0
+              </a>
+              <span className="text-muted-foreground"> — {data.dashboardUrl} (needs your org login; not a fake dashboard).</span>
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Set DASH0_API_BASE_URL + DASH0_AUTH_TOKEN to query Dash0 and to show https://app.dash0.com here.
+            </p>
+          )}
           <p className="text-xs text-muted-foreground">{data.local.source}</p>
           {data.local.lastTraceId && (
             <p className="font-mono text-[11px] break-all">Last local trace {data.local.lastTraceId}</p>
@@ -256,6 +283,7 @@ function RadarPane() {
         geofences: Array<{ id: string; description: string; tag: string | null }>;
         notice: string;
       } | null;
+      skyhook: { uiUrl: string | null; note: string };
     }
   >("radar");
   const [busy, setBusy] = useState<string | null>(null);
@@ -309,6 +337,26 @@ function RadarPane() {
     <Shell title="Radar" frame={data} loading={loading} error={error} onRefresh={refresh}>
       {data && (
         <>
+          <section className="rounded-xl border border-border bg-secondary/30 p-3" aria-labelledby="skyhook-radar-heading">
+            <h4 id="skyhook-radar-heading" className="text-sm font-semibold">
+              Skyhook Radar (Kubernetes UI)
+            </h4>
+            <p className="mt-1 text-sm text-muted-foreground">{data.skyhook.note}</p>
+            {data.skyhook.uiUrl ? (
+              <p className="mt-2 text-sm">
+                <a className="font-semibold text-primary underline" href={data.skyhook.uiUrl} target="_blank" rel="noreferrer">
+                  Open Skyhook Radar
+                </a>
+                <span className="font-mono text-xs text-muted-foreground"> {data.skyhook.uiUrl}</span>
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Set RADAR_UI_URL (minikube: http://radar.&lt;minikube-ip&gt;.nip.io) or port-forward{" "}
+                <span className="font-mono text-xs">kubectl -n radar port-forward svc/radar 9280:9280</span>.
+              </p>
+            )}
+          </section>
+          <h4 className="text-sm font-semibold">api.radar.io geofence adapter</h4>
           <p className="text-sm">{data.venue.note}</p>
           <div className="grid grid-cols-2 gap-2">
             <Metric label="Publishable key class" value={data.publishableClass} />

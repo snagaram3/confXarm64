@@ -1,6 +1,7 @@
 import { otelStatus } from "../otel.ts";
 import { fetchJson, ProviderHttpError, readCache, writeCache, type CacheEntry } from "./http.ts";
 import { localStatsSnapshot } from "./local-stats.ts";
+import { publicToolUrl } from "./public-url.ts";
 import { hostnameOnly, redactError } from "./redact.ts";
 
 const cache = new Map<string, CacheEntry<Dash0Snapshot>>();
@@ -39,6 +40,9 @@ export type Dash0Snapshot = {
     traces: Array<{ traceId: string; name: string; start: string | null }>;
     note: string;
   };
+  /** https://app.dash0.com when query credentials exist. Not a self-hosted Dash0. */
+  dashboardUrl: string | null;
+  floorwiseToolsPath: "/tools/dash0";
 };
 
 export function dash0ApiBase(): string | null {
@@ -92,6 +96,14 @@ export function dash0MissingQueryEnv(): string[] {
   return missing;
 }
 
+export function dash0DashboardUrl(hasQueryCreds: boolean): string | null {
+  if (!hasQueryCreds) return null;
+  return (
+    publicToolUrl(process.env.DASH0_DASHBOARD_URL, { httpsOnly: true, hostSuffix: "dash0.com" }) ??
+    "https://app.dash0.com"
+  );
+}
+
 export async function fetchDash0(): Promise<Dash0Snapshot> {
   const queryMissing = dash0MissingQueryEnv();
   const exporterOn = otelStatus.enabled;
@@ -125,6 +137,8 @@ export async function fetchDash0(): Promise<Dash0Snapshot> {
         ? `Remote Dash0 query needs ${queryMissing.join(", ")}. Local stats are not remote results.`
         : "Querying Dash0 /api/spans for this service name.",
     },
+    dashboardUrl: dash0DashboardUrl(queryMissing.length === 0),
+    floorwiseToolsPath: "/tools/dash0",
   };
 
   if (queryMissing.length) {

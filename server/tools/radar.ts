@@ -1,4 +1,5 @@
 import { fetchJson, ProviderHttpError, readCache, writeCache, type CacheEntry } from "./http.ts";
+import { publicToolUrl } from "./public-url.ts";
 import { hostnameOnly, redactError } from "./redact.ts";
 
 const cache = new Map<string, CacheEntry<RadarSnapshot>>();
@@ -34,6 +35,11 @@ export type RadarSnapshot = {
     note: string;
   };
   lookup: RadarLookup | null;
+  /** Skyhook Radar in-cluster UI. Independent of api.radar.io. */
+  skyhook: {
+    uiUrl: string | null;
+    note: string;
+  };
 };
 
 function keyClass(key: string | undefined, kind: "pk" | "sk"): string | null {
@@ -76,6 +82,10 @@ export function radarStatus(): RadarSnapshot {
       note: "Expo/venue PDF pins are image-relative, not GPS. Floorwise never sends those nx/ny values to Radar as lat/lng.",
     },
     lookup: cachedLookup(),
+    skyhook: {
+      uiUrl: publicToolUrl(process.env.RADAR_UI_URL),
+      note: "Skyhook Radar Kubernetes UI (helm chart skyhook/radar). Not the api.radar.io geofence adapter below.",
+    },
   };
 }
 

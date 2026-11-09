@@ -9,6 +9,7 @@ resources:
   - seed-job.yaml
   - api.yaml
   - web.yaml
+  - ingress.yaml
 images:
   - name: floorwise-api
     newTag: dev

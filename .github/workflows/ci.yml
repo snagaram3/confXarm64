@@ -1,0 +1,47 @@
+# GitHub Actions CI for Floorwise (tests + optional Sonar scan).
+# This Origin repository has NO GitHub Actions runner and no GitHub mirror, so
+# Origin will not execute this workflow automatically. Keep it for a GitHub
+# mirror or a local `act` run. The path that works immediately is:
+#   npm test && npm run build
+#   ./scripts/sonar-scan.sh   # only with SONAR_TOKEN + SONAR_HOST_URL you supply
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  sonar:
+    runs-on: ubuntu-latest
+    needs: test
+    if: ${{ github.event_name != 'pull_request' && secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube / SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=floorwise

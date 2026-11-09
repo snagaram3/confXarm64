@@ -39,9 +39,16 @@ describe("tools HTTP boundaries", () => {
     });
     assert.equal(denied.status, 400);
     const get = await fetch(`${base}/api/tools/radar`);
-    const radar = (await get.json()) as { lookup: unknown; window: string };
+    const radar = (await get.json()) as {
+      lookup: unknown;
+      window: string;
+      skyhook: { uiUrl: string | null; note: string };
+      apiHost: string;
+    };
     assert.equal(radar.lookup, null);
     assert.match(radar.window, /does not locate/i);
+    assert.equal(radar.apiHost, "api.radar.io");
+    assert.match(radar.skyhook.note, /not the api\.radar\.io/i);
   });
 
   it("returns needs-setup Sonar without inventing a gate", async () => {
@@ -54,6 +61,8 @@ describe("tools HTTP boundaries", () => {
     assert.equal(body.state, "not_configured");
     assert.equal(body.qualityGate.status, null);
     assert.ok(body.missingEnv.includes("SONAR_TOKEN"));
+    const sonar = body as { uiUrl?: string | null };
+    assert.equal(sonar.uiUrl ?? null, null);
     Object.assign(process.env, prev);
   });
 
@@ -78,5 +87,15 @@ describe("tools HTTP boundaries", () => {
     const text = JSON.stringify(body);
     assert.doesNotMatch(text, /Bearer /);
     assert.doesNotMatch(text, /SONAR_TOKEN/);
+
+    const dash0 = await fetch(`${base}/api/tools/dash0`);
+    const dashBody = (await dash0.json()) as {
+      dashboardUrl: string | null;
+      floorwiseToolsPath: string;
+      state: string;
+    };
+    assert.equal(dashBody.dashboardUrl, null);
+    assert.equal(dashBody.floorwiseToolsPath, "/tools/dash0");
+    assert.notEqual(dashBody.state, "ok");
   });
 });

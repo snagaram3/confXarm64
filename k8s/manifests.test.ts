@@ -41,5 +41,15 @@ describe("Kubernetes manifests", () => {
     assert.match(kust, /seed-job.yaml/);
     assert.match(kust, /api.yaml/);
     assert.match(kust, /web.yaml/);
+    assert.match(kust, /ingress.yaml/);
+
+    const cm = read("configmap.yaml");
+    assert.match(cm, /http:\/\/elasticsearch:9200/);
+    assert.match(cm, /RADAR_UI_URL/);
+    assert.match(cm, /DASH0_DASHBOARD_URL/);
+
+    const ingress = read("ingress.yaml");
+    assert.match(ingress, /kind: Ingress/);
+    assert.match(ingress, /name: web/);
   });
 });

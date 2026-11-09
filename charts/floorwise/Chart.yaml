@@ -1,0 +1,14 @@
+apiVersion: v2
+name: floorwise
+description: Floorwise KCNA 2026 planner — web, API, Elasticsearch StatefulSet, seed Job
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.25.0-0"
+home: https://cursor.com/codebase/snagaram3/floorwise
+keywords:
+  - elasticsearch
+  - kubecon
+  - planner
+sources:
+  - https://cursor.com/codebase/snagaram3/floorwise

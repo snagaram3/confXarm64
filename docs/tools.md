@@ -35,7 +35,9 @@ Three distinct layers — the UI names them separately:
 2. **OTLP exporter** if `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Export attempt ≠ remote receipt.
 3. **Remote query** `POST {DASH0_API_BASE_URL}/api/spans` (official Dash0 Query API) filtered by `service.name`, last 15 minutes, only when `DASH0_API_BASE_URL` + `DASH0_AUTH_TOKEN` are set.
 
-Env names: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_SERVICE_NAME`, `DASH0_API_BASE_URL`, `DASH0_AUTH_TOKEN`, `DASH0_DATASET`.
+Env names: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_SERVICE_NAME`, `DASH0_API_BASE_URL`, `DASH0_AUTH_TOKEN`, `DASH0_DATASET`, `DASH0_DASHBOARD_URL`.
+
+`DASH0_DASHBOARD_URL` (default `https://app.dash0.com`) is shown on Tools → Dash0 only when query credentials exist. Floorwise Ingress `/tools/dash0` is this tab, not a self-hosted Dash0 product. The Dash0 Kubernetes operator (official Helm, namespace `dash0-system`) is a separate in-cluster install: OTLP/gRPC `ingress.<region>.aws.dash0.com:4317` via Secret `dash0-system/dash0-auth` key `token`. Export stays off until that secret and the endpoints exist.
 
 ### Participant dashboard
 
@@ -62,7 +64,11 @@ curl -X POST "${DASH0_API_BASE_URL}/api/import/dashboard" \
 
 Docs: [Import a dashboard](https://www.dash0.com/docs/api-reference/operations/post/api/import/dashboard), [Query spans](https://www.dash0.com/docs/api-reference/operations/post/api/spans).
 
-## Radar
+## Radar (two different products)
+
+**Skyhook Radar** is the Kubernetes UI (`helm upgrade --install radar skyhook/radar -n radar`). Tools → Radar shows `RADAR_UI_URL` (minikube: `http://radar.$(minikube ip).nip.io`). Port-forward fallback: `kubectl -n radar port-forward svc/radar 9280:9280` → `http://127.0.0.1:9280`. Optional Radar Cloud AI SRE (`cloud.enabled`, `rhc_` token from https://app.radarhq.io) is off unless Secret `radar/radar-cloud-config` exists. This is **not** `api.radar.io`.
+
+**api.radar.io geofence adapter** (same Tools tab, labeled separately):
 
 Server uses `RADAR_SECRET_KEY` or `RADAR_PUBLISHABLE_KEY` against `https://api.radar.io` (reverse geocode + geofence search, both Publishable-class endpoints). The UI never embeds a secret. PDF booth pins are image-relative (`nx`/`ny`) and are never sent as lat/lng.
 
@@ -88,12 +94,16 @@ Missing metric values render as **unavailable**, never coerced to 0.
 
 Env names: `SONAR_HOST_URL`, `SONAR_TOKEN`, `SONAR_PROJECT_KEY`, optional `SONAR_ORGANIZATION`.
 
-Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). Floorwise does not upload source. If you already operate a server:
+Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). Floorwise does not upload source and does not invent scan results in the UI. If you already operate a server and supply `SONAR_TOKEN`:
 
 ```bash
-# Requires sonar-scanner on PATH and SONAR_* in gitignored .env. Do not run blindly.
-sonar-scanner
+# Requires sonar-scanner or Docker, plus SONAR_HOST_URL + SONAR_TOKEN in gitignored .env.
+./scripts/sonar-scan.sh
 ```
+
+`.github/workflows/ci.yml` runs the same scan on GitHub Actions using `SONAR_HOST_URL` / `SONAR_TOKEN` secrets. This Origin repository has **no GitHub Actions runner** and no GitHub mirror, so Origin will not execute that workflow. The script is the path that works immediately.
+
+Optional in-cluster SonarQube: `scripts/minikube-up.sh --with-sonar` (official `sonarqube/sonarqube` chart, Ingress `http://sonarqube.$(minikube ip).nip.io`). Sets Floorwise `SONAR_HOST_URL` to that host. Still needs a token you create in SonarQube before any upload.
 
 ## Run
 

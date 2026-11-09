@@ -1,0 +1,15 @@
+# Overlay for skyhook/radar. Host is set by scripts/minikube-up.sh.
+# Official flags only: https://github.com/skyhook-io/helm-charts/blob/main/charts/radar/README.md
+# Cloud AI SRE stays off until radar/radar-cloud-config exists (rhc_ token from app.radarhq.io).
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: radar.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+cloud:
+  enabled: false

@@ -1,5 +1,5 @@
-# Optional. Apply if your cluster has an ingress controller.
-# kubectl apply -f k8s/ingress.yaml
+# Used by Helm (charts/floorwise) and `kubectl apply -k k8s`.
+# Host is floorwise.local unless you override it (minikube uses floorwise.$(minikube ip).nip.io).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -9,6 +9,7 @@ metadata:
     app.kubernetes.io/name: floorwise
     app.kubernetes.io/part-of: floorwise
 spec:
+  ingressClassName: nginx
   rules:
     - host: floorwise.local
       http:

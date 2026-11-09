@@ -1,0 +1,45 @@
+{{- if .Values.seed.enabled }}
+# Wipes and rebuilds the floorwise Elasticsearch index on first install.
+# Do not re-run against a live demo index you want to keep.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: floorwise-seed
+  labels:
+    app.kubernetes.io/name: seed
+    {{- include "floorwise.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 8
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seed
+        app.kubernetes.io/part-of: floorwise
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: {{ .Values.image.api | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["npx", "tsx", "server/seed.ts"]
+          envFrom:
+            - configMapRef:
+                name: floorwise-config
+          env:
+            - name: FLOORWISE_SKIP_SEED
+              value: "0"
+            - name: ELASTICSEARCH_URL
+              value: {{ .Values.elasticsearch.url | quote }}
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+{{- end }}

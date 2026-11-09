@@ -1,0 +1,6 @@
+*.test.ts
+*.md
+.git
+.gitignore
+node_modules
+dist
