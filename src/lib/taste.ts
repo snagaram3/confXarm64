@@ -39,9 +39,9 @@ export function emptyTaste(): TasteProfile {
     topicWeights: {},
     levelWeights: { Beginner: 0, Advanced: 0, "Any Level": 0 },
     formatWeights: { talks: 0, handsOn: 0 },
-    depth: 0.5,
-    expoShare: 0.25,
-    packed: 0.4,
+    depth: 0.72,
+    expoShare: 0.4,
+    packed: 0.55,
     swipes: [],
   };
 }

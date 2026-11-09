@@ -4,80 +4,74 @@ import { JSDOM } from "jsdom";
 
 const FIXTURE = `<!doctype html>
 <html lang="en">
-  <head><title>confXarm64 · KCNA26 companion</title></head>
+  <head><title>confXarm64 · Plan</title></head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header>
-      <button type="button">confXarm64</button>
-      <button type="button" aria-haspopup="dialog">Accessibility</button>
+      <button type="button" aria-label="confXarm64 home">confXarm64</button>
+      <nav aria-label="Primary">
+        <button type="button" aria-current="page">Plan</button>
+        <button type="button">Search</button>
+        <button type="button">Must Go<span>1</span></button>
+        <button type="button">Map</button>
+        <button type="button">Health</button>
+      </nav>
+      <button type="button" aria-haspopup="dialog">saved in this browser</button>
     </header>
     <main id="main-content">
-      <section aria-labelledby="swipe-heading">
-        <h1 id="swipe-heading">This or that</h1>
-        <progress max="10" value="2" aria-label="Taste deck progress, 2 of 10"></progress>
-        <article aria-labelledby="swipe-card-1">
-          <h2 id="swipe-card-1">Runtime security with eBPF</h2>
-          <p>Security · Advanced · Salt Palace | Level 2 | 251 · 11:05 AM–11:40 AM</p>
-          <button type="button">Skip</button>
-          <button type="button">Maybe</button>
-          <button type="button">Love</button>
+      <section aria-labelledby="tasteH">
+        <h2 id="tasteH">This or that</h2>
+        <div role="group" aria-label="Taste deck. Use left and right arrow keys to pick, or the buttons." tabindex="0">
+          <button type="button" aria-label="Pick this: Debugging a cluster at 3am">Debugging a cluster at 3am</button>
+          <button type="button" aria-label="Pick that: Designing a platform for 400 devs">Designing a platform for 400 devs</button>
+        </div>
+        <button type="button" aria-label="Back to previous pair">Back</button>
+        <button type="button">Skip</button>
+        <div role="group" aria-label="Vibe dials">
+          <label>
+            Depth
+            <input type="range" min="0" max="100" value="72" aria-valuetext="72, deep" />
+          </label>
+        </div>
+      </section>
+      <section aria-labelledby="hero">
+        <h1 id="hero">Your KubeCon, ranked by taste.</h1>
+        <div role="search">
+          <label for="q">Search official sessions and exhibitors</label>
+          <input id="q" type="search" aria-label="Search official sessions and exhibitors" />
+          <span tabindex="0" aria-describedby="modeTip">HYBRID · BM25 + kNN</span>
+          <div id="modeTip" role="tooltip">index sessions, exhibitors · fusion RRF</div>
+        </div>
+        <article aria-labelledby="pick-1">
+          <h2 id="pick-1">Sample: eBPF tracing without code changes</h2>
+          <p>Because you like eBPF</p>
+          <button type="button" aria-pressed="true">Added to Tue</button>
         </article>
+        <div aria-label="Try a search">
+          <button type="button">eBPF</button>
+        </div>
       </section>
-      <section aria-labelledby="taste-map-heading">
-        <h2 id="taste-map-heading">Interest map</h2>
-        <ul aria-label="Topic weights">
-          <li>
-            <button type="button" aria-label="Mute Security">Mute</button>
-            <div role="slider" tabindex="0" aria-valuemin="-1" aria-valuemax="2" aria-valuenow="1" aria-label="Security">Security</div>
-            <button type="button" aria-label="Boost Security">Boost</button>
-          </li>
-        </ul>
-        <label>
-          Deep-dive vs overview
-          <input type="range" min="0" max="100" value="70" aria-valuetext="Deep-dive (Advanced)" />
-        </label>
-      </section>
-      <section aria-labelledby="live-plan-heading">
-        <h2 id="live-plan-heading">What the plan would look like</h2>
+      <aside aria-label="Your day and Must Go booths">
+        <h2>Your day</h2>
+        <div role="tablist" aria-label="Conference day">
+          <button type="button" role="tab" aria-selected="true">Tue</button>
+        </div>
         <ol>
           <li>
-            <p>Runtime security with eBPF</p>
-            <p>Why · Matches: Security, Advanced; you loved 2 similar talks</p>
+            <p>Keynotes</p>
+            <p>Main hall · Sample</p>
           </li>
         </ol>
-      </section>
-      <section aria-labelledby="talk-search-heading">
-        <h1 id="talk-search-heading">Search the official schedule</h1>
-        <label>
-          Ask for a talk
-          <input type="search" aria-label="Search official sessions with natural language" />
-        </label>
-        <div role="tablist" aria-label="Conference day">
-          <button type="button" role="tab" aria-selected="true">All days</button>
-        </div>
-        <div role="radiogroup" aria-label="Elasticsearch query mode">
-          <button type="button" role="radio" aria-checked="true">Hybrid</button>
-        </div>
-      </section>
-      <article aria-labelledby="talk-1" aria-describedby="talk-why-1">
-        <h2 id="talk-1">Runtime security with eBPF</h2>
-        <p id="talk-why-1">Why · ES hybrid RRF of BM25 + kNN</p>
-        <p>Matched fields · abstract</p>
-        <button type="button">Add to itinerary</button>
-      </article>
-      <section aria-labelledby="itinerary-heading">
-        <h2 id="itinerary-heading">Day by day</h2>
-        <article aria-labelledby="itinerary-a">
-          <p id="itinerary-a">Opening keynote</p>
-          <p><span class="sr-only">Room </span>Hall DE</p>
-          <button type="button">Remove</button>
-        </article>
-      </section>
+        <h2>Must Go booths</h2>
+        <ul>
+          <li>Runtime security Sample</li>
+        </ul>
+      </aside>
     </main>
-    <nav aria-label="Primary">
-      <button type="button" aria-current="page">Home</button>
-      <button type="button">For you</button>
-      <button type="button">Itinerary</button>
+    <nav aria-label="Mobile">
+      <button type="button" aria-current="page">Plan</button>
+      <button type="button">Search</button>
+      <button type="button">Must Go</button>
       <button type="button">Map</button>
     </nav>
   </body>

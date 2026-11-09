@@ -19,25 +19,37 @@ export const SOURCE = {
 
 /** Accessible app surfaces derived from SOURCE navy/white — not event CSS. */
 export const ADJUSTED = {
-  background: "#f3f6fb",
+  background: "#f7f4ec",
   card: "#ffffff",
   popover: "#ffffff",
-  foreground: "#0b0f1f",
-  secondary: "#e6ecf5",
+  foreground: "#0b1426",
+  secondary: "#efe9dc",
   secondaryForeground: "#1a2744",
-  muted: "#e8eef6",
-  mutedForeground: "#4a5568",
-  accent: "#d9e3f2",
-  accentForeground: "#0b0f1f",
-  border: "#c5d0e0",
-  input: "#b7c4d6",
+  muted: "#efe9dc",
+  mutedForeground: "#4a5878",
+  accent: "#efe9dc",
+  accentForeground: "#0b1426",
+  border: "#e4dccb",
+  input: "#d9d0bc",
   mapCanvas: "#c8d4e8",
-  mapGrid: "#c5d0e0",
+  mapGrid: "#e4dccb",
   destructive: "#b42318",
   primaryHover: "#0e356e",
   pinkFg: "#ffffff",
   goldFg: "#0b0f1f",
   peachFg: "#0b0f1f",
+} as const;
+
+/** Field Guide editorial accents — not event brand, not live telemetry colors. */
+export const EDITORIAL = {
+  paper: "#f7f4ec",
+  ink: "#0b1426",
+  navy: "#113e82",
+  teal: "#08655f",
+  tealBg: "#d2f4f1",
+  coral: "#a3341c",
+  coralBg: "#fce3dd",
+  gold: "#8a5306",
 } as const;
 
 /** Preference ranks stay distinct from event navy/pink. */
