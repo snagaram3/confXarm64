@@ -16,6 +16,8 @@ describe("confXarm64 Helm chart", () => {
     assert.match(es, /kind: StatefulSet/);
     assert.match(es, /volumeClaimTemplates:/);
     assert.match(es, /cluster.name/);
+    assert.match(es, /xpack.license.self_generated.type/);
+    assert.match(es, /trial/);
     assert.match(es, /\{\{ \.Values\.elasticsearch\.clusterName/);
     assert.doesNotMatch(es, /privileged:\s*true/);
     assert.doesNotMatch(es, /hostNetwork:\s*true/);
@@ -34,6 +36,8 @@ describe("confXarm64 Helm chart", () => {
     assert.match(cnh, /enabled: false/);
     assert.match(cnh, /https:\/\/ingress\.us-east-1\.aws\.dash0\.com/);
     assert.match(cnh, /https:\/\/api\.us-east-1\.aws\.dash0\.com/);
+    assert.match(cnh, /create: false/);
+    assert.doesNotMatch(cnh, /radarUiUrl: "https:\/\/confxarm64\.cnh\.radarhq\.io"/);
     assert.doesNotMatch(cnh, /rhc_|sk-|AKIA|Bearer |Authorization/);
 
     const images = read("values-images.yaml");
@@ -43,6 +47,7 @@ describe("confXarm64 Helm chart", () => {
 
     const api = read("templates/api.yaml");
     assert.match(api, /path: \/api\/health/);
+    assert.match(api, /path: \/api\/live/);
     assert.match(api, /FLOORWISE_SKIP_SEED/);
     assert.match(api, /secretRef:/);
 
@@ -85,8 +90,9 @@ describe("confXarm64 Helm chart", () => {
     assert.match(ingress, /name: web/);
 
     const secret = read("templates/secret.yaml");
-    assert.match(secret, /DASH0_AUTH_TOKEN: ""/);
-    assert.match(secret, /lookup "v1" "Secret"/);
+    assert.doesNotMatch(secret, /DASH0_AUTH_TOKEN: ""/);
+    assert.doesNotMatch(secret, /lookup "v1" "Secret"/);
+    assert.match(secret, /RespectIgnoreDifferences/);
     assert.doesNotMatch(secret, /sk-|rhc_|AKIA/);
 
     const cm = read("templates/configmap.yaml");

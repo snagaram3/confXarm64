@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function BotIcon({
   className,
-  label = "Floorwise suggestion",
+  label = "confXarm64 suggestion",
   style,
 }: {
   className?: string;

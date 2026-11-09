@@ -270,13 +270,13 @@ function downloadIcs(items: Session[], timeZone: string) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Floorwise//Agenda//EN",
+    "PRODID:-//confXarm64//Agenda//EN",
     `X-WR-TIMEZONE:${timeZone}`,
   ];
   for (const s of items) {
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${s.id}@floorwise.local`,
+      `UID:${s.id}@confxarm64.local`,
       `DTSTAMP:${stamp(s.startIso!)}`,
       `DTSTART:${stamp(s.startIso!)}`,
       `DTEND:${stamp(s.endIso!)}`,
@@ -289,7 +289,7 @@ function downloadIcs(items: Session[], timeZone: string) {
   const blob = new Blob([lines.join("\r\n")], { type: "text/calendar" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "floorwise-agenda.ics";
+  a.download = "confxarm64-agenda.ics";
   a.click();
 }
 

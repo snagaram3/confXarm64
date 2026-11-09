@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterRankedSessions, hasInterestMatch, matchContribution } from "./ranked-filter.ts";
+import { filterRankedSessions, hasExhibitorTopicMatch, hasInterestMatch, matchContribution } from "./ranked-filter.ts";
 import type { Ranked, Session } from "./types.ts";
 
 function row(id: string, startIso: string, endIso: string): Ranked<Session> {
@@ -87,5 +87,14 @@ describe("matchContribution", () => {
     knn.matchedTags = [];
     knn.mode = "semantic-knn";
     assert.equal(matchContribution(knn), "semantic");
+  });
+});
+
+describe("hasExhibitorTopicMatch", () => {
+  it("does not treat a stamped semantic_knn as an exhibitor topic match", () => {
+    assert.equal(hasExhibitorTopicMatch({ matchedTags: [], matchedQueries: ["semantic_knn"] }), false);
+    assert.equal(hasExhibitorTopicMatch({ matchedTags: [], matchedQueries: [] }), false);
+    assert.equal(hasExhibitorTopicMatch({ matchedTags: ["observability"], matchedQueries: ["semantic_knn"] }), true);
+    assert.equal(hasExhibitorTopicMatch({ matchedTags: [], matchedQueries: ["topic:eBPF"] }), true);
   });
 });

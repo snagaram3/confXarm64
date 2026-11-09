@@ -71,7 +71,7 @@ IMAGE_WEB=ghcr.io/snagaram3/confxarm64:TAG \
 
 GitHub https://github.com/snagaram3/confXarm64.git is the forge of record. Pushing to `main` runs `.github/workflows/deploy.yaml`, which tags `ghcr.io/snagaram3/confxarm64` (web) and `ghcr.io/snagaram3/confxarm64-api` (lowercase — GHCR rejects `confXarm64`). Make both packages **Public** after the first build. Apply `infra/argocd/application.yaml` through Radar MCP only if cluster `confxarm64` is visible; HTTP 403 means the Radar table still needs your email.
 
-Tools → Radar shows `RADAR_UI_URL` (`https://confxarm64.cnh.radarhq.io`) as **Skyhook Radar**, labeled separately from the optional `api.radar.io` geofence adapter.
+Tools → Radar is honest **Needs setup** unless `RADAR_UI_URL` points at a real Skyhook Radar UI (not this app, not `api.radar.io`). The live app URL is not the Radar control plane.
 
 ### Optional local fallback
 
@@ -91,7 +91,7 @@ Official operator only: [install docs](https://www.dash0.com/docs/dash0/monitori
 - gRPC ingest: `ingress.<region>.aws.dash0.com:4317` (always starts with `ingress.` and ends `dash0.com:4317`)
 - App HTTP ingest: `OTEL_EXPORTER_OTLP_ENDPOINT=https://ingress.<region>.aws.dash0.com`
 - Query: `DASH0_API_BASE_URL` + `DASH0_AUTH_TOKEN` (no `Bearer ` in the token)
-- Dashboard link: `https://app.dash0.com` only when query creds exist. Floorwise/confXarm64 `/tools/dash0` is this app's Tools tab, not a self-hosted Dash0.
+- Dashboard link: `https://app.dash0.com` only when query creds exist. confXarm64 `/tools/dash0` is this app's Tools tab, not a self-hosted Dash0.
 
 On CNH the operator is **off by default** (budget). Wire app env through Helm values/secrets. Export stays disabled until Secret `dash0-system/dash0-auth` key `token` exists:
 
@@ -115,7 +115,7 @@ Connect Gitar while signed in via **Settings → Configuration** (not GitHub Mar
 
 ## 4. Elasticsearch
 
-In-cluster: `http://elasticsearch:9200`, cluster name **`floorwise`**, one PVC (4Gi of the 20Gi CNH cap). Seed Job rebuilds the `floorwise` index on first Helm install — do not re-run it against a live demo.
+In-cluster: `http://elasticsearch:9200`, cluster name **`floorwise`**, one PVC (4Gi of the 20Gi CNH cap), trial license so RRF retrievers can run. Seed Job may rerun after Argo syncs; `server/seed.ts` skips when the `floorwise` index already exists (`FLOORWISE_FORCE_SEED=1` to rebuild). Do not wipe a live demo.
 
 Laptop Compose: project `-p floorwise`, host **:19200**, volume `floorwise_esdata`. Leave it alone. A red cluster on host `:9200` is a different process.
 
@@ -123,11 +123,21 @@ The API does not invent rank hits. Tools → Elasticsearch shows the real cluste
 
 ## Secrets (never commit)
 
-Helm `lookup()` will not wipe `confxarm64-secrets` on upgrade.
+Argo CD renders Helm without cluster `lookup()`, so empty `stringData` placeholders would wipe tokens on every `selfHeal` sync. The CNH overlay sets `secrets.create: false`. Create the Secret by hand (or patch keys). The Application ignores `/data` and `/stringData` if a Secret shell is ever rendered.
+
+```bash
+kubectl -n team-confxarm64 create secret generic confxarm64-secrets \
+  --from-literal=DASH0_AUTH_TOKEN= \
+  --from-literal=OTEL_EXPORTER_OTLP_HEADERS= \
+  --from-literal=SONAR_TOKEN= \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+If Argo already tracks an empty `confxarm64-secrets` from an earlier sync, annotate it `argocd.argoproj.io/sync-options: Prune=false` before this chart stops emitting it, then patch tokens in.
 
 | Secret | Keys |
 | --- | --- |
-| `team-confxarm64/confxarm64-secrets` | `DASH0_AUTH_TOKEN`, `OTEL_EXPORTER_OTLP_HEADERS`, `SONAR_TOKEN`, optional `RADAR_SECRET_KEY` / `RADAR_PUBLISHABLE_KEY` |
+| `team-confxarm64/confxarm64-secrets` | `DASH0_AUTH_TOKEN`, `OTEL_EXPORTER_OTLP_HEADERS`, `SONAR_TOKEN` |
 | `dash0-system/dash0-auth` | `token` plus env `DASH0_OTLP_GRPC_ENDPOINT`, `DASH0_API_ENDPOINT`, `DASH0_OTLP_HTTP_ENDPOINT` |
 
 Then `kubectl -n team-confxarm64 rollout restart deploy/api`.

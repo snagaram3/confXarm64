@@ -37,7 +37,7 @@ export function SuggestionCard({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-            {featured ? "Next up for you" : "Floorwise suggestion"}
+            {featured ? "Next up for you" : "confXarm64 suggestion"}
           </p>
           {suggestion.rank && (
             <Badge variant={suggestion.rank}>

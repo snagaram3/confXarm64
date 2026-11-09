@@ -109,6 +109,22 @@ describe("buildSuggestions", () => {
     assert.deepEqual(sponsor.actions, ["view"]);
   });
 
+  it("does not pad exhibitor suggestions from a stamped semantic_knn", () => {
+    const knnOnly = booth({ id: "unrelated", sponsor: "Unrelated Co" });
+    knnOnly.matchedTags = [];
+    knnOnly.matchedQueries = ["semantic_knn"];
+    knnOnly.why = "ES hybrid 0.0 · kNN cosine";
+    const tips = buildSuggestions({
+      rankStatus: "ready",
+      navigating: false,
+      mustSessions: [],
+      lateSession: undefined,
+      remainingSec: 0,
+      rankedBooths: [knnOnly],
+    });
+    assert.equal(tips.find((t) => t.boothId === "unrelated"), undefined);
+  });
+
   it("does not claim an AI engine in copy", () => {
     const talk = session({ id: "otel-prod", title: "OpenTelemetry", roomId: "251" });
     const tips = buildSuggestions({

@@ -39,13 +39,21 @@ type Catalog = {
   }>;
 };
 
-export async function seedIndex(): Promise<{ documents: number }> {
+export function shouldSkipExistingIndex(exists: boolean, force: boolean): boolean {
+  return exists && !force;
+}
+
+export async function seedIndex(): Promise<{ documents: number; skipped: boolean }> {
   await waitForElasticsearch();
   const catalog = JSON.parse(
     readFileSync(resolve(root, "src/data/catalog.json"), "utf8"),
   ) as Catalog;
 
-  const exists = await es.indices.exists({ index: INDEX });
+  const exists = Boolean(await es.indices.exists({ index: INDEX }));
+  const force = process.env.FLOORWISE_FORCE_SEED === "1";
+  if (shouldSkipExistingIndex(exists, force)) {
+    return { documents: 0, skipped: true };
+  }
   if (exists) {
     await es.indices.delete({ index: INDEX });
   }
@@ -148,13 +156,17 @@ export async function seedIndex(): Promise<{ documents: number }> {
     }
   }
 
-  return { documents: ops.length / 2 };
+  return { documents: ops.length / 2, skipped: false };
 }
 
 const entry = process.argv[1] ? resolve(process.argv[1]) : "";
 if (entry.endsWith("seed.ts") || entry.endsWith("seed.js")) {
   seedIndex()
     .then((r) => {
+      if (r.skipped) {
+        console.log(`Index ${INDEX} already exists — skipping seed (FLOORWISE_FORCE_SEED=1 to rebuild)`);
+        return;
+      }
       console.log(`Indexed ${r.documents} docs into ${INDEX}`);
     })
     .catch((err) => {

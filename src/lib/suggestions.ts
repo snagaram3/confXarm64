@@ -1,5 +1,6 @@
 import { LATE_SESSION_ID } from "./catalog";
 import { isSample255Destination } from "./map-destination";
+import { hasExhibitorTopicMatch } from "./ranked-filter";
 import type { Booth, Rank, Ranked, Session } from "./types";
 
 export type SuggestionKind = "recommendation" | "route" | "status";
@@ -32,8 +33,11 @@ function boothWhy(row: Ranked<Booth>): string {
   if (row.matchedTags.length) {
     return `Catalog tags overlap your search/interests: ${row.matchedTags.join(", ")}. Elasticsearch booth ranking, not walking distance.`;
   }
-  if (row.matchedQueries.length) {
-    return `Matched ${row.matchedQueries.join(", ")}. Elasticsearch booth ranking, not walking distance.`;
+  const topicalQueries = (row.matchedQueries ?? []).filter(
+    (q) => q === "bm25_keyword" || q.startsWith("tag:") || q.startsWith("topic:"),
+  );
+  if (topicalQueries.length) {
+    return `Matched ${topicalQueries.join(", ")}. Elasticsearch booth ranking, not walking distance.`;
   }
   return `${row.why} Not a proximity or crowd rank.`;
 }
@@ -54,9 +58,7 @@ export function pickSponsorSuggestion(input: SuggestionInput): Suggestion | null
       actions: ["view"],
     };
   }
-  const topical = (input.rankedBooths ?? []).find(
-    (row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0,
-  );
+  const topical = (input.rankedBooths ?? []).find((row) => hasExhibitorTopicMatch(row));
   if (!topical) return null;
   return {
     id: `booth-${topical.item.id}`,

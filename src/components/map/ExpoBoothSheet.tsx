@@ -50,7 +50,7 @@ export function ExpoBoothSheet({
       <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
         {booth.pinAvailable
           ? "Centers this PDF pin. No hall walk, GPS, or ETA."
-          : "In the catalog without a verified expo.pdf pin. Floorwise will not invent a location."}
+          : "In the catalog without a verified expo.pdf pin. confXarm64 will not invent a location."}
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button

@@ -20,7 +20,7 @@ function parseHeaders(raw: string | undefined): Record<string, string> | undefin
 const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.replace(/\/$/, "");
 const headers = parseHeaders(process.env.OTEL_EXPORTER_OTLP_HEADERS);
 const consoleExport = process.env.OTEL_CONSOLE === "1";
-const serviceName = process.env.OTEL_SERVICE_NAME ?? "floorwise-api";
+const serviceName = process.env.OTEL_SERVICE_NAME ?? "confxarm64-api";
 
 export const otelEnabled = Boolean(endpoint || consoleExport);
 

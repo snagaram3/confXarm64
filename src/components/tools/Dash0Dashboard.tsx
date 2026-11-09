@@ -75,7 +75,7 @@ type Live = {
 
 function readMode(search: string): Mode {
   const v = new URLSearchParams(search).get("mode");
-  return v === "live" ? "live" : "synthetic";
+  return v === "synthetic" ? "synthetic" : "live";
 }
 
 export function Dash0Dashboard({

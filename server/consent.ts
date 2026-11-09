@@ -1,11 +1,11 @@
 export const CONSENT_VERSION = "floorwise-lead-v1";
 
 export const CONSENT_NOTICE =
-  "Floorwise collects this for the exhibitor you choose. It is not an official Linux Foundation, CNCF, or sponsor-owned website, and it is not organizer registration.";
+  "confXarm64 collects this for the exhibitor you choose. It is not an official Linux Foundation, CNCF, or sponsor-owned website, and it is not organizer registration.";
 
 export function consentText(sponsorName: string): string {
   return (
-    `I agree that Floorwise may share the name, email, and any optional details I type ` +
+    `I agree that confXarm64 may share the name, email, and any optional details I type ` +
     `with ${sponsorName} so they can contact me about their products or services after this event. ` +
     `Saving a booth as Must go, Maybe, or Meh, or being nearby, is not consent and does not create a lead.`
   );

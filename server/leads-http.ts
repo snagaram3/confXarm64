@@ -240,7 +240,7 @@ export function mountLeadRoutes(
     const sponsorId = req.sponsorId ?? "";
     const csv = leadsToCsv(opts.store.listLeads(sponsorId));
     res.setHeader("content-type", "text/csv; charset=utf-8");
-    res.setHeader("content-disposition", 'attachment; filename="floorwise-leads.csv"');
+      res.setHeader("content-disposition", 'attachment; filename="confxarm64-leads.csv"');
     res.send(csv);
   });
 

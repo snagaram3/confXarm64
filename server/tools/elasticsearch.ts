@@ -37,7 +37,7 @@ export async function fetchElasticsearch(): Promise<EsSnapshot> {
     state: "ok",
     configured: true,
     fetchedAt: new Date().toISOString(),
-    source: "Floorwise Elasticsearch client (ELASTICSEARCH_URL, default host :19200)",
+    source: "confXarm64 Elasticsearch client (ELASTICSEARCH_URL, default host :19200)",
     window: "live cluster health + index stats + last hybrid rank",
     error: null,
     missingEnv: [],
@@ -47,7 +47,7 @@ export async function fetchElasticsearch(): Promise<EsSnapshot> {
     sampleHits: [],
     tookMs: null,
     notice:
-      "This is the Floorwise cluster only. Do not point this app at an unrelated host :9200 cluster.",
+      "This is the confXarm64 cluster only (index name floorwise). Do not point this app at an unrelated host :9200 cluster.",
   };
 
   try {

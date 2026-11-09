@@ -5,7 +5,7 @@ Product: **confXarm64**, a private KCNA 2026 trip planner. Home is the planner (
 Run locally (Mac). Do **not** `docker compose down -v`, do **not** touch a foreign `:9200` cluster.
 
 ```bash
-cd /path/to/Floorwise
+cd /path/to/confXarm64
 git fetch origin cursor/minimalist-map-ui-cde4
 git checkout cursor/minimalist-map-ui-cde4
 git pull --ff-only origin cursor/minimalist-map-ui-cde4
@@ -14,7 +14,7 @@ curl -sS "http://127.0.0.1:19200/_cluster/health?wait_for_status=yellow&timeout=
 ELASTICSEARCH_URL=http://127.0.0.1:19200 npm run dev
 ```
 
-Open [http://127.0.0.1:43180](http://127.0.0.1:43180). API is `:43181`. Floorwise ES is host **`:19200`**.
+Open [http://127.0.0.1:43180](http://127.0.0.1:43180). API is `:43181`. confXarm64 ES is host **`:19200`**.
 
 **Wi-Fi backup:** this script is local. If venue Wi-Fi dies, keep `npm run dev` + `floorwise-es` running, demo from the laptop, skip Radar Cloud. Screenshots in this repo’s agent run are fallbacks. Do not reseed.
 
@@ -32,12 +32,12 @@ Judges should hear: private companion, official 601-record snapshot, no invented
 
 ## 0:20–0:40 — This or That (taste, not official filters)
 
-The Linux Foundation schedule already filters by audience level / track / type. Floorwise must look like a **taste deck**, not another chip row.
+The Linux Foundation schedule already filters by audience level / track / type. confXarm64 must look like a **taste deck**, not another chip row.
 
 1. Onboarding: pick days → **Deal official talks**. (Already onboarded: Home → **Deal official talks**.)
 2. Show a real card: title, track, audience level, room, time from the official snapshot — not a mock.
 3. **Love** one talk (or swipe right / →). Taste bubbles resize. Live itinerary preview fills with a **Why** line (`Matches: …; you loved N similar talks`).
-4. **Skip** or **Maybe** a second card. Recommended talks **reorder** (taste match %). Say out loud: this is not `?audience-level=advanced`.
+4. **Skip** or **Maybe** a second card. Topic weights go to Elasticsearch as boosts — the list is ES order, not a browser re-sort. Say out loud: this is not `?audience-level=advanced`.
 
 Keyboard backup: ← skip · → love · ↓ maybe. Skip the deck anytime.
 
@@ -51,9 +51,9 @@ Criteria: ES is the data layer; keyword / semantic / hybrid; why-it-matched; fas
 2. Query: `something on eBPF and security`
 3. Wait ~160ms debounce. **How search works** shows `engine=elasticsearch mode=hybrid-bm25-knn retriever=… took=…ms`.
 4. Open a result: **Why** line (BM25 and/or kNN), **Matched fields**, gold `<em>` snippets from the abstract — even when “security” is not in the title (example: *Beyond Harnesses and Sandboxes: Runtime Protection for AI Agents with eBPF*).
-5. Toggle **Keyword / Semantic / Hybrid**. Scores and snippets change. Hybrid tries RRF of BM25 + kNN; this 8.17 cluster may fall back to `function_score` — say that out loud.
+5. Toggle **Keyword / Lexical vector / Hybrid**. Scores and snippets change. Hybrid tries RRF of BM25 + lexical kNN (in-cluster trial license); if retrievers are rejected the UI shows `function_score` — say that out loud. Do not claim hosted embeddings.
 6. Filter **Tue 10** and a track (e.g. Security) if you want a second beat.
-7. **Ask the schedule** RAG: skip. No `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` — Floorwise will not invent a summary.
+7. **Ask the schedule** RAG: skip unless an LLM key is actually set on the server. This app will not invent a summary.
 
 Backup query if the first is slow: `cilium network policy`.
 
@@ -63,7 +63,7 @@ Backup query if the first is slow: `cilium network policy`.
 
 Criteria: real a11y, honest about what the data supports.
 
-1. Skip link: Tab once → **Skip to content**.
+1. Skip link: Tab once → **Skip to content** (map view also has `<main id="main-content">`).
 2. TopBar **Accessibility** (or profile avatar → **Accessibility**).
 3. **High contrast** — navy/white flips to black + AA-tested fills. **Larger text** — 125%. **Reduce motion**.
 4. Scroll Home to **Inclusion rooms (official)** — quiet rooms, prayer, first aid from `amenities.json`. Each says **no verified step-free route**.

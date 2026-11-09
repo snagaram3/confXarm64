@@ -2,7 +2,7 @@ import { Dash0Dashboard } from "@/components/tools/Dash0Dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchTool, postRadarLookup, type ToolFrame, type ToolTab } from "@/lib/tools";
+import { fetchTool, type ToolFrame, type ToolTab } from "@/lib/tools";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 const LABELS: Record<ToolTab, string> = {
@@ -25,7 +25,7 @@ export function ToolsPanel({
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Integrations</p>
         <h2 className="font-display text-2xl font-semibold">Tools</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Live adapters for this Floorwise process. Missing credentials show Needs setup — never a fake healthy dashboard.
+          Live adapters for this confXarm64 process. Missing credentials show Needs setup — never a fake healthy dashboard.
         </p>
       </div>
       <Tabs value={tab} onValueChange={(v) => onTab(v as ToolTab)}>
@@ -241,7 +241,7 @@ function Dash0Pane() {
             <Metric label="Avg latency ms" value={data.local.avgLatencyMs} />
           </div>
           <p className="text-sm">
-            This page is Floorwise Tools → Dash0 (<span className="font-mono">{data.floorwiseToolsPath}</span>). There is no
+            This page is confXarm64 Tools → Dash0 (<span className="font-mono">{data.floorwiseToolsPath}</span>). There is no
             self-hosted Dash0 product in-cluster.
           </p>
           {data.dashboardUrl ? (
@@ -270,68 +270,10 @@ function Dash0Pane() {
 function RadarPane() {
   const { data, loading, error, refresh } = useTool<
     ToolFrame & {
-      publishableClass: string | null;
-      secretConfigured: boolean;
       venue: { label: string; note: string };
-      lookup: {
-        at: string;
-        source: string;
-        accuracyM: number | null;
-        latitude: number;
-        longitude: number;
-        addresses: Array<{ formatted: string }>;
-        geofences: Array<{ id: string; description: string; tag: string | null }>;
-        notice: string;
-      } | null;
       skyhook: { uiUrl: string | null; note: string };
     }
   >("radar");
-  const [busy, setBusy] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-
-  async function locate() {
-    setActionError(null);
-    if (!navigator.geolocation) {
-      setActionError("This browser has no geolocation API.");
-      return;
-    }
-    setBusy("geo");
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          await postRadarLookup({
-            consent: true,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracyM: pos.coords.accuracy,
-          });
-          await refresh();
-        } catch (err) {
-          setActionError(err instanceof Error ? err.message : String(err));
-        } finally {
-          setBusy(null);
-        }
-      },
-      (err) => {
-        setBusy(null);
-        setActionError(err.message || "Location permission denied");
-      },
-      { enableHighAccuracy: false, timeout: 12_000, maximumAge: 0 },
-    );
-  }
-
-  async function venue() {
-    setActionError(null);
-    setBusy("venue");
-    try {
-      await postRadarLookup({ consent: true, action: "geocode_venue" });
-      await refresh();
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(null);
-    }
-  }
 
   return (
     <Shell title="Radar" frame={data} loading={loading} error={error} onRefresh={refresh}>
@@ -339,66 +281,24 @@ function RadarPane() {
         <>
           <section className="rounded-xl border border-border bg-secondary/30 p-3" aria-labelledby="skyhook-radar-heading">
             <h4 id="skyhook-radar-heading" className="text-sm font-semibold">
-              Skyhook Radar (Kubernetes UI)
+              Skyhook Radar
             </h4>
             <p className="mt-1 text-sm text-muted-foreground">{data.skyhook.note}</p>
             {data.skyhook.uiUrl ? (
               <p className="mt-2 text-sm">
                 <a className="font-semibold text-primary underline" href={data.skyhook.uiUrl} target="_blank" rel="noreferrer">
-                  Open Skyhook Radar
+                  Open Skyhook Radar UI
                 </a>
                 <span className="font-mono text-xs text-muted-foreground"> {data.skyhook.uiUrl}</span>
               </p>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">
-                Set RADAR_UI_URL (minikube: http://radar.&lt;minikube-ip&gt;.nip.io) or port-forward{" "}
-                <span className="font-mono text-xs">kubectl -n radar port-forward svc/radar 9280:9280</span>.
+                Needs setup. This tab does not call api.radar.io (a different company) and does not invent geofences.
+                Set RADAR_UI_URL only for a real Skyhook Radar UI (minikube: http://radar.&lt;minikube-ip&gt;.nip.io).
               </p>
             )}
           </section>
-          <h4 className="text-sm font-semibold">api.radar.io geofence adapter</h4>
-          <p className="text-sm">{data.venue.note}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Metric label="Publishable key class" value={data.publishableClass} />
-            <Metric label="Secret key on server" value={data.secretConfigured ? "yes" : "no"} />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" onClick={() => void locate()} disabled={!data.configured || busy !== null}>
-              {busy === "geo" ? "Locating…" : "Look up my location"}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => void venue()} disabled={!data.configured || busy !== null}>
-              {busy === "venue" ? "Geocoding…" : "Geocode Salt Palace address"}
-            </Button>
-          </div>
-          {actionError && <p role="alert" className="text-sm text-destructive">{actionError}</p>}
-          {data.lookup && (
-            <div className="rounded-xl border border-border p-3 text-sm">
-              <p className="text-xs text-muted-foreground">{data.lookup.notice}</p>
-              <p className="mt-1 font-mono text-xs">
-                {data.lookup.latitude.toFixed(5)}, {data.lookup.longitude.toFixed(5)}
-                {data.lookup.accuracyM != null ? ` · ±${Math.round(data.lookup.accuracyM)} m` : ""}
-              </p>
-              <ul className="mt-2 list-disc pl-4">
-                {data.lookup.addresses.map((a) => (
-                  <li key={a.formatted}>{a.formatted}</li>
-                ))}
-              </ul>
-              {data.lookup.geofences.length === 0 ? (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  No Radar geofences near this point. Floorwise does not create geofences automatically.
-                </p>
-              ) : (
-                <ul className="mt-2 text-xs">
-                  {data.lookup.geofences.map((g) => (
-                    <li key={g.id}>
-                      {g.description}
-                      {g.tag ? ` · ${g.tag}` : ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">{data.venue.note}</p>
         </>
       )}
     </Shell>

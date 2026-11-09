@@ -59,6 +59,8 @@ spec:
               value: "false"
             - name: xpack.security.http.ssl.enabled
               value: "false"
+            - name: xpack.license.self_generated.type
+              value: trial
             - name: ingest.geoip.downloader.enabled
               value: "false"
             - name: xpack.ml.enabled

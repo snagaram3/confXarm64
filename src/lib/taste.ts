@@ -465,7 +465,7 @@ export function tasteShareText(profile: Profile, sessions: Session[]): string {
     .filter((title): title is string => Boolean(title))
     .slice(0, 4);
   const lines = [
-    "Floorwise taste · KubeCon NA 2026",
+    "confXarm64 taste · KubeCon NA 2026",
     topics.length ? `Topics: ${topics.join(", ")}` : "Topics: none boosted yet",
     `Vibe: ${depthLabel(taste.depth)} · ${expoLabel(taste.expoShare)} · ${packedLabel(taste.packed)}`,
     loved.length ? `Loved ${loved.length} official talk${loved.length === 1 ? "" : "s"}${titles.length ? `: ${titles.join("; ")}` : ""}` : "No loved talks yet",

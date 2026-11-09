@@ -44,6 +44,7 @@ export async function fetchRank(
       q,
       mode: opts?.mode ?? "hybrid",
       track: opts?.track && opts.track !== "all" ? opts.track : undefined,
+      topicWeights: profile.taste?.topicWeights ?? {},
     }),
   });
   return readJson(res);

@@ -84,13 +84,13 @@ export function RankedList() {
           }}
         >
           <label className="grid gap-1">
-            <span className="text-xs font-medium">Ask Floorwise</span>
+            <span className="text-xs font-medium">Ask confXarm64</span>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={askDraft}
                 onChange={(e) => setAskDraft(e.target.value)}
-                placeholder="step-free eBPF near Hyatt on Tuesday"
+                placeholder="eBPF near Hyatt on Tuesday"
                 className="h-11 min-h-11 pl-9"
                 aria-label="Ask for talks, a building, a day, or the sample 255 walk"
               />
@@ -141,7 +141,7 @@ export function RankedList() {
       {rankStatus === "error" && (
         <div className="rounded-2xl border border-destructive/30 p-4 text-sm" role="alert">
           <p className="font-semibold">Search is unavailable</p>
-          <p className="mt-1 text-muted-foreground">{rankError ?? "Elasticsearch did not return a ranking."} Floorwise will not invent talks here.</p>
+          <p className="mt-1 text-muted-foreground">{rankError ?? "Elasticsearch did not return a ranking."} confXarm64 will not invent talks here.</p>
           <button type="button" className="mt-2 text-sm font-semibold text-primary" onClick={retryRank}>
             Retry ranking
           </button>

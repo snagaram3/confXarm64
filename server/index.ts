@@ -15,7 +15,9 @@ import { otelStatus } from "./otel.ts";
 import { mountReminderRoutes } from "./reminders-http.ts";
 import { ReminderStore, remindersPath } from "./reminders-store.ts";
 import { seedIndex } from "./seed.ts";
+import { askScheduleStatus, livenessBody, readinessOk, readinessStatusCode } from "./health.ts";
 import { hybridSearch, parseQueryMode } from "./search.ts";
+import { parseTopicWeights } from "./search-query.ts";
 import { mountScheduleRoutes } from "./schedule-http.ts";
 import { scheduleMeta, sessionById as officialSessionById } from "./schedule.ts";
 import { isAuthConfigured } from "./sponsor-auth.ts";
@@ -54,37 +56,39 @@ app.use((req, res, next) => {
 let indexReady = false;
 let lastSeedError: string | null = null;
 
+app.get("/api/live", (_req, res) => {
+  res.json(livenessBody());
+});
+
 app.get("/api/health", async (_req, res) => {
+  const payload = {
+    otel: otelStatus,
+    indexReady,
+    lastSeedError,
+    sponsorPortal: {
+      configured: isAuthConfigured(leadDataDir),
+      store: "sqlite",
+    },
+    schedule: scheduleMeta,
+    reminders: {
+      webPushConfigured: isPushConfigured(leadDataDir),
+      store: "sqlite",
+    },
+    askSchedule: askScheduleStatus(),
+  };
   try {
     const esHealth = await pingCluster();
-    res.json({
-      ok: esHealth.ok && indexReady,
+    const ok = readinessOk(true, esHealth.ok, indexReady);
+    res.status(readinessStatusCode(ok)).json({
+      ok,
       elasticsearch: esHealth,
-      otel: otelStatus,
-      indexReady,
-      lastSeedError,
-      sponsorPortal: {
-        configured: isAuthConfigured(leadDataDir),
-        store: "sqlite",
-      },
-      schedule: scheduleMeta,
-      reminders: {
-        webPushConfigured: isPushConfigured(leadDataDir),
-        store: "sqlite",
-      },
-      askSchedule: askScheduleStatus(),
+      ...payload,
     });
   } catch (err) {
     res.status(503).json({
       ok: false,
       error: err instanceof Error ? err.message : String(err),
-      otel: otelStatus,
-      indexReady,
-      lastSeedError,
-      sponsorPortal: {
-        configured: isAuthConfigured(leadDataDir),
-        store: "sqlite",
-      },
+      ...payload,
     });
   }
 });
@@ -104,9 +108,10 @@ app.post("/api/rank", async (req, res) => {
     const q = String(req.body?.q ?? "");
     const mode = parseQueryMode(req.body?.mode);
     const track = String(req.body?.track ?? "").trim();
+    const topicWeights = parseTopicWeights(req.body?.topicWeights);
     const [sessions, booths] = await Promise.all([
-      hybridSearch({ kind: "session", interests, role, q, mode, track: track || undefined }),
-      hybridSearch({ kind: "booth", interests, role, q, mode }),
+      hybridSearch({ kind: "session", interests, role, q, mode, track: track || undefined, topicWeights }),
+      hybridSearch({ kind: "booth", interests, role, q, mode, topicWeights }),
     ]);
     const boothById = new Map(catalog.booths.map((b) => [b.id, b]));
     res.json({
@@ -137,7 +142,7 @@ app.post("/api/rank", async (req, res) => {
   } catch (err) {
     res.status(503).json({
       error: err instanceof Error ? err.message : String(err),
-      hint: "Start Floorwise Elasticsearch with docker compose up -d elasticsearch (published on :19200), then retry. Do not use an unrelated cluster on :9200.",
+      hint: "Start confXarm64 Elasticsearch with docker compose up -d elasticsearch (published on :19200), then retry. Do not use an unrelated cluster on :9200.",
     });
   }
 });
@@ -204,34 +209,6 @@ mountLeadRoutes(app, {
   booths: catalog.booths,
 });
 
-app.post("/api/otlp/v1/traces", async (req, res) => {
-  const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.replace(/\/$/, "");
-  if (!endpoint) {
-    res.status(204).end();
-    return;
-  }
-  const url = endpoint.endsWith("/v1/traces") ? endpoint : `${endpoint}/v1/traces`;
-  const headers: Record<string, string> = { "content-type": "application/json" };
-  const raw = process.env.OTEL_EXPORTER_OTLP_HEADERS;
-  if (raw) {
-    for (const part of raw.split(",")) {
-      const idx = part.indexOf("=");
-      if (idx === -1) continue;
-      headers[part.slice(0, idx).trim()] = part.slice(idx + 1).trim();
-    }
-  }
-  try {
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(req.body),
-    });
-    res.status(upstream.status).end();
-  } catch (err) {
-    res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
-  }
-});
-
 const dist = resolve(root, "dist");
 if (existsSync(dist)) {
   app.use(express.static(dist));
@@ -249,7 +226,7 @@ async function ensureIndex() {
   if (exists && !force) {
     indexReady = true;
     lastSeedError = null;
-    console.log(`[floorwise] using existing ${INDEX} index (will not reseed)`);
+    console.log(`[confxarm64] using existing ${INDEX} index (will not reseed)`);
     return;
   }
   if (skip) {
@@ -258,7 +235,7 @@ async function ensureIndex() {
   const seeded = await seedIndex();
   indexReady = true;
   lastSeedError = null;
-  console.log(`[floorwise] seeded ${seeded.documents} docs`);
+  console.log(`[confxarm64] seeded ${seeded.documents} docs`);
   await hybridSearch({
     kind: "session",
     interests: ["Kubernetes", "observability", "eBPF"],
@@ -268,14 +245,14 @@ async function ensureIndex() {
 
 async function boot() {
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[floorwise] API on http://127.0.0.1:${PORT}`);
+    console.log(`[confxarm64] API on http://127.0.0.1:${PORT}`);
   });
   while (!indexReady) {
     try {
       await ensureIndex();
     } catch (err) {
       lastSeedError = err instanceof Error ? err.message : String(err);
-      console.error(`[floorwise] Elasticsearch not ready: ${lastSeedError}`);
+      console.error(`[confxarm64] Elasticsearch not ready: ${lastSeedError}`);
       await new Promise((r) => setTimeout(r, 3000));
     }
   }
@@ -291,12 +268,3 @@ function asStringArray(value: unknown): string[] {
   return value.map((v) => String(v)).filter(Boolean);
 }
 
-function askScheduleStatus() {
-  const hasKey = Boolean(process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY);
-  return {
-    available: hasKey,
-    reason: hasKey
-      ? "An LLM key is present. Ask-the-schedule is still not wired in this build."
-      : "No OPENAI_API_KEY or ANTHROPIC_API_KEY. Floorwise will not invent a RAG summary.",
-  };
-}

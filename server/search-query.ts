@@ -28,13 +28,57 @@ export function keywordQuery(textQuery: string): estypes.QueryDslQueryContainer 
   };
 }
 
-export function interestShould(interests: string[], textQuery: string, role: string): estypes.QueryDslQueryContainer[] {
+const TOPIC_WEIGHT_FLOOR = 0.35;
+
+export function parseTopicWeights(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, number> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    const topic = key.trim();
+    const weight = typeof value === "number" ? value : Number(value);
+    if (!topic || !Number.isFinite(weight)) continue;
+    out[topic] = Math.min(2, Math.max(-1, weight));
+  }
+  return out;
+}
+
+/** Positive taste weights become Elasticsearch boosts. Negatives are omitted (not a client re-sort). */
+export function topicWeightShould(topicWeights: Record<string, number>): estypes.QueryDslQueryContainer[] {
+  const should: estypes.QueryDslQueryContainer[] = [];
+  for (const [topic, weight] of Object.entries(topicWeights)) {
+    if (weight < TOPIC_WEIGHT_FLOOR) continue;
+    const boost = 1 + Math.min(2, weight) * 1.5;
+    should.push({
+      multi_match: {
+        query: topic,
+        fields: ["tags^2", "track^2", "title", "abstract"],
+        boost,
+        _name: `topic:${topic}`,
+      },
+    });
+  }
+  return should;
+}
+
+export function boostedTopicNames(topicWeights: Record<string, number>): string[] {
+  return Object.entries(topicWeights)
+    .filter(([, weight]) => weight >= TOPIC_WEIGHT_FLOOR)
+    .map(([topic]) => topic);
+}
+
+export function interestShould(
+  interests: string[],
+  textQuery: string,
+  role: string,
+  topicWeights: Record<string, number> = {},
+): estypes.QueryDslQueryContainer[] {
   const should: estypes.QueryDslQueryContainer[] = [];
   for (const tag of interests) {
     should.push({
       term: { "tags.raw": { value: tag, boost: 3.2, _name: `tag:${tag}` } },
     });
   }
+  should.push(...topicWeightShould(topicWeights));
   const keyword = keywordQuery([textQuery, ...interests].filter(Boolean).join(" "));
   if (keyword) should.push(keyword);
   if (role) {
@@ -61,17 +105,21 @@ export function rrfRetriever(opts: {
   qvec: number[];
   keyword: estypes.QueryDslQueryContainer | null;
   filters: estypes.QueryDslQueryContainer[];
+  extraShould?: estypes.QueryDslQueryContainer[];
   k?: number;
 }): Record<string, unknown> {
   const filter = opts.filters.length === 1 ? opts.filters[0] : { bool: { filter: opts.filters } };
   const retrievers: Record<string, unknown>[] = [];
-  if (opts.keyword) {
+  const extraShould = opts.extraShould ?? [];
+  const standardShould = [...(opts.keyword ? [opts.keyword] : []), ...extraShould];
+  if (standardShould.length) {
     retrievers.push({
       standard: {
         query: {
           bool: {
             filter: opts.filters,
-            must: [opts.keyword],
+            should: standardShould,
+            minimum_should_match: 1,
           },
         },
       },
@@ -118,12 +166,17 @@ export function explainMode(
     interests.some((interest) => interest.toLowerCase() === tag.toLowerCase()),
   );
   const rank = classify(score, matchedTags.length);
-  const bits: string[] = [`ES ${mode} ${score.toFixed(1)}`];
-  if (retriever === "rrf") bits.push("RRF of BM25 + kNN");
+  const bits: string[] = [`ES ${mode} ${formatScore(score)}`];
+  if (retriever === "rrf") bits.push("RRF of BM25 + lexical kNN");
+  if (retriever === "function_score") bits.push("function_score BM25 + lexical cosine");
+  if (retriever === "knn") bits.push("lexical kNN ranking");
   if (matchedTags.length) bits.push(`tag overlap ${matchedTags.join(", ")}`);
   if (matchedQueries.includes("bm25_keyword")) bits.push("BM25 keyword");
-  if (matchedQueries.includes("semantic_knn") || mode !== "keyword") {
-    if (mode !== "keyword") bits.push("kNN cosine on dense_vector (abstract + tags)");
+  if (matchedQueries.some((q) => q.startsWith("topic:"))) {
+    bits.push(`topic boost ${matchedQueries.filter((q) => q.startsWith("topic:")).map((q) => q.slice(6)).join(", ")}`);
+  }
+  if (matchedQueries.includes("semantic_knn")) {
+    bits.push("lexical dense_vector cosine (48-term token counts, not a hosted embedding)");
   }
   if (matchedQueries.some((q) => q.startsWith("role"))) bits.push("role field");
   if (highlights[0]) bits.push(`matched “${plainHighlight(highlights[0])}”`);
@@ -146,6 +199,11 @@ export function plainHighlight(html: string): string {
 
 export function matchedFieldsFromHighlight(highlight: Record<string, string[]>): string[] {
   return Object.keys(highlight).filter((key) => (highlight[key] ?? []).length > 0);
+}
+
+export function formatScore(score: number): string {
+  if (!Number.isFinite(score)) return "0";
+  return Math.abs(score) < 1 ? score.toFixed(3) : score.toFixed(1);
 }
 
 function classify(score: number, tagCount: number): "must" | "maybe" | "meh" {

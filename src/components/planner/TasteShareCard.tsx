@@ -30,7 +30,7 @@ export function TasteShareCard() {
         Copied as text from this browser. No account, no upload.
       </p>
       <div className="mt-3 rounded-2xl border border-border bg-card/80 p-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">Floorwise · KCNA 2026</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">confXarm64 · KCNA 2026</p>
         <p className="mt-2 flex flex-wrap gap-1.5">
           {topics.length ? (
             topics.map((row) => (

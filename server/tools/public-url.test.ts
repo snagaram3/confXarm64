@@ -35,8 +35,11 @@ describe("Skyhook Radar UI env", () => {
     process.env.RADAR_UI_URL = "http://radar.192.168.49.2.nip.io";
     const snap = radarStatus();
     assert.equal(snap.skyhook.uiUrl, "http://radar.192.168.49.2.nip.io");
-    assert.match(snap.skyhook.note, /not the api\.radar\.io/i);
-    assert.equal(snap.apiHost, "api.radar.io");
+    assert.equal(snap.state, "not_configured");
+    assert.doesNotMatch(snap.source, /api\.radar\.io/);
+    assert.equal(snap.apiHost, "radar.192.168.49.2.nip.io");
+    process.env.RADAR_UI_URL = "https://confxarm64.cnh.radarhq.io";
+    assert.equal(radarStatus().skyhook.uiUrl, null);
     if (prev === undefined) delete process.env.RADAR_UI_URL;
     else process.env.RADAR_UI_URL = prev;
   });

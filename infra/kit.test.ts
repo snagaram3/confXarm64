@@ -78,6 +78,7 @@ describe("infra bootstrap kit", () => {
     assert.match(app, /name: confxarm64-secrets/);
     assert.match(app, /jsonPointers:/);
     assert.match(app, /\/data/);
+    assert.match(app, /\/stringData/);
     assert.match(app, /RespectIgnoreDifferences=true/);
     assert.match(app, /prune: true/);
     assert.match(app, /selfHeal: true/);
@@ -96,7 +97,7 @@ describe("infra bootstrap kit", () => {
     assert.doesNotMatch(wf, /privileged/);
 
     const webDocker = readFileSync(resolve(root, "docker/web.Dockerfile"), "utf8");
-    assert.match(webDocker, /FROM nginx:1\.27-alpine/);
+    assert.match(webDocker, /FROM nginxinc\/nginx-unprivileged:1\.27-alpine/);
     assert.match(webDocker, /USER nginx/);
     assert.match(webDocker, /nginx-main\.conf/);
     assert.match(webDocker, /EXPOSE 8080/);

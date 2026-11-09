@@ -111,7 +111,7 @@ export function SessionPlanCard({
       )}
       {unmapped && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Schedule label only — not a verified pin. Floorwise will not invent a walk.
+          Schedule label only — not a verified pin. confXarm64 will not invent a walk.
         </p>
       )}
       {sample && (

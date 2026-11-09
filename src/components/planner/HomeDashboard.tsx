@@ -12,9 +12,9 @@ import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { catalog } from "@/lib/catalog";
 import { mustGoBooths } from "@/lib/expo-pins";
 import { PLANNER_GOALS, profileDisplayName } from "@/lib/planner-profile";
-import { filterRankedSessions, hasInterestMatch } from "@/lib/ranked-filter";
+import { filterRankedSessions, hasExhibitorTopicMatch, hasInterestMatch } from "@/lib/ranked-filter";
 import { pickSponsorSuggestion } from "@/lib/suggestions";
-import { ensureTaste, overlayTasteRank, rankedTopicEntries, tasteMatchPercent } from "@/lib/taste";
+import { ensureTaste, rankedTopicEntries } from "@/lib/taste";
 import { useAppState } from "@/state/app-state";
 import { Star } from "lucide-react";
 import { useMemo } from "react";
@@ -59,17 +59,14 @@ export function HomeDashboard() {
   }, [rankedSessions, dayFilter, includeEnded, plannerIso, profile.attendanceDays, trackFilter]);
 
   if (!profile.onboarded) return <OnboardingFlow />;
-  const tasted = overlayTasteRank(visible, taste);
-  const talks = tasted
+  const talks = visible
     .filter((row) => {
       if (row.item.dataset === "sample") return false;
       if (searching) return true;
       const track = row.item.track ?? "";
       const types = row.item.sessionTypeLabels ?? [];
       if (/registration/i.test(track) || types.some((label) => /registration/i.test(label))) return false;
-      const match = tasteMatchPercent(row.item, taste, officialSessions);
-      if (!hasInterestMatch(row) && match < 20) return false;
-      return true;
+      return hasInterestMatch(row);
     })
     .slice(0, searching ? 12 : 5);
   const topTopics = rankedTopicEntries(taste)
@@ -105,7 +102,7 @@ export function HomeDashboard() {
     rankedBooths,
   });
   const exhibitors = rankedBooths
-    .filter((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)
+    .filter((row) => hasExhibitorTopicMatch(row))
     .filter((row) => row.item.id !== sponsor?.boothId)
     .slice(0, 3);
   const personalMustGo = mustGoBooths(catalog.booths, sponsorPrefs);
@@ -126,7 +123,7 @@ export function HomeDashboard() {
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
             {profile.role ? `${profile.role} · ` : ""}
             {topTopics.join(" · ") || "Swipe talks or boost a topic"}
-            . Rankings use Elasticsearch plus your taste weights over the official main schedule
+            . Rankings come from Elasticsearch, including topic boosts sent with the query, over the official main schedule
             {rankMeta ? ` · last query ${rankMeta.tookMs} ms` : ""}. Stored only in this browser — no cloud account.
           </p>
         </div>
@@ -154,7 +151,7 @@ export function HomeDashboard() {
         <div className="rounded-2xl border border-destructive/30 bg-card px-4 py-3 text-sm" role="alert">
           <p className="font-semibold">Search is unavailable</p>
           <p className="mt-1 text-muted-foreground">
-            {rankError ?? "Elasticsearch did not return a ranking."} Floorwise will not invent talks to fill this space.
+            {rankError ?? "Elasticsearch did not return a ranking."} confXarm64 will not invent talks to fill this space.
           </p>
           <Button type="button" className="mt-3" variant="outline" onClick={retryRank}>
             Retry ranking
@@ -180,8 +177,8 @@ export function HomeDashboard() {
           {rankStatus === "ready" && talks.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
               {searching
-                ? "No official talks matched that query on the days and track you picked. Try keyword or hybrid, or another day. Floorwise will not invent sessions."
-                : "No official talks matched this taste yet. Boost a topic on the map or deal a few cards. Floorwise will not invent sessions."}
+                ? "No official talks matched that query on the days and track you picked. Try keyword or hybrid, or another day. confXarm64 will not invent sessions."
+                : "No official talks matched this taste yet. Boost a topic on the map or deal a few cards. confXarm64 will not invent sessions."}
             </p>
           )}
           <AnimatedStack>

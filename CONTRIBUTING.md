@@ -1,4 +1,4 @@
-# Contributing to Floorwise
+# Contributing to confXarm64
 
 ## PR checklist (Gitar / human)
 
@@ -9,7 +9,7 @@
 - [ ] Sponsor mirror still shows Must/Maybe visitors for Elastic
 - [ ] Connect / share my details requires an explicit consent checkbox and does not fire from Must/Maybe/Meh
 - [ ] `/sponsor-portal` is tenant-scoped; demo dashboard stays read-only sample data
-- [ ] Tools tabs (Sonar, Dash0, Radar, Elasticsearch) load; missing keys show Needs setup; synthetic Dash0 dashboard stays labeled and is not mixed into Live
+- [ ] Tools tabs (Sonar, Dash0, Radar, Elasticsearch) load; missing keys show Needs setup; Dash0 defaults to Live (empty); synthetic stays opt-in and labeled; Radar does not call api.radar.io
 - [ ] No new secrets committed; `data/`, Dash0/OTel env, Sonar/Radar tokens, and sponsor-secret files stay gitignored
 - [ ] `npm run build` is green
 

@@ -34,8 +34,8 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/part-of: confxarm64
     spec:
-      # nginx:alpine uid 101. Starting as root with capabilities.drop ALL
-      # fails: chown("/var/cache/nginx/client_temp", 101) Operation not permitted.
+      # nginxinc/nginx-unprivileged is uid 101 and listens on 8080.
+      # Keep runAsUser 101 + /tmp pid/cache emptyDirs so drop ALL never needs CAP_CHOWN.
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
@@ -54,6 +54,7 @@ spec:
             runAsGroup: 101
             capabilities:
               drop: ["ALL"]
+          # nginxinc/nginx-unprivileged listens on 8080 (Service web 80 → 8080; Service app 80 → 8080).
           ports:
             - containerPort: 8080
               name: http

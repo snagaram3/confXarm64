@@ -705,7 +705,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           : 0;
         if (when > Date.now() && when - Date.now() < 2_147_000_000) {
           const timer = window.setTimeout(() => {
-            new Notification("Floorwise reminder", { body: session?.title ?? "Upcoming session" });
+            new Notification("confXarm64 reminder", { body: session?.title ?? "Upcoming session" });
             foregroundTimers.current.delete(sessionId);
           }, Math.max(0, when - Date.now()));
           foregroundTimers.current.set(sessionId, timer);

@@ -211,4 +211,8 @@ export interface EsHealth {
     endpoint: string | null;
     serviceName: string;
   };
+  askSchedule?: {
+    available: boolean;
+    reason: string;
+  };
 }

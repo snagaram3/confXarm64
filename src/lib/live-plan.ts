@@ -1,7 +1,7 @@
 import { overlaps, type SessionTiming } from "./agenda";
 import { CONFERENCE_DAYS, type ConferenceDayId } from "./ask";
 import { mustGoBooths } from "./expo-pins";
-import { bufferFromPacked, maxSessionsPerDay, overlayTasteRank, whyTaste } from "./taste";
+import { bufferFromPacked, maxSessionsPerDay, whyTaste } from "./taste";
 import { CONFERENCE_TZ, dayKey } from "./timezone";
 import type { Booth, Profile, Rank, Ranked, Session, TasteProfile } from "./types";
 
@@ -42,7 +42,7 @@ export function buildLivePlan(opts: {
   const days = profile.attendanceDays.length ? profile.attendanceDays : CONFERENCE_DAYS.map((day) => day.id);
   const maxPerDay = maxSessionsPerDay(taste.packed);
   const bufferMin = bufferFromPacked(taste.packed);
-  const ordered = overlayTasteRank(ranked, taste).filter((row) => {
+  const ordered = ranked.filter((row) => {
     if (row.item.dataset === "sample") return false;
     if (row.item.isServiceSession) return false;
     if (/registration/i.test(row.item.track ?? "")) return false;

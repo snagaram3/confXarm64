@@ -46,7 +46,7 @@ export function LiveItinerary() {
 
       {groups.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">
-          Swipe a few official talks or boost a topic to preview a day. Floorwise will not invent sessions.
+          Swipe a few official talks or boost a topic to preview a day. confXarm64 will not invent sessions.
         </p>
       ) : (
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
