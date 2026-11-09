@@ -19,6 +19,7 @@ RADAR_UI_URL: {{ .Values.config.radarUiUrl }}
 {{- end }}
 
 In-cluster Elasticsearch is {{ .Values.elasticsearch.url }} (cluster.name={{ .Values.elasticsearch.clusterName }}).
+Elastic Cloud Jina is a separate path ({{ .Values.config.elasticCloud.projectAlias }}). Needs ELASTIC_CLOUD_API_KEY in the Secret.
 Do not point this release at a foreign host :9200 cluster.
 Do not wipe a Compose volume on loopback :19200.
 
@@ -32,6 +33,7 @@ Secrets (never commit tokens). Apply then restart the API:
     --from-literal=DASH0_AUTH_TOKEN= \
     --from-literal=OTEL_EXPORTER_OTLP_HEADERS= \
     --from-literal=SONAR_TOKEN= \
+    --from-literal=ELASTIC_CLOUD_API_KEY= \
     --from-literal=RADAR_SECRET_KEY= \
     --from-literal=RADAR_PUBLISHABLE_KEY= \
     --dry-run=client -o yaml | kubectl apply -f -

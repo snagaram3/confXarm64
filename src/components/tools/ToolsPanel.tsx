@@ -313,6 +313,22 @@ function ElasticPane() {
       sampleHits: Array<{ id: string; score: number; rank: string; why: string }>;
       tookMs: number | null;
       notice: string;
+      cloud?: {
+        state: ToolFrame["state"];
+        configured: boolean;
+        missingEnv: string[];
+        projectAlias: string;
+        region: string;
+        kibanaUrl: string;
+        embeddingsInferenceId: string;
+        rerankInferenceId: string;
+        demoIndex: string;
+        notice: string;
+        embeddings: { inferenceId: string; model: string; dims: number; used: boolean };
+        rerank: { inferenceId: string; model: string; used: boolean };
+        semanticHits: Array<{ id: string; score: number; body: string }>;
+        error: string | null;
+      };
     }
   >("elasticsearch");
   return (
@@ -342,6 +358,60 @@ function ElasticPane() {
               ))}
             </ul>
           )}
+          {data.cloud ? (
+            <section className="rounded-xl border border-border bg-secondary/30 p-3" aria-labelledby="elastic-cloud-heading">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 id="elastic-cloud-heading" className="text-sm font-semibold">
+                  Elastic Cloud · Jina
+                </h4>
+                <Status
+                  frame={{
+                    ...data,
+                    state: data.cloud.state,
+                    error: data.cloud.error,
+                    missingEnv: data.cloud.missingEnv,
+                  }}
+                />
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">{data.cloud.notice}</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Metric label="Project" value={data.cloud.projectAlias} />
+                <Metric label="Region" value={data.cloud.region} />
+                <Metric label="Embeddings" value={data.cloud.embeddings.inferenceId} />
+                <Metric label="Rerank" value={data.cloud.rerank.inferenceId} />
+                <Metric label="Demo index" value={data.cloud.demoIndex} />
+                <Metric
+                  label="Jina used"
+                  value={
+                    data.cloud.embeddings.used || data.cloud.rerank.used
+                      ? `embed ${data.cloud.embeddings.used ? "yes" : "no"} · rerank ${data.cloud.rerank.used ? "yes" : "no"}`
+                      : "no"
+                  }
+                />
+              </div>
+              {data.cloud.missingEnv.length > 0 ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Needs setup. Missing {data.cloud.missingEnv.join(", ")} (Kubernetes Secret confxarm64-secrets). Public
+                  URLs are in GitOps; the API key is not.
+                </p>
+              ) : null}
+              {data.cloud.error ? <p className="mt-2 text-sm text-muted-foreground">{data.cloud.error}</p> : null}
+              {data.cloud.semanticHits.length > 0 ? (
+                <ul className="mt-2 flex flex-col gap-1 text-sm">
+                  {data.cloud.semanticHits.map((hit) => (
+                    <li key={hit.id} className="rounded-lg border border-border px-2 py-1">
+                      <span className="font-medium">{hit.id}</span>
+                      <span className="ml-2 font-mono text-[11px]">{hit.score.toFixed(3)}</span>
+                      <span className="block text-xs text-muted-foreground">{hit.body}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <p className="mt-2 text-xs text-muted-foreground">
+                Kibana {data.cloud.kibanaUrl} — login required; this tab does not invent Cloud results.
+              </p>
+            </section>
+          ) : null}
         </>
       )}
     </Shell>

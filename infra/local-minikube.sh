@@ -191,7 +191,7 @@ if [[ "${INSTALL_RADAR}" == "1" ]]; then
 fi
 echo
 echo "=== Secrets still needed (never commit) ==="
-echo "${NS}/confxarm64-secrets keys: DASH0_AUTH_TOKEN, OTEL_EXPORTER_OTLP_HEADERS, SONAR_TOKEN,"
+echo "${NS}/confxarm64-secrets keys: DASH0_AUTH_TOKEN, OTEL_EXPORTER_OTLP_HEADERS, SONAR_TOKEN, ELASTIC_CLOUD_API_KEY,"
 echo "  RADAR_SECRET_KEY / RADAR_PUBLISHABLE_KEY (api.radar.io only)"
 echo "dash0-system/dash0-auth key: token + DASH0_OTLP_GRPC_ENDPOINT=ingress.<region>.aws.dash0.com:4317"
 echo "radar/radar-cloud-config key: token (rhc_… from https://app.radarhq.io) — optional"

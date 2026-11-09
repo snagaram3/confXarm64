@@ -42,6 +42,7 @@ services:
       # Container-internal DNS; not the host-published 19200 port.
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_INDEX: floorwise
+      ELASTIC_CLOUD_API_KEY: ${ELASTIC_CLOUD_API_KEY:-}
       PORT: "43181"
       OTEL_SERVICE_NAME: confxarm64-api
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}

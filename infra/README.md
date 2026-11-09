@@ -121,6 +121,8 @@ Laptop Compose: project `-p floorwise`, host **:19200**, volume `floorwise_esdat
 
 The API does not invent rank hits. Tools → Elasticsearch shows the real cluster or needs-setup/error.
 
+Elastic Cloud Serverless (Jina embeddings `confxarm64-jina-embeddings`, rerank `confxarm64-jina-rerank`, demo index `confxarm64-jina-demo`) is a **separate** path. Public URLs and inference ids live in `elastic/cloud.json` and Helm `config.elasticCloud`. The API key is `ELASTIC_CLOUD_API_KEY` on Secret `confxarm64-secrets`. Without it, Tools shows **Needs setup** and in-cluster `floorwise` ranking still runs. Do not retarget `ELASTICSEARCH_URL` at Cloud.
+
 ## Secrets (never commit)
 
 Argo CD renders Helm without cluster `lookup()`, so empty `stringData` placeholders would wipe tokens on every `selfHeal` sync. The CNH overlay sets `secrets.create: false`. Create the Secret by hand (or patch keys). The Application ignores `/data` and `/stringData` if a Secret shell is ever rendered.
@@ -130,6 +132,7 @@ kubectl -n team-confxarm64 create secret generic confxarm64-secrets \
   --from-literal=DASH0_AUTH_TOKEN= \
   --from-literal=OTEL_EXPORTER_OTLP_HEADERS= \
   --from-literal=SONAR_TOKEN= \
+  --from-literal=ELASTIC_CLOUD_API_KEY= \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
@@ -137,7 +140,7 @@ If Argo already tracks an empty `confxarm64-secrets` from an earlier sync, annot
 
 | Secret | Keys |
 | --- | --- |
-| `team-confxarm64/confxarm64-secrets` | `DASH0_AUTH_TOKEN`, `OTEL_EXPORTER_OTLP_HEADERS`, `SONAR_TOKEN` |
+| `team-confxarm64/confxarm64-secrets` | `DASH0_AUTH_TOKEN`, `OTEL_EXPORTER_OTLP_HEADERS`, `SONAR_TOKEN`, `ELASTIC_CLOUD_API_KEY` |
 | `dash0-system/dash0-auth` | `token` plus env `DASH0_OTLP_GRPC_ENDPOINT`, `DASH0_API_ENDPOINT`, `DASH0_OTLP_HTTP_ENDPOINT` |
 
 Then `kubectl -n team-confxarm64 rollout restart deploy/api`.
@@ -157,5 +160,6 @@ npm run vapid:provision
 - Tools → Dash0: https://confxarm64.cnh.radarhq.io/tools/dash0
 - Tools → Radar: https://confxarm64.cnh.radarhq.io/tools/radar
 - Tools → Sonar: https://confxarm64.cnh.radarhq.io/tools/sonar
+- Tools → Elasticsearch: https://confxarm64.cnh.radarhq.io/tools/elasticsearch
 - Dash0 product: https://app.dash0.com
 - Radar Cloud: https://confxarm64.cnh.radarhq.io

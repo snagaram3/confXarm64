@@ -20,3 +20,13 @@ data:
   SONAR_PROJECT_KEY: {{ .Values.config.sonar.projectKey | quote }}
   SONAR_ORGANIZATION: {{ .Values.config.sonar.organization | quote }}
   RADAR_UI_URL: {{ .Values.config.radarUiUrl | quote }}
+  ELASTIC_CLOUD_ELASTICSEARCH_URL: {{ .Values.config.elasticCloud.elasticsearchUrl | quote }}
+  ELASTIC_CLOUD_INGEST_URL: {{ .Values.config.elasticCloud.ingestUrl | quote }}
+  ELASTIC_CLOUD_KIBANA_URL: {{ .Values.config.elasticCloud.kibanaUrl | quote }}
+  ELASTIC_CLOUD_MCP_URL: {{ .Values.config.elasticCloud.mcpUrl | quote }}
+  ELASTIC_CLOUD_PROJECT_ALIAS: {{ .Values.config.elasticCloud.projectAlias | quote }}
+  ELASTIC_CLOUD_PROJECT_ID: {{ .Values.config.elasticCloud.projectId | quote }}
+  ELASTIC_CLOUD_REGION: {{ .Values.config.elasticCloud.region | quote }}
+  ELASTIC_CLOUD_EMBEDDINGS_INFERENCE_ID: {{ .Values.config.elasticCloud.embeddingsInferenceId | quote }}
+  ELASTIC_CLOUD_RERANK_INFERENCE_ID: {{ .Values.config.elasticCloud.rerankInferenceId | quote }}
+  ELASTIC_CLOUD_DEMO_INDEX: {{ .Values.config.elasticCloud.demoIndex | quote }}

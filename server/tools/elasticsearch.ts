@@ -1,4 +1,6 @@
+import { cloudRankMetaBase, elasticCloudConfigured, elasticCloudHealth, type CloudRankMeta } from "../elastic-cloud.ts";
 import { es, INDEX, pingCluster } from "../es.ts";
+import { probeJinaCloud, type CloudSemanticHit } from "../jina.ts";
 import { hybridSearch } from "../search.ts";
 import { localStatsSnapshot } from "./local-stats.ts";
 import { redactError } from "./redact.ts";
@@ -28,7 +30,31 @@ export type EsSnapshot = {
   sampleHits: Array<{ id: string; score: number; rank: string; why: string }>;
   tookMs: number | null;
   notice: string;
+  cloud: ReturnType<typeof elasticCloudHealth> & {
+    embeddings: CloudRankMeta["embeddings"];
+    rerank: CloudRankMeta["rerank"];
+    semanticHits: CloudSemanticHit[];
+    error: string | null;
+  };
 };
+
+export function cloudToolFields(
+  meta: CloudRankMeta,
+  semanticHits: CloudSemanticHit[] = [],
+  env: NodeJS.ProcessEnv = process.env,
+): EsSnapshot["cloud"] {
+  const health = elasticCloudHealth(env);
+  return {
+    ...health,
+    state: meta.state,
+    configured: meta.configured,
+    missingEnv: meta.missingEnv,
+    embeddings: meta.embeddings,
+    rerank: meta.rerank,
+    semanticHits,
+    error: meta.error,
+  };
+}
 
 export async function fetchElasticsearch(): Promise<EsSnapshot> {
   const indexName = INDEX;
@@ -47,7 +73,8 @@ export async function fetchElasticsearch(): Promise<EsSnapshot> {
     sampleHits: [],
     tookMs: null,
     notice:
-      "This is the confXarm64 cluster only (index name floorwise). Do not point this app at an unrelated host :9200 cluster.",
+      "This is the confXarm64 in-cluster Elasticsearch (index name floorwise). Elastic Cloud Jina is a separate path and is never used to replace this cluster.",
+    cloud: cloudToolFields(cloudRankMetaBase()),
   };
 
   try {
@@ -92,6 +119,17 @@ export async function fetchElasticsearch(): Promise<EsSnapshot> {
       if (base.state === "ok") {
         base.state = "error";
         base.error = redactError(err);
+      }
+    }
+
+    if (elasticCloudConfigured()) {
+      try {
+        const probe = await probeJinaCloud();
+        base.cloud = cloudToolFields(probe.cloud, probe.semanticHits);
+      } catch (err) {
+        base.cloud = cloudToolFields(
+          cloudRankMetaBase(process.env, { state: "error", error: redactError(err) }),
+        );
       }
     }
 

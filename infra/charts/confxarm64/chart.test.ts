@@ -27,7 +27,11 @@ describe("confXarm64 Helm chart", () => {
     const values = read("values.yaml");
     assert.match(values, /http:\/\/elasticsearch:9200/);
     assert.match(values, /clusterName: floorwise/);
+    assert.match(values, /confxarm64-f141cd\.es\.us-central1\.gcp\.elastic\.cloud/);
+    assert.match(values, /confxarm64-jina-embeddings/);
+    assert.match(values, /confxarm64-jina-rerank/);
     assert.doesNotMatch(values, /rhc_|sk-|AKIA|Bearer /);
+    assert.doesNotMatch(values, /ELASTIC_CLOUD_API_KEY:/);
 
     const cnh = read("values-cnh.yaml");
     assert.match(cnh, /appService:/);
@@ -36,7 +40,10 @@ describe("confXarm64 Helm chart", () => {
     assert.match(cnh, /enabled: false/);
     assert.match(cnh, /https:\/\/ingress\.us-east-1\.aws\.dash0\.com/);
     assert.match(cnh, /https:\/\/api\.us-east-1\.aws\.dash0\.com/);
+    assert.match(cnh, /confxarm64-f141cd\.es\.us-central1\.gcp\.elastic\.cloud/);
+    assert.match(cnh, /confxarm64-jina-embeddings/);
     assert.match(cnh, /create: false/);
+    assert.doesNotMatch(cnh, /ELASTIC_CLOUD_API_KEY:/);
     assert.doesNotMatch(cnh, /radarUiUrl: "https:\/\/confxarm64\.cnh\.radarhq\.io"/);
     assert.doesNotMatch(cnh, /rhc_|sk-|AKIA|Bearer |Authorization/);
 
@@ -102,5 +109,9 @@ describe("confXarm64 Helm chart", () => {
     assert.match(cm, /DASH0_API_BASE_URL/);
     assert.match(cm, /SONAR_HOST_URL/);
     assert.match(cm, /FLOORWISE_SYNTHETIC_OTEL/);
+    assert.match(cm, /ELASTIC_CLOUD_ELASTICSEARCH_URL/);
+    assert.match(cm, /ELASTIC_CLOUD_EMBEDDINGS_INFERENCE_ID/);
+    assert.match(cm, /ELASTIC_CLOUD_DEMO_INDEX/);
+    assert.doesNotMatch(cm, /ELASTIC_CLOUD_API_KEY/);
   });
 });
