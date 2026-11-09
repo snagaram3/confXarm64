@@ -133,16 +133,52 @@
   font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 
+.fg-taste-spotlight {
+  position: relative;
+  padding: 28px;
+  border-radius: 20px;
+  background: var(--fg-surface);
+  border: 3px solid var(--fg-lime);
+  box-shadow: 0 0 0 8px rgba(217, 249, 157, 0.18), var(--fg-shadow-lift);
+}
+
+.fg-start-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--fg-lime);
+  color: var(--fg-ink);
+  font: 600 11px "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
 .fg-taste-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
 }
+
+.fg-taste-title {
+  font: 500 32px/1.1 Fraunces, serif;
+  letter-spacing: -0.02em;
+  color: var(--fg-ink);
+  text-transform: lowercase;
+  margin: 0;
+}
+
+.fg-taste-lede {
+  margin: 10px 0 0;
+  color: var(--fg-muted);
+  font-size: 15px;
+  line-height: 1.4;
+}
 .fg-progress {
   height: 2px;
   background: var(--fg-line);
   border-radius: 2px;
-  margin: 12px 0 22px;
+  margin: 16px 0 22px;
   overflow: hidden;
 }
 .fg-progress i {
@@ -1096,6 +1132,14 @@
   .field-guide h1.fg-hero {
     font-size: 40px;
   }
+  .fg-taste-spotlight {
+    padding: 20px 18px;
+    border-width: 2px;
+    box-shadow: 0 0 0 6px rgba(217, 249, 157, 0.16), var(--fg-shadow);
+  }
+  .fg-taste-title {
+    font-size: 26px;
+  }
   .fg-pick {
     grid-template-columns: 36px minmax(0, 1fr);
     padding: 18px 16px;
@@ -1158,6 +1202,9 @@
   .fg-pick:hover,
   .fg-pick:focus-within {
     transform: none;
+  }
+  .fg-taste-spotlight {
+    box-shadow: 0 0 0 8px rgba(217, 249, 157, 0.18);
   }
 }
 

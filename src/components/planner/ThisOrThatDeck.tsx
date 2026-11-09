@@ -144,13 +144,15 @@ export function ThisOrThatDeck({
   const countLabel = `${String(Math.min(idx + 1, TASTE_PAIRS.length)).padStart(2, "0")} / ${String(TASTE_PAIRS.length).padStart(2, "0")}`;
 
   return (
-    <section aria-labelledby="tasteH">
+    <section aria-labelledby="tasteH" className="fg-taste-spotlight">
+      <div className="fg-start-pill">Start here</div>
       <div className="fg-taste-head">
-        <h2 className="fg-eyebrow" id="tasteH">
+        <h2 className="fg-taste-title" id="tasteH">
           This or that
         </h2>
         <span className="fg-eyebrow">{countLabel}</span>
       </div>
+      <p className="fg-taste-lede">Pick a side. The ranked picks rewrite themselves.</p>
       <div className="fg-progress" aria-hidden="true">
         <i style={{ transform: `scaleX(${progress})` }} />
       </div>
