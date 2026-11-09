@@ -6,7 +6,7 @@ import { fetchTool, type ToolFrame, type ToolTab } from "@/lib/tools";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 const LABELS: Record<ToolTab, string> = {
-  sonar: "Sonar",
+  sonar: "Code Quality",
   dash0: "Dash0",
   radar: "Radar",
   elasticsearch: "Elasticsearch",
@@ -165,13 +165,17 @@ function SonarPane() {
     }
   >("sonar");
   return (
-    <Shell title="SonarQube" frame={data} loading={loading} error={error} onRefresh={refresh}>
-          {data?.uiUrl ? (
+    <Shell title="Code Quality" frame={data} loading={loading} error={error} onRefresh={refresh}>
+          <p className="text-sm text-muted-foreground">
+        This project uses <a className="font-semibold text-primary underline" href="https://gitar.ai" target="_blank" rel="noreferrer">Gitar</a> for code review and quality checks.
+        Gitar analyzes GitHub CI results (npm test and npm run build) on pull requests.
+      </p>
+      {data?.uiUrl ? (
         <p className="text-sm">
           <a className="font-semibold text-primary underline" href={data.uiUrl} target="_blank" rel="noreferrer">
-            Open SonarQube
+            Open External Quality Gate
           </a>
-          <span className="text-muted-foreground"> — this is the server at SONAR_HOST_URL, not invented scan results.</span>
+          <span className="text-muted-foreground"> — server at SONAR_HOST_URL (optional, not used by default).</span>
         </p>
       ) : null}
           {data?.configured && (
