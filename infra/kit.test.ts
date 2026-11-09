@@ -28,6 +28,7 @@ describe("infra bootstrap kit", () => {
     assert.match(boot, /DASH0_AUTH_TOKEN/);
     assert.match(boot, /SONAR_TOKEN/);
     assert.match(boot, /rhc_/);
+    assert.match(boot, /github\.com\/snagaram3\/confXarm64/);
   });
 
   it("keeps minikube as an optional labeled fallback", () => {
@@ -41,28 +42,54 @@ describe("infra bootstrap kit", () => {
     assert.doesNotMatch(local, /minikube delete/);
   });
 
-  it("refuses to upload source without SONAR_TOKEN and documents Origin", () => {
+  it("refuses to upload source without SONAR_TOKEN and keeps CI Gitar-only", () => {
     const scan = read("sonar-scan.sh");
     assert.match(scan, /SONAR_TOKEN is empty/);
     assert.match(scan, /will not upload source/);
     assert.doesNotMatch(scan, /sk_|rhc_/);
 
     const ci = readFileSync(resolve(root, ".github/workflows/ci.yml"), "utf8");
-    assert.match(ci, /Origin will not execute/);
-    assert.match(ci, /SonarSource\/sonarqube-scan-action@v5/);
-    assert.match(ci, /secrets\.SONAR_TOKEN/);
-    assert.match(ci, /public GitHub/);
+    assert.match(ci, /npm test/);
+    assert.match(ci, /npm run build/);
+    assert.doesNotMatch(ci, /SonarSource\/sonarqube-scan-action/);
+    assert.doesNotMatch(ci, /SONAR_TOKEN/);
+    assert.doesNotMatch(ci, /sonar-project\.properties/);
 
     const gitar = readFileSync(resolve(root, ".gitar/review/README.md"), "utf8");
-    assert.match(gitar, /public GitHub repository/);
-    assert.match(gitar, /infra\/sonar-scan\.sh/);
+    assert.match(gitar, /planner-first/);
+    assert.match(gitar, /Elasticsearch/);
+    assert.doesNotMatch(gitar, /Gitar \/ Sonar/);
+    assert.doesNotMatch(gitar, /optional Sonar scan/);
+
+    const apply = readFileSync(resolve(root, ".gitar/config/apply.md"), "utf8");
+    assert.match(apply, /Skip/);
+    assert.match(apply, /secrets/i);
   });
 
-  it("points Argo CD at the CNH namespace and Helm chart without tokens", () => {
+  it("points Argo CD at this public GitHub repo and Helm chart without tokens", () => {
     const app = read("argocd/application.yaml");
     assert.match(app, /namespace: team-confxarm64/);
     assert.match(app, /path: infra\/charts\/confxarm64/);
     assert.match(app, /values-cnh\.yaml/);
+    assert.match(app, /values-images\.yaml/);
+    assert.match(app, /repoURL: https:\/\/github\.com\/snagaram3\/confXarm64\.git/);
+    assert.match(app, /targetRevision: main/);
+    assert.doesNotMatch(app, /OWNER\/REPO/);
     assert.doesNotMatch(app, /rhc_|sk-|AKIA/);
+  });
+
+  it("builds lowercase GHCR images on push to main", () => {
+    const wf = readFileSync(resolve(root, ".github/workflows/deploy.yaml"), "utf8");
+    assert.match(wf, /name: build-and-deploy/);
+    assert.match(wf, /GITHUB_REPOSITORY,,/);
+    assert.match(wf, /docker\/web\.Dockerfile/);
+    assert.match(wf, /docker\/api\.Dockerfile/);
+    assert.match(wf, /values-images\.yaml/);
+    assert.doesNotMatch(wf, /privileged/);
+
+    const images = read("charts/confxarm64/values-images.yaml");
+    assert.match(images, /ghcr\.io\/snagaram3\/confxarm64/);
+    assert.doesNotMatch(images, /ghcr\.io\/snagaram3\/confXarm64/);
+    assert.doesNotMatch(images, /rhc_|sk-|AKIA/);
   });
 });

@@ -101,7 +101,7 @@ Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). Flo
 ./infra/sonar-scan.sh
 ```
 
-`.github/workflows/ci.yml` runs the same scan on GitHub Actions using `SONAR_HOST_URL` / `SONAR_TOKEN` secrets. This Origin repository has **no GitHub Actions runner**. A **public GitHub repository** is required for Gitar and Actions. The script is the path that works immediately.
+CI on GitHub does **not** run Sonar. `.github/workflows/ci.yml` is `npm test` and `npm run build` only (Gitar diagnoses those jobs). `./infra/sonar-scan.sh` remains a local optional path and still refuses to upload without a token you supply.
 
 Optional local SonarQube (not CNH — it will not fit the quota): `infra/local-minikube.sh --with-sonar`. Still needs a token you create before any upload. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
 

@@ -33,6 +33,11 @@ describe("confXarm64 Helm chart", () => {
     assert.match(cnh, /confxarm64\.cnh\.radarhq\.io/);
     assert.match(cnh, /enabled: false/);
 
+    const images = read("values-images.yaml");
+    assert.match(images, /ghcr\.io\/snagaram3\/confxarm64-api/);
+    assert.match(images, /ghcr\.io\/snagaram3\/confxarm64:/);
+    assert.doesNotMatch(images, /ghcr\.io\/snagaram3\/confXarm64/);
+
     const api = read("templates/api.yaml");
     assert.match(api, /path: \/api\/health/);
     assert.match(api, /FLOORWISE_SKIP_SEED/);

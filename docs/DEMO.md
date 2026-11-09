@@ -98,7 +98,7 @@ Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `c
 
 Optional local fallback only: `./infra/bootstrap.sh --local` (minikube). Not the judged CNH path.
 
-**Venue-only leftovers:** public GitHub repo for Argo CD + Gitar, image registry, Dash0 token, Sonar token. Do not commit kubeconfigs or `rhc_` tokens.
+**Venue-only leftovers:** make GHCR packages public, connect Gitar (Settings → Configuration while signed in), add the Radar-table email if MCP is 403, Dash0 token if you want Tools → Dash0 live. Do not commit kubeconfigs or `rhc_` tokens.
 
 **Wi-Fi / no Docker backup:** show `infra/` (chart, bootstrap, README). Do not fake a cluster.
 
@@ -119,11 +119,11 @@ confXarm64: Elasticsearch hybrid over the real schedule, honest accessibility, o
 | Merge Forward | Tab → Skip to content → Accessibility → High contrast → Larger text → Inclusion rooms → Map → Expo → keyboard booth list |
 | Radar | `./infra/bootstrap.sh` → https://confxarm64.cnh.radarhq.io → Tools → Radar (Skyhook link) |
 | Dash0 | Tools → Dash0 (`/tools/dash0`); `https://app.dash0.com` only with creds |
-| Sonar | Tools → Sonar; `./infra/sonar-scan.sh` only with your token (Origin does not run GHA; public GitHub needed for Gitar) |
+| Sonar | Tools → Sonar (honest needs-setup); not CI. Gitar is `.gitar/` on GitHub |
 | Overall | `/` is planner; map disclaimer; no RAG without a key |
 
 ## What this environment verified vs not
 
 Verified in the agent VM: unit tests (including axe-core fixture + high-contrast AA), typecheck, live `POST /api/rank` hybrid on the existing **floorwise** ES (this VM publishes ES on `:9200`; Mac stays `:19200`), web `:43180` / API `:43181`.
 
-Not verified here: CNH kubectl apply (no kubeconfig in this VM), minikube/kind/k3d (no Docker unless a later run reports otherwise), Dash0 account, Sonar token, LLM RAG. GitHub Actions CI is in-repo but Origin will not execute it — a public GitHub repo is required for Gitar.
+Not verified here: CNH kubectl apply (Radar MCP 403 / no kubeconfig in this VM), minikube/kind/k3d as a judged path, Dash0 account, Gitar GitHub App install, LLM RAG. GitHub Actions CI (`npm test` / `npm run build`) and `build-and-deploy` run on this public GitHub repo.

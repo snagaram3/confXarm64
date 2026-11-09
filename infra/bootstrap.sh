@@ -65,11 +65,12 @@ Dash0:
   App env:             OTEL_EXPORTER_OTLP_ENDPOINT / HEADERS, DASH0_*
   gRPC ingest:         ingress.<region>.aws.dash0.com:4317
 
-Gitar / Sonar:
+Gitar (Never Merge Broken — no Sonar CI):
   Review brief:        .gitar/review/README.md
-  Local scan:          infra/sonar-scan.sh   (needs SONAR_TOKEN you supply)
-  GitHub Actions:      .github/workflows/ci.yml
-  Origin does not run Actions. A public GitHub repo is required for Gitar + CI.
+  Auto-apply:          .gitar/config/apply.md
+  GitHub Actions:      .github/workflows/ci.yml (npm test && npm run build)
+  Image build:         .github/workflows/deploy.yaml → ghcr.io/snagaram3/confxarm64
+  Connect Gitar:       Settings → Configuration while signed in (not Marketplace signed out)
 
 Elasticsearch:
   In-cluster:          http://elasticsearch:9200  cluster.name=floorwise
@@ -86,8 +87,9 @@ Helm (CNH):
     --set config.radarUiUrl=${RADAR_URL} \\
     --set config.syntheticOtel=0
 
-Argo CD: apply infra/argocd/application.yaml through Radar MCP after you
-replace OWNER/REPO with the public GitHub mirror. Origin cannot host that.
+Argo CD: apply infra/argocd/application.yaml through Radar MCP only if
+list_clusters shows confxarm64. Repo is https://github.com/snagaram3/confXarm64.git.
+HTTP 403: ask the Radar table to add your email. Never commit kubeconfigs.
 
 Secrets still needed (never commit):
   ${NS}/confxarm64-secrets:

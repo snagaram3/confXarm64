@@ -1,6 +1,7 @@
-# Apply once through Radar MCP (apply_resource) or kubectl after the public
-# GitHub repo exists. Argo CD in the CNH cluster reads the repo without credentials.
-# Origin cannot host this Application. Replace OWNER/REPO. Do not commit kubeconfigs.
+# Apply once through Radar MCP (apply_resource) after GHCR images exist and
+# are public. Argo CD in the CNH cluster reads this public GitHub repo without
+# credentials. Do not commit kubeconfigs. Do not apply if Radar MCP cannot see
+# cluster confxarm64 (HTTP 403 means the signed-in email is not on the team).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -9,13 +10,14 @@ metadata:
 spec:
   project: team-confxarm64
   source:
-    repoURL: https://github.com/OWNER/REPO.git
+    repoURL: https://github.com/snagaram3/confXarm64.git
     targetRevision: main
     path: infra/charts/confxarm64
     helm:
       valueFiles:
         - values.yaml
         - values-cnh.yaml
+        - values-images.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: team-confxarm64
