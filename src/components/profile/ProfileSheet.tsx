@@ -75,10 +75,8 @@ export function ProfileSheet() {
                       setProfile({ ...withTaste(profile, nextTaste), demoPersona: false });
                     }}
                     className={cn(
-                      "min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors",
-                      on
-                        ? "border-primary/50 bg-primary/15 text-primary"
-                        : "border-border bg-muted/40 text-muted-foreground hover:bg-accent",
+                      "fg-chip",
+                      on && "is-on",
                     )}
                   >
                     {tag}
@@ -104,8 +102,8 @@ export function ProfileSheet() {
                       setProfile({ ...profile, attendanceDays, demoPersona: false });
                     }}
                     className={cn(
-                      "min-h-11 rounded-full border px-3 text-sm font-semibold",
-                      on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
+                      "fg-chip",
+                      on && "is-on",
                     )}
                   >
                     {day.label}
@@ -129,8 +127,8 @@ export function ProfileSheet() {
                       setProfile({ ...profile, goals, demoPersona: false });
                     }}
                     className={cn(
-                      "min-h-11 rounded-full border px-3 text-sm",
-                      on ? "border-primary bg-primary/10 text-primary" : "border-border bg-card",
+                      "fg-chip",
+                      on && "is-on",
                     )}
                   >
                     {goal.label}
@@ -142,14 +140,14 @@ export function ProfileSheet() {
 
           <A11ySettings />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3">
+          <div className="fg-card flex flex-wrap items-center justify-between gap-3 px-4 py-3">
             <p className="text-sm text-muted-foreground">
               {mustCount} Must · {maybeCount} Maybe
               {savedIds.length ? ` · ${savedIds.length} saved talks kept` : ""}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
-                variant="outline"
+                variant="guideGhost"
                 size="sm"
                 onClick={() => {
                   setProfileOpen(false);
@@ -160,14 +158,14 @@ export function ProfileSheet() {
                 Replay This or That
               </Button>
               <Button
-                variant="outline"
+                variant="guideGhost"
                 size="sm"
                 onClick={() => setProfile({ ...DEMO_PROFILE })}
               >
                 Load labeled sample persona
               </Button>
               <Button
-                variant="outline"
+                variant="guideGhost"
                 size="sm"
                 onClick={() => setProfile({ ...EMPTY_PROFILE, attendanceDays: profile.attendanceDays, onboarded: false })}
               >

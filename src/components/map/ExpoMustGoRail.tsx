@@ -22,17 +22,17 @@ export function ExpoMustGoRail({
   const items = mustGoBooths(catalog.booths, prefs);
 
   return (
-    <div className="pointer-events-auto w-fit max-w-full rounded-2xl border border-border bg-card/95 p-1.5 shadow-sm backdrop-blur-sm sm:p-2">
+    <div className="fg-chrome pointer-events-auto w-fit max-w-full p-1.5 sm:p-2">
       <div className="flex items-center justify-between gap-2 px-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-          <Star className="mr-1 inline size-3 fill-highlight text-highlight" aria-hidden="true" />
+        <p className="fg-eyebrow">
+          <Star className="mr-1 inline size-3 fill-[color:var(--fg-coral)] text-[color:var(--fg-coral)]" aria-hidden="true" />
           Your Must go
         </p>
         <Button
           type="button"
           size="sm"
-          variant={mustOnly ? "default" : "outline"}
-          className="h-8 min-h-8 shrink-0 px-2 text-[11px]"
+          variant={mustOnly ? "guide" : "guideGhost"}
+          className="shrink-0 px-2 text-[11px]"
           aria-pressed={mustOnly}
           onClick={() => onMustOnly(!mustOnly)}
         >
@@ -56,7 +56,9 @@ export function ExpoMustGoRail({
                   aria-label={`${booth.sponsor}, booth ${booth.boothNumber}${booth.pinAvailable ? "" : ", unplaced on expo.pdf"}`}
                   className={cn(
                     "flex min-h-10 min-w-[7.5rem] items-center gap-2 rounded-xl border px-2 py-1 text-left",
-                    selected ? "border-primary bg-primary/10" : "border-border bg-background hover:bg-accent",
+                    selected
+                      ? "border-[color:var(--fg-coral)] bg-[color:var(--fg-coral-bg)]"
+                      : "border-[color:var(--fg-line)] bg-[color:var(--fg-paper)] hover:bg-[color:var(--fg-sunk)]",
                   )}
                 >
                   <SponsorLogo booth={booth} className="size-7" />

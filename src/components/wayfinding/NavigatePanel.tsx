@@ -29,10 +29,10 @@ export function NavigatePanel() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="fg-eyebrow">
           Scripted walk
         </p>
-        <h2 className="mt-1 font-display text-2xl font-semibold">{wayfinding.title}</h2>
+        <h2 className="mt-1 font-display text-2xl font-medium">{wayfinding.title}</h2>
         <p className="text-sm text-muted-foreground">{wayfinding.from} · not live positioning</p>
         <p className="mt-1 text-xs text-muted-foreground">
           On the SAMPLE 3D map, Play walks a labeled marker along this same polyline. Pause and Replay are on the map. Reduced motion shows the full path without looping.

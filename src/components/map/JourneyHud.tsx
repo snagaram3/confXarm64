@@ -115,13 +115,13 @@ export function JourneyHud({
             <div role="listitem" className="min-w-0 flex-1">
               <button
                 type="button"
-                className="flex min-h-11 w-full items-center gap-2 rounded-2xl border border-white/15 bg-[#0b0f1f]/80 px-3 py-1.5 text-left text-white shadow-lg backdrop-blur-md"
+                className="fg-chrome flex min-h-11 w-full items-center gap-2 px-3 py-1.5 text-left"
                 onClick={() => onOpenSession(nextSession.id)}
               >
-                <span className="rounded-full bg-cta px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide">Talk</span>
+                <span className="fg-pill fg-pill-ok">Talk</span>
                 <span className="min-w-0">
                   <span className="block truncate text-[12px] font-semibold">{nextSession.title}</span>
-                  <span className="block truncate text-[10px] text-white/70">
+                  <span className="block truncate text-[10px] text-[color:var(--fg-muted)]">
                     {nextSession.roomLabel} · {nextSession.why}
                   </span>
                 </span>
@@ -132,15 +132,13 @@ export function JourneyHud({
             <div role="listitem" className="shrink-0">
               <button
                 type="button"
-                className="flex min-h-11 max-w-[14rem] items-center gap-2 rounded-2xl border border-white/15 bg-[#0b0f1f]/80 px-3 py-1.5 text-left text-white shadow-lg backdrop-blur-md"
+                className="fg-chrome flex min-h-11 max-w-[14rem] items-center gap-2 px-3 py-1.5 text-left"
                 onClick={() => onSelectBooth(nextBooth.id)}
               >
-                <span className="rounded-full border border-highlight/70 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-highlight">
-                  Booth
-                </span>
+                <span className="fg-pill fg-pill-error">Booth</span>
                 <span className="min-w-0">
                   <span className="block truncate text-[12px] font-semibold">{nextBooth.sponsor}</span>
-                  <span className="block font-mono text-[10px] text-white/70">#{nextBooth.boothNumber}</span>
+                  <span className="fg-mono block text-[10px] text-[color:var(--fg-muted)]">#{nextBooth.boothNumber}</span>
                 </span>
               </button>
             </div>
@@ -150,7 +148,7 @@ export function JourneyHud({
 
       {panel === "booth" && booth ? (
         <div
-          className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-border bg-card/96 p-3 shadow-lg"
+          className="fg-chrome pointer-events-auto mx-auto w-full max-w-xl p-3"
           role="region"
           aria-label={`${booth.sponsor} booth details`}
         >
@@ -176,7 +174,7 @@ export function JourneyHud({
       ) : null}
 
       {panel === "connector" && connector ? (
-        <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-border bg-card/96 p-3 shadow-lg" role="region" aria-label={connectorTitle(connector)}>
+        <div className="fg-chrome pointer-events-auto mx-auto w-full max-w-xl p-3" role="region" aria-label={connectorTitle(connector)}>
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Official PDF label</p>
@@ -193,7 +191,7 @@ export function JourneyHud({
       ) : null}
 
       {panel === "room" && selectedRoom ? (
-        <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-border bg-card/96 p-3 shadow-lg" role="region" aria-label={`${selectedRoom.label} details`}>
+        <div className="fg-chrome pointer-events-auto mx-auto w-full max-w-xl p-3" role="region" aria-label={`${selectedRoom.label} details`}>
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Selected space</p>
@@ -216,51 +214,51 @@ export function JourneyHud({
       ) : null}
 
       {showJourneyBar ? (
-      <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-white/12 bg-[#0b0f1f]/90 px-3 py-2 text-white shadow-[0_12px_40px_rgba(11,15,31,0.35)] backdrop-blur-md">
+      <div className="fg-chrome pointer-events-auto mx-auto w-full max-w-xl px-3 py-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase leading-snug tracking-[0.05em] text-highlight sm:text-[11px]">
+          <p className="fg-eyebrow">
             Illustrative — not verified onsite
           </p>
-          <p className="font-display text-[14px] font-semibold leading-snug sm:text-[15px]">
+          <p className="font-display text-[14px] font-medium leading-snug sm:text-[15px]">
             {hero ? HERO_JOURNEY_TITLE : sample ? "SAMPLE walk to 255" : "Salt Palace + Hyatt"}
           </p>
-          <p className="mt-0.5 text-[12px] leading-snug text-white/80">
+          <p className="mt-0.5 text-[12px] leading-snug text-[color:var(--fg-muted)]">
             {hero ? step.label : sample ? sampleNavDisclaimer(stepFree) : "Tap a room or booth · no verified indoor graph"}
           </p>
         </div>
         <div className="mt-2 flex w-full flex-wrap items-center gap-1">
             {reducedMotion && hero ? (
               <>
-                <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(-1)} aria-label="Previous journey step">
+                <Button type="button" variant="guideGhost" className="h-10 min-h-10 flex-1 px-2" onClick={() => onStep(-1)} aria-label="Previous journey step">
                   <ChevronLeft className="size-4" />
                 </Button>
-                <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 border-white/20 bg-white/5 px-2 text-white hover:bg-white/10" onClick={() => onStep(1)} aria-label="Next journey step">
+                <Button type="button" variant="guideGhost" className="h-10 min-h-10 flex-1 px-2" onClick={() => onStep(1)} aria-label="Next journey step">
                   <ChevronRight className="size-4" />
                 </Button>
               </>
             ) : navPlaying ? (
-              <Button type="button" variant="outline" className="h-10 min-h-10 flex-1 gap-1 border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={onPause} aria-label={hero ? "Pause illustrative journey" : "Pause SAMPLE walkthrough"}>
+              <Button type="button" variant="guideGhost" className="h-10 min-h-10 flex-1 gap-1" onClick={onPause} aria-label={hero ? "Pause illustrative journey" : "Pause SAMPLE walkthrough"}>
                 <Pause className="size-3.5" /> Pause
               </Button>
             ) : (
-              <Button type="button" className="h-10 min-h-10 flex-1 gap-1 bg-cta text-cta-fg hover:bg-cta/90" onClick={onPlay} aria-label={hero ? "Play illustrative journey" : sample ? "Play SAMPLE walkthrough" : "Play illustrative journey"}>
+              <Button type="button" variant="guide" className="h-10 min-h-10 flex-1 gap-1" onClick={onPlay} aria-label={hero ? "Play illustrative journey" : sample ? "Play SAMPLE walkthrough" : "Play illustrative journey"}>
                 <Play className="size-3.5" /> {navProgress > 0 && navProgress < 1 ? "Resume" : "Play"}
               </Button>
             )}
-            <Button type="button" variant="ghost" className="h-10 min-h-10 flex-1 gap-1 text-white hover:bg-white/10" onClick={onReplay} aria-label="Replay journey">
+            <Button type="button" variant="guideGhost" className="h-10 min-h-10 flex-1 gap-1" onClick={onReplay} aria-label="Replay journey">
               <RotateCcw className="size-3.5" /> Replay
             </Button>
-            <Button type="button" variant="ghost" className="h-10 min-h-10 flex-1 gap-1 text-white hover:bg-white/10" onClick={onExplore} aria-label="Explore the map">
+            <Button type="button" variant="guideGhost" className="h-10 min-h-10 flex-1 gap-1" onClick={onExplore} aria-label="Explore the map">
               <Compass className="size-3.5" /> Explore
             </Button>
         </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15" aria-hidden>
-          <div className="h-full rounded-full bg-highlight transition-[width] duration-200" style={{ width: `${Math.round(navProgress * 100)}%` }} />
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color:var(--fg-sunk)]" aria-hidden>
+          <div className="h-full rounded-full bg-[color:var(--fg-navy)] transition-[width] duration-200" style={{ width: `${Math.round(navProgress * 100)}%` }} />
         </div>
         <div className="mt-2 hidden flex-wrap items-center gap-1 sm:flex">
-          <details className="rounded-full bg-white/8 text-[11px]">
+          <details className="rounded-full bg-[color:var(--fg-sunk)] text-[11px]">
             <summary className="cursor-pointer px-3 py-1.5 font-semibold">Rooms</summary>
-            <ul className="absolute bottom-14 left-3 z-40 max-h-40 w-[min(90vw,18rem)] space-y-1 overflow-auto rounded-xl border border-border bg-card p-2 text-foreground shadow-lg">
+            <ul className="fg-chrome absolute bottom-14 left-3 z-40 max-h-40 w-[min(90vw,18rem)] space-y-1 overflow-auto p-2">
               {roomsOnSheet.map((room) => (
                 <li key={room.id}>
                   <button type="button" className="min-h-9 w-full rounded-md px-1 text-left hover:bg-accent" onClick={() => onSelectRoom(room.id)}>
@@ -271,9 +269,9 @@ export function JourneyHud({
               ))}
             </ul>
           </details>
-          <details className="rounded-full bg-white/8 text-[11px]">
+          <details className="rounded-full bg-[color:var(--fg-sunk)] text-[11px]">
             <summary className="cursor-pointer px-3 py-1.5 font-semibold">PDF stairs/elevators</summary>
-            <ul className="absolute bottom-14 left-3 z-40 max-h-40 w-[min(90vw,20rem)] space-y-1 overflow-auto rounded-xl border border-border bg-card p-2 text-foreground shadow-lg">
+            <ul className="fg-chrome absolute bottom-14 left-3 z-40 max-h-40 w-[min(90vw,20rem)] space-y-1 overflow-auto p-2">
               {VENUE_CONNECTORS.map((item) => (
                 <li key={item.id}>
                   <button
@@ -290,7 +288,7 @@ export function JourneyHud({
               ))}
             </ul>
           </details>
-          <p className="hidden px-2 text-[10px] text-white/55 sm:block">Space pause · R replay · Esc explore · ← → steps</p>
+          <p className="hidden px-2 text-[10px] text-[color:var(--fg-muted)] sm:block">Space pause · R replay · Esc explore · ← → steps</p>
         </div>
       </div>
       ) : null}

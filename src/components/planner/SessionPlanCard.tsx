@@ -67,7 +67,7 @@ export function SessionPlanCard({
   return (
     <article
       className={cn(
-        "rounded-2xl border border-border bg-card p-3 shadow-[0_8px_24px_rgba(17,62,130,0.06)]",
+        "fg-card p-4",
         compact && "p-3",
       )}
       aria-labelledby={`talk-${row.item.id}`}
@@ -82,7 +82,7 @@ export function SessionPlanCard({
         </Badge>
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1 font-mono text-primary">
+        <span className="fg-mono inline-flex items-center gap-1 text-[color:var(--fg-navy)]">
           <MapPin className="size-3" aria-hidden />
           <span className="sr-only">Room </span>
           {where}
@@ -118,10 +118,10 @@ export function SessionPlanCard({
         <p className="mt-2 text-xs text-muted-foreground">SAMPLE catalog talk, not an official main-schedule record.</p>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button type="button" variant={saved ? "outline" : "default"} onClick={() => toggleSaved(row.item.id)}>
+        <Button type="button" variant={saved ? "guideGhost" : "guide"} onClick={() => toggleSaved(row.item.id)}>
           {saved ? "Remove from itinerary" : "Add to itinerary"}
         </Button>
-        <Button type="button" variant="outline" onClick={showOnMap}>
+        <Button type="button" variant="guideGhost" onClick={showOnMap}>
           {unmapped ? "Show schedule label" : "Show on map"}
         </Button>
       </div>

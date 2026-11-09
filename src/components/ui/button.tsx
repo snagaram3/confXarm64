@@ -16,6 +16,10 @@ const buttonVariants = cva(
         must: "bg-must text-must-fg hover:bg-must/90",
         maybe: "bg-maybe text-maybe-fg hover:bg-maybe/90",
         cta: "bg-cta text-cta-fg hover:bg-cta/90",
+        guide:
+          "rounded-full bg-[color:var(--fg-ink,#0b1426)] text-[color:var(--fg-paper,#f7f4ec)] hover:bg-[color:var(--fg-navy,#113e82)]",
+        guideGhost:
+          "rounded-full border border-[color:var(--fg-line-strong,#d9d0bc)] bg-[color:var(--fg-surface,#ffffff)] text-[color:var(--fg-ink,#0b1426)] hover:bg-[color:var(--fg-sunk,#efe9dc)]",
       },
       size: {
         default: "h-11 min-h-11 px-4 py-2",

@@ -103,7 +103,7 @@ On CNH the operator is **off by default** (budget). Wire app env through Helm va
 
 ## 3. Gitar (Never Merge Broken)
 
-Gitar is the review/auto-apply track. It is **not** SonarQube.
+Gitar is the review/auto-apply track. It is **not** Sonar. **Tools → Gitar** lists committed `.gitar/` files and the GitHub PR URL — it does not invent review scores.
 
 - Instructions: [`.gitar/review/`](../.gitar/review/)
 - Auto-apply criteria: [`.gitar/config/apply.md`](../.gitar/config/apply.md)

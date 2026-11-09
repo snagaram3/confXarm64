@@ -93,7 +93,8 @@ Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `c
 
 1. https://confxarm64.cnh.radarhq.io/tools/dash0 — Needs setup until `DASH0_AUTH_TOKEN` exists; link to `https://app.dash0.com` only when query creds exist. There is no self-hosted Dash0.
 2. https://confxarm64.cnh.radarhq.io/tools/radar — **Skyhook Radar** (`RADAR_UI_URL` = the CNH URL) labeled separately from the **api.radar.io** geofence adapter.
-3. https://confxarm64.cnh.radarhq.io/tools/sonar — Needs setup without `SONAR_TOKEN`; never a fake quality gate.
+3. https://confxarm64.cnh.radarhq.io/tools/sonar — Needs setup without `SONAR_TOKEN`; never a fake quality gate. This is **Sonar**, not SonarQube-branded UI.
+4. https://confxarm64.cnh.radarhq.io/tools/gitar — Repo-side Gitar config on `snagaram3/confXarm64`. No invented PR list or review scores.
 4. Open Radar Cloud at https://confxarm64.cnh.radarhq.io. Point it at namespace `team-confxarm64`. MCP: https://api.radarhq.io/mcp → Cloud Native Hackathon.
 
 Optional local fallback only: `./infra/bootstrap.sh --local` (minikube). Not the judged CNH path.
@@ -119,7 +120,8 @@ confXarm64: Elasticsearch hybrid over the real schedule, honest accessibility, o
 | Merge Forward | Tab → Skip to content → Accessibility → High contrast → Larger text → Inclusion rooms → Map → Expo → keyboard booth list |
 | Radar | `./infra/bootstrap.sh` → https://confxarm64.cnh.radarhq.io → Tools → Radar (Skyhook link) |
 | Dash0 | Tools → Dash0 (`/tools/dash0`); `https://app.dash0.com` only with creds |
-| Sonar | Tools → Sonar (honest needs-setup); not CI. Gitar is `.gitar/` on GitHub |
+| Sonar | Tools → Sonar (honest needs-setup); not CI |
+| Gitar | Tools → Gitar (`.gitar/` files + GitHub PRs); not invented scores |
 | Overall | `/` is planner; map disclaimer; no RAG without a key |
 
 ## What this environment verified vs not

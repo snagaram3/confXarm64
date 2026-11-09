@@ -16,8 +16,8 @@ export function SponsorPinLayer({
 }) {
   return (
     <div className="pointer-events-none absolute inset-x-3 bottom-14 z-10 sm:bottom-16">
-      <div className="pointer-events-auto rounded-2xl border border-border bg-card/95 p-2 shadow-sm backdrop-blur-sm">
-        <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="fg-chrome pointer-events-auto p-2">
+        <p className="fg-eyebrow px-1 pb-1">
           Official exhibitors · booth # from expo map · pin not geocoded
         </p>
         <div className="flex gap-2 overflow-x-auto pb-1">

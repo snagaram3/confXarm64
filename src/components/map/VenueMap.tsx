@@ -583,10 +583,8 @@ export function VenueMap() {
               key={b}
               type="button"
               className={cn(
-                "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
-                building === b
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card/95 text-muted-foreground",
+                "fg-map-chip pointer-events-auto",
+                building === b && "is-on",
               )}
               onClick={() => setBuilding(b)}
             >
@@ -598,10 +596,8 @@ export function VenueMap() {
               key={`3d-${String(lv)}`}
               type="button"
               className={cn(
-                "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
-                level === lv
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card/95 text-muted-foreground",
+                "fg-map-chip pointer-events-auto",
+                level === lv && "is-on",
               )}
               onClick={() => setLevel(lv)}
             >
@@ -612,12 +608,12 @@ export function VenueMap() {
       )}
       {map3dNotice ? (
         <div className="pointer-events-none absolute right-2 top-14 z-40 max-w-[min(48vw,16rem)]">
-          <p className="rounded-xl border border-border bg-card/95 px-2.5 py-1.5 text-[11px] text-foreground shadow-sm">{map3dNotice}</p>
+          <p className="fg-chrome px-2.5 py-1.5 text-[11px]">{map3dNotice}</p>
         </div>
       ) : null}
       {mapSurface === "expo" && (
         <div className="pointer-events-none absolute left-2 right-2 top-[3.35rem] z-40 flex flex-col gap-1 sm:right-auto sm:max-w-md lg:top-14">
-          <p className="pointer-events-none rounded-xl border border-border bg-card/95 px-2 py-1 text-[11px] leading-snug text-foreground">
+          <p className="fg-chrome pointer-events-none px-2 py-1 text-[11px] leading-snug">
             {STEP_FREE_MAP_NOTICE_SHORT}
           </p>
           <ExpoMustGoRail
@@ -777,7 +773,7 @@ export function VenueMap() {
           <Button
             type="button"
             variant="outline"
-            className="pointer-events-auto h-11 gap-1 bg-card/95 px-3 shadow-sm"
+            className="fg-chrome pointer-events-auto h-11 gap-1 px-3"
             onClick={() => {
               resetMapCamera();
               if (threeSelected) requestMapFocus(threeSelected);
@@ -796,7 +792,7 @@ export function VenueMap() {
           </div>
         )}
         {mapSurface === "expo" && unplacedBooths.length > 0 && (
-          <details className="pointer-events-auto max-w-sm rounded-xl border border-border bg-card/95 p-2 text-xs shadow-sm">
+          <details className="fg-chrome pointer-events-auto max-w-sm p-2 text-xs">
             <summary className="cursor-pointer font-semibold">
               {unplacedBooths.length} exhibitors unplaced
             </summary>
@@ -935,10 +931,8 @@ function MapFlatLayers({
                 key={b}
                 type="button"
                 className={cn(
-                  "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
-                  building === b
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card/95 text-muted-foreground",
+                  "fg-map-chip pointer-events-auto",
+                  building === b && "is-on",
                 )}
                 onClick={() => setBuilding(b)}
               >
@@ -950,10 +944,8 @@ function MapFlatLayers({
                 key={String(lv)}
                 type="button"
                 className={cn(
-                  "pointer-events-auto min-h-8 rounded-full border px-2 py-1 text-[11px] font-semibold",
-                  level === lv
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card/95 text-muted-foreground",
+                  "fg-map-chip pointer-events-auto",
+                  level === lv && "is-on",
                 )}
                 onClick={() => setLevel(lv)}
               >
@@ -962,7 +954,7 @@ function MapFlatLayers({
             ))}
           </div>
           {unplaced.length > 0 && (
-            <details className="absolute bottom-10 left-2 z-20 max-w-[min(90vw,16rem)] rounded-xl border border-border bg-card/95 p-2 text-xs shadow-sm">
+            <details className="fg-chrome absolute bottom-10 left-2 z-20 max-w-[min(90vw,16rem)] p-2 text-xs">
               <summary className="cursor-pointer font-semibold">{unplaced.length} rooms unplaced</summary>
               <ul className="mt-1 max-h-28 overflow-auto text-muted-foreground">
                 {unplaced.map((r) => (

@@ -70,9 +70,10 @@ export function RankedList() {
     <div className="flex flex-col gap-6">
       <TalkSearch prominent />
 
-      <div>
-        <h2 className="font-display text-2xl font-semibold">Talks for your topics</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="fg-page-head">
+        <p className="fg-eyebrow">Search · official schedule</p>
+        <h2 className="fg-hero">Talks for your <em>topics</em></h2>
+        <p className="fg-lede">
           Rankings are personal Elasticsearch fit, not a global popularity score.
           {rankMeta ? ` Last query ${rankMeta.tookMs}ms.` : ""}
         </p>
@@ -84,14 +85,14 @@ export function RankedList() {
           }}
         >
           <label className="grid gap-1">
-            <span className="text-xs font-medium">Ask confXarm64</span>
+            <span className="fg-eyebrow">Ask confXarm64</span>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[color:var(--fg-muted)]" />
               <Input
                 value={askDraft}
                 onChange={(e) => setAskDraft(e.target.value)}
                 placeholder="eBPF near Hyatt on Tuesday"
-                className="h-11 min-h-11 pl-9"
+                className="fg-input h-11 min-h-11 pl-9"
                 aria-label="Ask for talks, a building, a day, or the sample 255 walk"
               />
             </div>
@@ -136,30 +137,30 @@ export function RankedList() {
       />
 
       {rankStatus === "loading" && rankedSessions.length === 0 && (
-        <p className="text-sm text-muted-foreground">Querying Elasticsearch…</p>
+        <p className="text-sm text-[color:var(--fg-muted)]">Querying Elasticsearch…</p>
       )}
       {rankStatus === "error" && (
-        <div className="rounded-2xl border border-destructive/30 p-4 text-sm" role="alert">
+        <div className="fg-alert fg-alert-error" role="alert">
           <p className="font-semibold">Search is unavailable</p>
-          <p className="mt-1 text-muted-foreground">{rankError ?? "Elasticsearch did not return a ranking."} confXarm64 will not invent talks here.</p>
-          <button type="button" className="mt-2 text-sm font-semibold text-primary" onClick={retryRank}>
+          <p className="mt-1">{rankError ?? "Elasticsearch did not return a ranking."} confXarm64 will not invent talks here.</p>
+          <button type="button" className="fg-link mt-2 min-h-11" onClick={retryRank}>
             Retry ranking
           </button>
         </div>
       )}
       {profile.interests.length === 0 && !searchQuery && rankStatus === "ready" && (
-        <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+        <div className="fg-empty-panel text-sm">
           Pick an interest in your profile, or type a keyword, to pull Must / Maybe ranks.
         </div>
       )}
       {visible.length === 0 && rankStatus === "ready" && rankedSessions.length > 0 && (
-        <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+        <div className="fg-empty-panel text-sm">
           Nothing left on this day{includeEnded ? "" : " after hiding ended talks"}. Try All days or Include ended.
         </div>
       )}
       {savedRows.length > 0 && (
         <section className="flex flex-col gap-2">
-          <header className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <header className="fg-eyebrow flex items-center gap-2">
             <Bookmark className="size-3.5" /> Saved
           </header>
           {savedRows.map((row) => (

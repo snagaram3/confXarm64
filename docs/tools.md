@@ -1,6 +1,6 @@
-# confXarm64 tools (Sonar, Dash0, Radar, Elasticsearch)
+# confXarm64 tools (Elasticsearch, Dash0, Radar, Gitar, Sonar)
 
-Companion **Tools** surface: TopBar → Tools, or `/tools/{sonar|dash0|radar|elasticsearch}`. Deep links, reload, and back work because Vite SPA fallbacks `/tools/*` to the app.
+Companion **Tools** surface: TopBar → Health, or `/tools/{elasticsearch|dash0|radar|gitar|sonar}`. Deep links, reload, and back work because Vite SPA fallbacks `/tools/*` to the app.
 
 This is not sponsor-logo display. Each tab talks to a real adapter on the confXarm64 API (`:43181`). Missing credentials show **Needs setup** with env **names** only.
 
@@ -11,6 +11,7 @@ This is not sponsor-logo display. Each tab talks to a real adapter on the confXa
 - Dash0 query hosts are allowlisted (`api.*.aws.dash0.com`, `api.europe-west4.gcp.dash0.com`). Sonar host comes from `SONAR_HOST_URL` (http/https, no credentials in the URL, metadata IPs blocked).
 - Elasticsearch uses `ELASTICSEARCH_URL` + `ELASTICSEARCH_INDEX` (index name `floorwise`). No arbitrary index console, no deletes.
 - This app does not call `api.radar.io`. Tools → Radar is Skyhook Radar UI only, and stays **Needs setup** unless `RADAR_UI_URL` is a real Radar UI (not the live app URL).
+- Gitar is repo-side config (`.gitar/`). Tools → Gitar does not call a Gitar API and does not invent pull requests or review scores.
 - Responses are sanitized (tokens redacted). Lead emails/notes never appear in tools metrics or traces.
 - `/api/tools` is this process’s companion API, scoped to the configured project/index/service name — not a public provider proxy.
 
@@ -72,16 +73,24 @@ This tab does **not** call `api.radar.io` (a different company) and does not inv
 
 Env names: `RADAR_UI_URL`.
 
-## SonarQube / SonarQube Cloud
+## Gitar
 
-Not npm-audit, not oxlint, not Gitar. Uses Web API:
+First-class Tools tab. Gitar reviews pull requests on `snagaram3/confXarm64`. This pane lists committed files under `.gitar/` plus the real GitHub PR URL. It does **not** invent review scores, open PR lists, or a GitHub App install status.
+
+Connect Gitar while signed in: https://docs.gitar.ai/connecting-code/github — grant `snagaram3/confXarm64`. Auto-apply still needs `gitar auto-apply:on` or the `gitar-managed` label on a PR.
+
+CI remains `.github/workflows/ci.yml` (`npm test` and `npm run build`). Gitar diagnoses those jobs. Do not add Sonar CI.
+
+## Sonar
+
+Optional quality adapter. Not npm-audit, not oxlint, not Gitar. Uses Web API:
 
 - `GET /api/qualitygates/project_status`
 - `GET /api/measures/component`
 - `GET /api/issues/search`
 - `GET /api/components/show`
 
-Auth: `Authorization: Bearer ${SONAR_TOKEN}` ([SonarQube Server Web API](https://docs.sonarsource.com/sonarqube-server/2025.4/extension-guide/web-api), [SonarQube Cloud Web API](https://docs.sonarsource.com/sonarqube-cloud/appendices/web-api)).
+Auth: `Authorization: Bearer ${SONAR_TOKEN}` ([Sonar Server Web API](https://docs.sonarsource.com/sonarqube-server/2025.4/extension-guide/web-api), [Sonar Cloud Web API](https://docs.sonarsource.com/sonarqube-cloud/appendices/web-api)). Env names stay `SONAR_HOST_URL` / `SONAR_TOKEN`.
 
 Missing metric values render as **unavailable**, never coerced to 0.
 
@@ -96,7 +105,7 @@ Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). con
 
 CI on GitHub does **not** run Sonar. `.github/workflows/ci.yml` is `npm test` and `npm run build` only (Gitar diagnoses those jobs). `./infra/sonar-scan.sh` remains a local optional path and still refuses to upload without a token you supply.
 
-Optional local SonarQube (not CNH — it will not fit the quota): `infra/local-minikube.sh --with-sonar`. Still needs a token you create before any upload. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
+Optional local Sonar (not CNH — it will not fit the quota): `infra/local-minikube.sh --with-sonar`. Still needs a token you create before any upload. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
 
 ## Run
 

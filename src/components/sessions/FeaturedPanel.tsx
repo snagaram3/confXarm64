@@ -9,12 +9,12 @@ export function FeaturedPanel() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs uppercase tracking-wide text-primary">Keynote picks</p>
-        <h2 className="font-display text-2xl font-semibold">{featured.label}</h2>
-        <p className="text-sm text-muted-foreground">{featured.disclaimer}</p>
+        <p className="fg-eyebrow">Keynote picks</p>
+        <h2 className="font-display text-2xl font-medium tracking-[-0.02em]">{featured.label}</h2>
+        <p className="text-sm text-[color:var(--fg-muted)]">{featured.disclaimer}</p>
       </div>
       {featured.picks.map((pick) => (
-        <article key={pick.sessionId} className="rounded-2xl border border-border bg-card p-4">
+        <article key={pick.sessionId} className="fg-card fg-card-pad">
           <Badge variant="highlight">Keynote pick</Badge>
           <h3 className="mt-2 font-display text-lg font-semibold leading-tight">{pick.title}</h3>
           <p className="text-xs text-muted-foreground">
@@ -35,13 +35,13 @@ export function FeaturedPanel() {
           </ul>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Why · {pick.why}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button type="button" onClick={() => toggleSaved(pick.sessionId)}>
+            <Button type="button" variant="guide" onClick={() => toggleSaved(pick.sessionId)}>
               {savedIds.includes(pick.sessionId) ? "On itinerary" : "Add to itinerary"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => selectSession(pick.sessionId)}>
+            <Button type="button" variant="guideGhost" onClick={() => selectSession(pick.sessionId)}>
               Show on map
             </Button>
-            <Button type="button" variant="outline" onClick={() => void scheduleReminder(pick.sessionId)}>
+            <Button type="button" variant="guideGhost" onClick={() => void scheduleReminder(pick.sessionId)}>
               Remind me
             </Button>
           </div>

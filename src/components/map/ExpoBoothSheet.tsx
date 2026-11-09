@@ -26,7 +26,7 @@ export function ExpoBoothSheet({
 
   return (
     <div
-      className="pointer-events-auto mx-auto w-full max-w-md rounded-2xl border border-border bg-card/96 p-2.5 shadow-lg"
+      className="fg-chrome pointer-events-auto mx-auto w-full max-w-md p-3"
       role="region"
       aria-label={`${booth.sponsor} booth details`}
     >
@@ -35,7 +35,7 @@ export function ExpoBoothSheet({
         <div className="min-w-0 flex-1">
           <p className="font-display text-[15px] font-semibold leading-tight">{booth.sponsor}</p>
           <p className="truncate text-[11px] text-muted-foreground">{booth.tagline}</p>
-          <p className="mt-0.5 font-mono text-[11px] text-primary">
+          <p className="fg-mono mt-0.5 text-[11px] text-[color:var(--fg-coral)]">
             Booth {booth.boothNumber}
             {booth.pinAvailable ? " · official expo pin" : " · unplaced on expo.pdf"}
           </p>
@@ -56,14 +56,14 @@ export function ExpoBoothSheet({
         <Button
           type="button"
           className="min-h-11"
-          variant={must ? "outline" : "default"}
+          variant={must ? "guideGhost" : "guide"}
           onClick={() => onSetPref(booth.id, must ? undefined : "must")}
         >
           <Star className={must ? "size-4 fill-highlight text-highlight" : "size-4"} />
           {must ? "Remove Must go" : "Mark Must go"}
         </Button>
         {booth.pinAvailable && (
-          <Button type="button" variant="outline" className="min-h-11" onClick={() => onOpen(booth.id)}>
+          <Button type="button" variant="guideGhost" className="min-h-11" onClick={() => onOpen(booth.id)}>
             Recenter pin
           </Button>
         )}

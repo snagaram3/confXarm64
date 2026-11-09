@@ -13,7 +13,7 @@ export function ExpoKeyboardList({
   const placed = pins.filter((pin) => pin.booth);
   if (!placed.length) return null;
   return (
-    <details className="pointer-events-auto max-w-[min(100vw-1.5rem,28rem)] rounded-2xl border border-border bg-card/95 p-2 shadow-sm backdrop-blur-sm">
+    <details className="fg-chrome pointer-events-auto max-w-[min(100vw-1.5rem,28rem)] p-2">
       <summary className="min-h-11 cursor-pointer px-1 text-xs font-semibold">
         Booths on this floorplan (keyboard list)
       </summary>
@@ -32,7 +32,7 @@ export function ExpoKeyboardList({
                 aria-current={selected ? "true" : undefined}
                 className={cn(
                   "flex min-h-11 w-full items-center justify-between gap-2 rounded-lg px-2 text-left text-sm",
-                  selected ? "bg-primary/15 text-foreground" : "hover:bg-accent",
+                  selected ? "bg-[color:var(--fg-coral-bg)] text-[color:var(--fg-ink)]" : "hover:bg-[color:var(--fg-sunk)]",
                 )}
               >
                 <span className="truncate font-semibold">{booth.sponsor.replace(/,.*/, "")}</span>

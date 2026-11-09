@@ -13,7 +13,7 @@ export function FloorSwitcher({
     <div
       role="tablist"
       aria-label="Floor"
-      className="inline-flex rounded-full border border-border bg-card/95 p-1 shadow-sm"
+      className="fg-seg"
     >
       {venue.floors.map((f) => {
         const active = f.id === floor;
@@ -25,10 +25,8 @@ export function FloorSwitcher({
             type="button"
             onClick={() => onChange(f.id)}
             className={cn(
-              "min-h-11 rounded-full px-3 text-xs font-semibold tracking-wide transition-colors sm:px-4",
-              active
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              "px-3 text-xs tracking-wide sm:px-4",
+              active && "is-on",
             )}
           >
             {f.short}

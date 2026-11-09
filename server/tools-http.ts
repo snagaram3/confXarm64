@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Express, NextFunction, Request, Response } from "express";
 import { fetchDash0 } from "./tools/dash0.ts";
 import { fetchElasticsearch } from "./tools/elasticsearch.ts";
+import { gitarStatus } from "./tools/gitar.ts";
 import { geocodeVenueStreet, lookupCoords, parseCoords, radarStatus } from "./tools/radar.ts";
 import { fetchSonar } from "./tools/sonar.ts";
 import { liveEngagementUnavailable, syntheticEngagement } from "./tools/synthetic-engagement.ts";
@@ -31,13 +32,14 @@ export function mountToolRoutes(app: Express): void {
   app.use("/api/tools", rejectClientUpstream);
 
   app.get("/api/tools", async (_req, res) => {
-    const [sonar, dash0, radar, elasticsearch] = await Promise.all([
+    const [sonar, dash0, radar, elasticsearch, gitar] = await Promise.all([
       fetchSonar(),
       fetchDash0(),
       Promise.resolve(radarStatus()),
       fetchElasticsearch(),
+      Promise.resolve(gitarStatus()),
     ]);
-    res.json({ sonar, dash0, radar, elasticsearch, access: accessNote() });
+    res.json({ elasticsearch, dash0, radar, gitar, sonar, access: accessNote() });
   });
 
   app.get("/api/tools/sonar", async (_req, res) => {
@@ -52,6 +54,9 @@ export function mountToolRoutes(app: Express): void {
   });
   app.get("/api/tools/elasticsearch", async (_req, res) => {
     res.json(await fetchElasticsearch());
+  });
+  app.get("/api/tools/gitar", (_req, res) => {
+    res.json(gitarStatus());
   });
 
   app.get("/api/tools/dash0/engagement", (req, res) => {
@@ -103,6 +108,6 @@ export function mountToolRoutes(app: Express): void {
 function accessNote() {
   return {
     boundary:
-      "Companion API on this confXarm64 process. Credentials come only from gitignored .env. Dash0 query hosts are allowlisted. Skyhook Radar is not called from this app. Sonar and Elasticsearch queries are scoped to SONAR_PROJECT_KEY / ELASTICSEARCH_INDEX. Clients cannot supply upstream URLs. Radar lookup requires consent:true. No lead PII is included.",
+      "Companion API on this confXarm64 process. Credentials come only from gitignored .env. Dash0 query hosts are allowlisted. Skyhook Radar is not called from this app. Gitar is repo-side config only (no Gitar API). Sonar and Elasticsearch queries are scoped to SONAR_PROJECT_KEY / ELASTICSEARCH_INDEX. Clients cannot supply upstream URLs. Radar lookup requires consent:true. No lead PII is included.",
   };
 }

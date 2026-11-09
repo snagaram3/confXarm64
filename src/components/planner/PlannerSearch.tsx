@@ -1,4 +1,4 @@
-import { formatModePill, inferQueryMode } from "@/lib/field-guide";
+import { formatModePill, inferQueryMode, nextModePillView, type ModePillView } from "@/lib/field-guide";
 import { motionEnabled } from "@/lib/motion";
 import { useAppState } from "@/state/app-state";
 import { useEffect, useState } from "react";
@@ -14,9 +14,11 @@ export function PlannerSearch({
   const live = motionEnabled(motionPref);
   const requested = inferQueryMode(searchQuery);
   const pill = formatModePill(rankMeta?.mode ?? requested);
-  const [display, setDisplay] = useState(pill);
-  const [outgoing, setOutgoing] = useState<string | null>(null);
-  const [incoming, setIncoming] = useState(false);
+  const [modeView, setModeView] = useState<ModePillView>(() => ({
+    display: pill,
+    outgoing: null,
+    incoming: false,
+  }));
   const [pulse, setPulse] = useState(false);
 
   const commitQuery = (value: string) => {
@@ -25,30 +27,33 @@ export function PlannerSearch({
   };
 
   useEffect(() => {
-    if (pill === display) {
-      if (rankStatus === "ready" && live) {
-        setPulse(true);
-        const id = window.setTimeout(() => setPulse(false), 700);
-        return () => window.clearTimeout(id);
-      }
-      return;
-    }
+    setModeView((current) => nextModePillView(current, pill));
+  }, [pill]);
+
+  useEffect(() => {
+    if (!modeView.incoming) return;
     if (!live) {
-      setDisplay(pill);
-      setOutgoing(null);
-      setIncoming(false);
+      setModeView((current) => ({ ...current, incoming: false, outgoing: null }));
       return;
     }
-    setOutgoing(display);
-    setDisplay(pill);
-    setIncoming(true);
-    const raf = requestAnimationFrame(() => setIncoming(false));
-    const id = window.setTimeout(() => setOutgoing(null), 300);
+    const raf = requestAnimationFrame(() => {
+      setModeView((current) => (current.incoming ? { ...current, incoming: false } : current));
+    });
+    const id = window.setTimeout(() => {
+      setModeView((current) => ({ ...current, outgoing: null }));
+    }, 300);
     return () => {
       cancelAnimationFrame(raf);
       window.clearTimeout(id);
     };
-  }, [pill, display, live, rankStatus]);
+  }, [modeView.incoming, live]);
+
+  useEffect(() => {
+    if (rankStatus !== "ready" || !live) return;
+    setPulse(true);
+    const id = window.setTimeout(() => setPulse(false), 700);
+    return () => window.clearTimeout(id);
+  }, [rankStatus, live, pill]);
 
   const tip = rankMeta
     ? `engine ${rankMeta.engine} · ${rankMeta.tookMs} ms`
@@ -86,8 +91,8 @@ export function PlannerSearch({
           </svg>
         </button>
         <span className={pulse ? "fg-mode pulse" : "fg-mode"} tabIndex={0} aria-describedby="modeTip">
-          {outgoing ? <span className="out">{outgoing}</span> : null}
-          <span className={incoming ? "in" : undefined}>{display}</span>
+          {modeView.outgoing ? <span className="out">{modeView.outgoing}</span> : null}
+          <span className={modeView.incoming ? "in" : undefined}>{modeView.display}</span>
         </span>
         <div className="fg-tip" id="modeTip" role="tooltip">
           index <b>sessions, exhibitors</b>

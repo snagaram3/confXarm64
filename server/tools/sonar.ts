@@ -69,7 +69,7 @@ export async function fetchSonar(): Promise<SonarSnapshot> {
     state: "not_configured",
     configured: missing.length === 0,
     fetchedAt: null,
-    source: "SonarQube / SonarQube Cloud Web API (server-side)",
+    source: "Sonar Web API (server-side)",
     window: "latest analysis on the configured project key",
     error: missing.length
       ? `Needs setup. Set ${missing.join(", ")} in gitignored .env. This is not npm-audit or oxlint.`

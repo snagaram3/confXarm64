@@ -58,12 +58,12 @@ export function AppShell() {
               id="main-content"
               className={cn(
                 "min-h-0 w-full",
-                view === "tools" && "mx-auto max-w-6xl px-3 py-4 sm:px-5",
+                view === "tools" && "fg-page mx-auto max-w-6xl px-4 py-6 sm:px-8",
               )}
             >
               {view === "home" && <HomeDashboard />}
               {view === "agenda" && (
-                <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+                <div className="fg-page mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-8">
                   <SearchStatus />
                   <SuggestionRail />
                   <RankedList />
@@ -71,17 +71,17 @@ export function AppShell() {
                 </div>
               )}
               {view === "plan" && (
-                <div className="mx-auto w-full max-w-3xl px-4 py-5">
+                <div className="fg-page mx-auto w-full max-w-3xl px-4 py-6 sm:px-8">
                   <AgendaPanel />
                 </div>
               )}
               {view === "sponsor" && (
-                <div className="mx-auto w-full max-w-3xl px-4 py-5">
+                <div className="fg-page mx-auto w-full max-w-3xl px-4 py-6 sm:px-8">
                   <SponsorView />
                 </div>
               )}
               {view === "navigate" && (
-                <div className="mx-auto w-full max-w-3xl px-4 py-5">
+                <div className="fg-page mx-auto w-full max-w-3xl px-4 py-6 sm:px-8">
                   <NavigatePanel />
                 </div>
               )}

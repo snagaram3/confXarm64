@@ -103,6 +103,24 @@ export function formatModePill(mode: QueryMode | RankEngineMode | null | undefin
   return "HYBRID · BM25 + kNN";
 }
 
+export type ModePillView = {
+  display: string;
+  outgoing: string | null;
+  incoming: boolean;
+};
+
+/** Keep the visible pill from sticking on `.in` (opacity 0) after a HYBRID transition. */
+export function nextModePillView(current: ModePillView, pill: string): ModePillView {
+  if (pill === current.display) {
+    return { display: current.display, outgoing: current.outgoing, incoming: false };
+  }
+  return { display: pill, outgoing: current.display, incoming: true };
+}
+
+export function tasteHasTopics(taste: TasteProfile): boolean {
+  return Object.values(taste.topicWeights).some((weight) => weight > 0);
+}
+
 export function applyPairSide(taste: TasteProfile, side: PairSide, sign: 1 | -1): TasteProfile {
   const topicWeights = { ...taste.topicWeights };
   for (const [topic, weight] of Object.entries(side.topics)) {
@@ -193,30 +211,50 @@ export function matchPercentFor(
   return Math.max(1, Math.min(99, Math.round(0.4 * (esBand + esNudge) + 0.6 * tastePct)));
 }
 
+function guideWhy(opts: {
+  tasteBits: string[];
+  keyword?: string;
+  matchedLabels: string[];
+  searching: boolean;
+  hasTaste: boolean;
+}): string {
+  const bits: string[] = [];
+  if (opts.hasTaste) bits.push(...opts.tasteBits);
+  if (opts.keyword) bits.push(`keyword “${opts.keyword}”`);
+  else if (opts.searching) bits.push(...opts.matchedLabels);
+  const labeled = bits.filter(Boolean).slice(0, 3);
+  if (opts.hasTaste && labeled.length) return `Because you like ${labeled.join(" · ")}`;
+  if (opts.keyword) return `Elasticsearch matched ${labeled.join(" · ")}`;
+  if (opts.searching && labeled.length) return `Elasticsearch matched ${labeled.join(" · ")}`;
+  if (opts.searching) return "Elasticsearch ranked this for your query — no keyword overlap in the title or tags";
+  return "A stretch pick — Elasticsearch ranked it before you locked taste";
+}
+
 function sessionWhy(session: Session, taste: TasteProfile, official: Session[], query: string, matchedTags: string[]): string {
   const tasteWhy = whyTaste(session, taste, official);
-  const parts: string[] = [];
+  const tasteBits: string[] = [];
   if (tasteWhy) {
     const cleaned = tasteWhy.replace(/^Matches:\s*/i, "");
     for (const bit of cleaned.split(/;|,/).map((s) => s.trim()).filter(Boolean)) {
-      if (/you loved/i.test(bit)) parts.push(bit);
-      else parts.push(bit);
+      if (bit) tasteBits.push(bit);
     }
   }
+  const matchedLabels: string[] = [];
   for (const tag of matchedTags.slice(0, 2)) {
     const label = TOPIC_LABEL[tag] ?? tag;
-    if (!parts.some((p) => p.toLowerCase().includes(label.toLowerCase()))) parts.push(label);
+    if (!matchedLabels.some((p) => p.toLowerCase() === label.toLowerCase())) matchedLabels.push(label);
   }
   const tokens = queryTokens(query).filter((token) => {
     const hay = `${session.title} ${session.abstract} ${session.tags.join(" ")}`.toLowerCase();
     return hay.includes(token);
   });
-  if (tokens[0]) parts.push(`keyword “${tokens[0]}”`);
-  if (!parts.length) return "A stretch pick outside your taste — Elasticsearch still ranked it";
-  const labeled = parts.slice(0, 3).map((part) =>
-    part.startsWith("keyword") || /you loved/i.test(part) ? part : part,
-  );
-  return `Because you like ${labeled.join(" · ")}`;
+  return guideWhy({
+    tasteBits,
+    keyword: tokens[0],
+    matchedLabels,
+    searching: query.trim().length > 0,
+    hasTaste: tasteHasTopics(taste),
+  });
 }
 
 function boothWhy(booth: Booth, taste: TasteProfile, query: string, matchedTags: string[]): string {
@@ -226,14 +264,18 @@ function boothWhy(booth: Booth, taste: TasteProfile, query: string, matchedTags:
   const overlap = booth.tags.filter((tag) =>
     weights.some(([topic]) => topic.toLowerCase() === tag.toLowerCase() || canonicalTopic(topic).toLowerCase() === tag.toLowerCase()),
   );
-  const tags = overlap.length ? overlap : matchedTags;
-  const parts = tags.slice(0, 2).map((tag) => TOPIC_LABEL[tag] ?? tag);
+  const tasteBits = overlap.slice(0, 2).map((tag) => TOPIC_LABEL[tag] ?? tag);
+  const matchedLabels = matchedTags.slice(0, 2).map((tag) => TOPIC_LABEL[tag] ?? tag);
   const tokens = queryTokens(query).filter((token) =>
     `${booth.sponsor} ${booth.tagline} ${booth.pitch} ${booth.tags.join(" ")}`.toLowerCase().includes(token),
   );
-  if (tokens[0]) parts.push(`keyword “${tokens[0]}”`);
-  if (!parts.length) return "A stretch pick outside your taste — Elasticsearch still ranked it";
-  return `Because you like ${parts.join(" · ")}`;
+  return guideWhy({
+    tasteBits,
+    keyword: tokens[0],
+    matchedLabels,
+    searching: query.trim().length > 0,
+    hasTaste: tasteHasTopics(taste),
+  });
 }
 
 export function mixGuidePicks(opts: {
@@ -244,17 +286,18 @@ export function mixGuidePicks(opts: {
   query: string;
   searching: boolean;
 }): GuidePick[] {
+  const hasTaste = tasteHasTopics(opts.taste);
   const sessions = opts.sessions.filter((row) => {
     if (!opts.searching && isSampleSession(row.item)) return false;
     if (!opts.searching) {
       const track = row.item.track ?? "";
       const types = row.item.sessionTypeLabels ?? [];
       if (/registration/i.test(track) || types.some((label) => /registration/i.test(label))) return false;
-      if (!hasInterestMatch(row)) return false;
+      if (hasTaste && !hasInterestMatch(row)) return false;
     }
     return true;
   });
-  const booths = opts.booths.filter((row) => opts.searching || hasExhibitorTopicMatch(row));
+  const booths = opts.booths.filter((row) => opts.searching || !hasTaste || hasExhibitorTopicMatch(row));
 
   const sessionPicks = sessions.slice(0, 2).map((row) => {
     const tastePct = tasteMatchPercent(row.item, opts.taste, opts.officialSessions);

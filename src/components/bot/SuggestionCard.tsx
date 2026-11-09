@@ -26,17 +26,15 @@ export function SuggestionCard({
   return (
     <article
       className={cn(
-        "fw-motion rec-enter flex gap-3 rounded-2xl border p-3",
-        featured
-          ? "border-primary/25 bg-primary/5 shadow-md"
-          : "border-border bg-card shadow-sm",
+        "fw-motion rec-enter fg-card flex gap-3 p-4",
+        featured && "fg-card-coral",
       )}
       style={{ animationDelay: `${index * 90}ms` }}
     >
-      <BotIcon className={featured ? "bot-attention bg-must text-must" : "bot-still"} />
+      <BotIcon className={featured ? "bot-attention bg-[color:var(--fg-coral)] text-[color:var(--fg-paper)]" : "bot-still"} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+          <p className="fg-eyebrow">
             {featured ? "Next up for you" : "confXarm64 suggestion"}
           </p>
           {suggestion.rank && (
@@ -45,19 +43,18 @@ export function SuggestionCard({
             </Badge>
           )}
         </div>
-        <h3 className="mt-1 font-display text-lg font-semibold leading-snug text-foreground">
+        <h3 className="mt-1 font-display text-lg font-medium leading-snug">
           {suggestion.title}
         </h3>
-        <p className="mt-1 text-sm leading-relaxed text-foreground/85">{suggestion.body}</p>
-        <p className="mt-1.5 text-xs font-medium leading-snug text-foreground/75">{suggestion.why}</p>
+        <p className="mt-1 text-sm leading-relaxed text-[color:var(--fg-ink)]/85">{suggestion.body}</p>
+        <p className="mt-1.5 text-xs font-medium leading-snug text-[color:var(--fg-muted)]">{suggestion.why}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {suggestion.actions.map((action) => (
             <Button
               key={action}
               type="button"
               size="sm"
-              variant={action === "view" || action === "retry" ? "default" : "outline"}
-              className="min-h-11 min-w-11"
+              variant={action === "view" || action === "retry" ? "guide" : "guideGhost"}
               onClick={() => onAction(action, suggestion)}
             >
               {action === "save" && saved

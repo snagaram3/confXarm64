@@ -27,16 +27,13 @@ export function TalkSearch({ prominent = false }: { prominent?: boolean }) {
   return (
     <section
       aria-labelledby="talk-search-heading"
-      className={cn(
-        "rounded-2xl border border-border bg-card p-4 shadow-[0_8px_24px_rgba(17,62,130,0.06)]",
-        prominent && "border-primary/40",
-      )}
+      className={cn("fg-card fg-card-pad", prominent && "shadow-[var(--fg-shadow-lift)]")}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">Find the right talk</p>
-      <h2 id="talk-search-heading" className="mt-1 font-display text-xl font-semibold">
+      <p className="fg-eyebrow">Find the right talk</p>
+      <h2 id="talk-search-heading" className="mt-1 font-display text-xl font-medium tracking-[-0.02em]">
         Search the official schedule
       </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="mt-1 text-sm text-[color:var(--fg-muted)]">
         Natural language over titles and abstracts. “something on eBPF and security” can match talks
         that never use those words in the title, via BM25 + kNN.
         {rankMeta ? ` Last query ${rankMeta.tookMs} ms.` : ""}
@@ -49,7 +46,7 @@ export function TalkSearch({ prominent = false }: { prominent?: boolean }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="something on eBPF and security"
-            className="h-12 min-h-12 pl-9 text-base"
+            className="fg-input h-12 min-h-12 pl-9 text-base"
             aria-label="Search official sessions with natural language"
             autoComplete="off"
             name="talk-search"
@@ -76,7 +73,7 @@ export function TalkSearch({ prominent = false }: { prominent?: boolean }) {
       <label className="mt-3 grid gap-1 text-xs font-medium">
         Track
         <select
-          className="h-11 min-h-11 rounded-md border border-input bg-card px-3 text-sm"
+          className="fg-select"
           value={trackFilter}
           onChange={(e) => setTrackFilter(e.target.value || "all")}
           aria-label="Filter by official track"
@@ -128,8 +125,8 @@ function DayChip({
       aria-selected={active}
       onClick={onSelect}
       className={cn(
-        "min-h-11 rounded-full border px-3 text-xs font-semibold",
-        active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground",
+        "fg-chip text-xs",
+        active && "is-on",
       )}
     >
       {label}

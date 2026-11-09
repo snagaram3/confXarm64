@@ -90,8 +90,8 @@ function PrefChip({
       aria-checked={pressed}
       onClick={onClick}
       className={cn(
-        "min-h-11 rounded-full border px-3 text-sm font-semibold",
-        pressed ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground",
+        "fg-chip",
+        pressed && "is-on",
       )}
     >
       {label}

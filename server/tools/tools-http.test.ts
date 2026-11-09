@@ -105,4 +105,23 @@ describe("tools HTTP boundaries", () => {
     assert.equal(dashBody.floorwiseToolsPath, "/tools/dash0");
     assert.notEqual(dashBody.state, "ok");
   });
+
+  it("serves Gitar as repo-side config without inventing pull requests", async () => {
+    const res = await fetch(`${base}/api/tools/gitar`);
+    const body = (await res.json()) as {
+      tool: string;
+      state: string;
+      pullsUrl: string;
+      files: Array<{ path: string; present: boolean }>;
+      notice: string;
+    };
+    assert.equal(body.tool, "gitar");
+    assert.equal(body.state, "ok");
+    assert.equal(body.pullsUrl, "https://github.com/snagaram3/confXarm64/pulls");
+    assert.match(body.notice, /does not invent/i);
+    assert.ok(body.files.some((f) => f.path === ".gitar/review/README.md" && f.present));
+    const text = JSON.stringify(body);
+    assert.doesNotMatch(text, /"pulls":/);
+    assert.doesNotMatch(text, /SONAR_TOKEN=./);
+  });
 });

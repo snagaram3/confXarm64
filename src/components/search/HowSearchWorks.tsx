@@ -26,9 +26,9 @@ export function HowSearchWorks() {
     esHealth?.askSchedule?.reason ??
     "Ask-the-schedule RAG is not wired unless an LLM key is set on the server. This app will not invent a grounded summary.";
   return (
-    <details open className="rounded-2xl border border-border bg-card px-3 py-2">
+    <details open className="fg-card px-4 py-3">
       <summary className="cursor-pointer text-sm font-semibold">How search works</summary>
-      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+      <p className="mt-2 text-xs leading-relaxed text-[color:var(--fg-muted)]">
         Talk rankings come from Elasticsearch (<code className="font-mono">POST /api/rank</code>) over the official 2026
         main schedule — not a mock list. Toggle the retriever and watch scores and snippets change. Topic weights are
         sent as Elasticsearch boosts. “Ask the schedule” RAG is skipped unless an LLM key exists — none is faked here.
@@ -44,8 +44,8 @@ export function HowSearchWorks() {
               aria-checked={on}
               onClick={() => setSearchMode(mode.id)}
               className={cn(
-                "min-h-11 rounded-full border px-3 text-xs font-semibold",
-                on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground",
+                "fg-chip text-xs",
+                on && "is-on",
               )}
             >
               {mode.label}
@@ -53,14 +53,14 @@ export function HowSearchWorks() {
           );
         })}
       </div>
-      <ul className="mt-3 grid gap-2 text-xs leading-relaxed text-muted-foreground">
+      <ul className="mt-3 grid gap-2 text-xs leading-relaxed text-[color:var(--fg-muted)]">
         {MODES.map((mode) => (
           <li key={mode.id}>
             <span className="font-semibold text-foreground">{mode.label}.</span> {mode.detail}
           </li>
         ))}
       </ul>
-      <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 font-mono text-[11px] leading-relaxed text-foreground" role="status">
+      <p className="fg-mono mt-3 rounded-xl bg-[color:var(--fg-sunk)] px-3 py-2 text-[11px] leading-relaxed" role="status">
         {rankStatus === "loading" ? "Querying Elasticsearch…" : null}
         {rankMeta
           ? `engine=${rankMeta.engine} mode=${rankMeta.mode} retriever=${rankMeta.retriever ?? "—"} took=${rankMeta.tookMs}ms`

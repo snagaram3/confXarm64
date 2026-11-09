@@ -7,6 +7,7 @@ import {
   defaultGuideDay,
   mixGuidePicks,
   sessionDayId,
+  tasteHasTopics,
   type GuidePick,
 } from "@/lib/field-guide";
 import { filterRankedSessions } from "@/lib/ranked-filter";
@@ -64,10 +65,12 @@ export function FieldGuideHome() {
   );
 
   const why = searching
-    ? `searching “${searchQuery.trim()}” + taste`
+    ? `searching “${searchQuery.trim()}”${tasteHasTopics(taste) ? " + taste" : ""}`
     : rankStatus === "loading"
       ? "ranking in Elasticsearch…"
-      : "ranked by taste + query";
+      : tasteHasTopics(taste)
+        ? "ranked by taste + query"
+        : "Elasticsearch ranks · taste still open";
   const pool = visible.length + rankedBooths.length;
   const shown = `${picks.length} of ${pool || picks.length} ranked picks`;
 
@@ -135,16 +138,22 @@ export function FieldGuideHome() {
         {rankStatus === "ready" && picks.length === 0 && (
           <div className="fg-empty">
             <h2>No ranked picks match.</h2>
-            <p>Try fewer words, or let your taste lead. confXarm64 will not invent sessions.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setSearchMode("semantic");
-              }}
-            >
-              Clear search
-            </button>
+            <p>
+              {searching
+                ? "Try fewer words, or let your taste lead. confXarm64 will not invent sessions."
+                : "Elasticsearch returned ranks, but none are left after sample/registration filters. confXarm64 will not invent sessions."}
+            </p>
+            {searching ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchMode("semantic");
+                }}
+              >
+                Clear search
+              </button>
+            ) : null}
           </div>
         )}
 

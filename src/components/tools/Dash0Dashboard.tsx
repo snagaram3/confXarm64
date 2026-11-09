@@ -146,7 +146,7 @@ export function Dash0Dashboard({
     <div className="flex flex-col gap-3">
       <div
         role="status"
-        className="rounded-2xl border-2 border-cta bg-peach px-3 py-2 text-sm font-semibold text-foreground"
+        className="fg-alert fg-alert-gold text-sm font-semibold"
       >
         {mode === "synthetic"
           ? "Synthetic demo data — not live attendance"
@@ -157,7 +157,7 @@ export function Dash0Dashboard({
         <Button
           type="button"
           size="sm"
-          variant={mode === "synthetic" ? "default" : "outline"}
+          variant={mode === "synthetic" ? "guide" : "guideGhost"}
           onClick={() => setFilters({ mode: "synthetic" })}
         >
           Synthetic
@@ -165,16 +165,16 @@ export function Dash0Dashboard({
         <Button
           type="button"
           size="sm"
-          variant={mode === "live" ? "default" : "outline"}
+          variant={mode === "live" ? "guide" : "guideGhost"}
           onClick={() => setFilters({ mode: "live" })}
         >
           Live
         </Button>
-        <Button type="button" size="sm" variant="outline" onClick={() => void load()}>
+        <Button type="button" size="sm" variant="guideGhost" onClick={() => void load()}>
           Refresh
         </Button>
         <a
-          className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-xs font-medium hover:bg-accent"
+          className="fg-btn-ghost inline-flex text-xs"
           href="/api/tools/dash0/dashboard.json"
         >
           Perses JSON
@@ -189,7 +189,7 @@ export function Dash0Dashboard({
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       {mode === "live" && data?.mode === "live" && (
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="fg-card fg-card-pad">
           <h3 className="font-display text-lg font-semibold">{data.label}</h3>
           <p className="mt-1 text-sm">{data.error}</p>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -452,9 +452,9 @@ function SyntheticViews({
 
 function Kpi({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-secondary/50 px-3 py-2" title={hint}>
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="font-display text-2xl font-semibold text-primary">{value}</p>
+    <div className="fg-metric" title={hint}>
+      <p className="fg-eyebrow">{label}</p>
+      <p className="font-display text-2xl font-medium text-[color:var(--fg-navy)]">{value}</p>
       <p className="text-[10px] text-muted-foreground">{hint}</p>
     </div>
   );

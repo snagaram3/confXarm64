@@ -91,10 +91,10 @@ export function MapExperienceDock({
             <div role="listitem" className="shrink-0">
               <button
                 type="button"
-                className="min-h-11 rounded-lg border border-primary/30 bg-card/95 px-2 py-1 text-left shadow-sm"
+                className="fg-chrome min-h-11 px-2 py-1 text-left"
                 onClick={() => onOpenSession(nextSession.id)}
               >
-                <span className="block text-[10px] font-semibold uppercase tracking-wide text-primary">Next talk</span>
+                <span className="fg-eyebrow">Next talk</span>
                 <span className="block max-w-[14rem] truncate text-[11px] font-semibold">{nextSession.title}</span>
                 <span className="block font-mono text-[10px] text-muted-foreground">{nextSession.roomLabel}</span>
               </button>
@@ -104,10 +104,10 @@ export function MapExperienceDock({
             <div role="listitem" className="shrink-0">
               <button
                 type="button"
-                className="min-h-11 rounded-lg border border-border bg-card/95 px-2 py-1 text-left shadow-sm"
+                className="fg-chrome min-h-11 px-2 py-1 text-left"
                 onClick={() => onSelectBooth(nextBooth.id)}
               >
-                <span className="block text-[10px] font-semibold uppercase tracking-wide text-primary">Exhibitor match</span>
+                <span className="fg-eyebrow">Exhibitor match</span>
                 <span className="block max-w-[11rem] truncate text-[11px] font-semibold">{nextBooth.sponsor}</span>
                 <span className="block font-mono text-[10px] text-muted-foreground">#{nextBooth.boothNumber}</span>
               </button>
@@ -116,8 +116,8 @@ export function MapExperienceDock({
         </div>
       )}
 
-      <div className={cn("pointer-events-auto overflow-hidden rounded-xl border border-border bg-card/95 shadow-sm", panel && "max-sm:hidden")}>
-        <p className="px-2 pt-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className={cn("fg-chrome pointer-events-auto overflow-hidden", panel && "max-sm:hidden")}>
+        <p className="fg-eyebrow px-2 pt-1.5">
           Official exhibitors · PDF booth pins · not indoor GPS
         </p>
         <div className="flex gap-1 overflow-x-auto p-2" role="list">

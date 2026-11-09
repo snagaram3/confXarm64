@@ -1,9 +1,11 @@
-export const TOOL_TABS = ["sonar", "dash0", "radar", "elasticsearch"] as const;
+export const TOOL_TABS = ["elasticsearch", "dash0", "radar", "gitar", "sonar"] as const;
 export type ToolTab = (typeof TOOL_TABS)[number];
+
+const TAB_RE = "elasticsearch|dash0|radar|gitar|sonar";
 
 export function parseToolsPath(pathname: string): ToolTab | null {
   const clean = pathname.replace(/\/+$/, "") || "/";
-  const match = /^\/tools(?:\/(sonar|dash0|radar|elasticsearch))?$/.exec(clean);
+  const match = new RegExp(`^/tools(?:/(${TAB_RE}))?$`).exec(clean);
   if (!match) return null;
   return (match[1] as ToolTab | undefined) ?? "elasticsearch";
 }
@@ -32,9 +34,24 @@ export interface ToolFrame {
   missingEnv: string[];
 }
 
+export function toolStatusLabel(state: ToolState | undefined): string {
+  if (state === "not_configured") return "Needs setup";
+  if (state === "ok") return "Connected";
+  if (state === "empty") return "No results";
+  if (state === "error") return "Error";
+  return "Loading";
+}
+
 export async function fetchTool<T>(tab: ToolTab, signal?: AbortSignal): Promise<T> {
   const res = await fetch(`/api/tools/${tab}`, { signal });
   const data = (await res.json()) as T & { error?: string };
+  if (!res.ok) throw new Error(data.error ?? res.statusText);
+  return data;
+}
+
+export async function fetchToolsIndex(signal?: AbortSignal): Promise<Record<string, ToolFrame>> {
+  const res = await fetch("/api/tools", { signal });
+  const data = (await res.json()) as Record<string, ToolFrame> & { error?: string };
   if (!res.ok) throw new Error(data.error ?? res.statusText);
   return data;
 }

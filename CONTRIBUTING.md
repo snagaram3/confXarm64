@@ -13,7 +13,7 @@
 - [ ] No new secrets committed; `data/`, Dash0/OTel env, Sonar/Radar tokens, and sponsor-secret files stay gitignored
 - [ ] `npm run build` is green
 
-Paste this list into the Gitar review if the bot asks for project-specific criteria. See `.gitar.md`. Do not add SonarQube CI.
+Paste this list into the Gitar review if the bot asks for project-specific criteria. See `.gitar.md`. Do not add Sonar CI.
 
 ## Local loop
 

@@ -2,8 +2,6 @@ import { BotIcon } from "@/components/bot/BotIcon";
 import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { catalog } from "@/lib/catalog";
 import type { Booth } from "@/lib/types";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
@@ -93,51 +91,52 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
   }
 
   return (
-    <div className="min-h-[100svh] bg-background">
-      <div className="mx-auto flex max-w-xl flex-col gap-5 px-4 py-8">
+    <div className="fg-shell fg-paper-noise min-h-[100svh] bg-[color:var(--fg-paper)]">
+      <div className="fg-page mx-auto flex max-w-xl flex-col gap-6 px-5 py-10">
         <header className="flex items-center gap-3">
           <BotIcon label="confXarm64" />
           <div>
-            <p className="font-display text-lg font-semibold">Share details</p>
-            <p className="text-xs text-muted-foreground">confXarm64 exhibitor connect · not an official organizer form</p>
+            <p className="font-display text-lg font-medium">Share details</p>
+            <p className="fg-eyebrow mt-1">confXarm64 exhibitor connect · not an official organizer form</p>
           </div>
         </header>
 
         {displayBooth && (
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+          <div className="fg-card flex items-center gap-3 p-4">
             <SponsorLogo booth={displayBooth} className="size-14" />
             <div>
-              <p className="font-display text-xl font-semibold">{displayBooth.sponsor}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-display text-xl font-medium">{displayBooth.sponsor}</p>
+              <p className="text-sm text-[color:var(--fg-muted)]">
                 Booth {displayBooth.boothNumber} · {displayBooth.tagline}
               </p>
             </div>
           </div>
         )}
 
-        {meta && <p className="text-sm text-muted-foreground">{meta.notice}</p>}
+        {meta && <p className="text-sm text-[color:var(--fg-muted)]">{meta.notice}</p>}
 
         {status === "success" && (
-          <p role="status" className="rounded-xl border border-must/30 bg-must/10 px-4 py-3 text-sm text-must">
+          <p role="status" className="fg-alert fg-alert-teal">
             Sent. {meta?.name ?? "This exhibitor"} can contact you with the details you typed. You can close this page.
           </p>
         )}
         {status === "duplicate" && (
-          <p role="status" className="rounded-xl border border-maybe/30 bg-maybe/10 px-4 py-3 text-sm text-maybe">
+          <p role="status" className="fg-alert fg-alert-gold">
             You already shared details with this exhibitor. Nothing new was stored.
           </p>
         )}
         {error && (
-          <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">
+          <p role="alert" className="fg-alert fg-alert-error">
             {error}
           </p>
         )}
 
         {status === "form" && meta && (
-          <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+          <form className="fg-card fg-card-pad flex flex-col gap-4" onSubmit={onSubmit}>
             <Field label="Name" htmlFor="name" required>
-              <Input
+              <input
                 id="name"
+                className="fg-input"
                 required
                 autoComplete="name"
                 value={form.name}
@@ -145,8 +144,9 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
               />
             </Field>
             <Field label="Email" htmlFor="email" required>
-              <Input
+              <input
                 id="email"
+                className="fg-input"
                 type="email"
                 required
                 autoComplete="email"
@@ -155,24 +155,27 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
               />
             </Field>
             <Field label="Company" htmlFor="company">
-              <Input
+              <input
                 id="company"
+                className="fg-input"
                 autoComplete="organization"
                 value={form.company}
                 onChange={(e) => setForm({ ...form, company: e.target.value })}
               />
             </Field>
             <Field label="Role" htmlFor="role">
-              <Input
+              <input
                 id="role"
+                className="fg-input"
                 autoComplete="organization-title"
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
               />
             </Field>
             <Field label="Interests" htmlFor="interests">
-              <Input
+              <input
                 id="interests"
+                className="fg-input"
                 value={form.interests}
                 onChange={(e) => setForm({ ...form, interests: e.target.value })}
               />
@@ -181,13 +184,13 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
               <textarea
                 id="message"
                 rows={3}
-                className="flex min-h-24 w-full rounded-md border border-input bg-card px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="fg-textarea"
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
               />
             </Field>
 
-            <label className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 text-sm leading-relaxed">
+            <label className="flex items-start gap-3 rounded-[16px] border border-[color:var(--fg-line)] bg-[color:var(--fg-sunk)] p-3 text-sm leading-relaxed">
               <Checkbox
                 checked={consent}
                 onCheckedChange={(v) => setConsent(v === true)}
@@ -196,11 +199,11 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
               />
               <span>
                 <span className="font-medium">Contact consent</span>
-                <span className="mt-1 block text-muted-foreground">{meta.consentText}</span>
+                <span className="mt-1 block text-[color:var(--fg-muted)]">{meta.consentText}</span>
               </span>
             </label>
 
-            <Button type="submit" disabled={!consent || busy} className="min-h-11">
+            <Button type="submit" variant="guide" disabled={!consent || busy}>
               {busy ? "Sending…" : `Share with ${meta.name}`}
             </Button>
           </form>
@@ -209,7 +212,7 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant="guideGhost"
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(shareUrl);
@@ -221,7 +224,7 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
           >
             {copied ? "Link copied" : "Copy booth link"}
           </Button>
-          <a href="/" className="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-primary underline">
+          <a href="/" className="fg-link inline-flex min-h-11 items-center px-3 text-sm underline">
             Back to confXarm64
           </a>
         </div>
@@ -243,10 +246,10 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label htmlFor={htmlFor}>
+      <label htmlFor={htmlFor} className="text-sm font-semibold">
         {label}
-        {required ? "" : <span className="ml-1 font-normal text-muted-foreground">optional</span>}
-      </Label>
+        {required ? "" : <span className="ml-1 font-normal text-[color:var(--fg-muted)]">optional</span>}
+      </label>
       {children}
     </div>
   );

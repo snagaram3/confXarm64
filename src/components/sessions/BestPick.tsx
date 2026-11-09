@@ -22,15 +22,15 @@ export function BestPick({
 }) {
   if (!pick) {
     return (
-      <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+      <div className="fg-empty-panel text-sm">
         No open pick yet. Add an interest, Ask for a topic, or save a talk — this is your ranking, not a live hall count.
       </div>
     );
   }
 
   return (
-    <section className="rec-enter rounded-2xl border border-primary/30 bg-primary/5 p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">Best pick</p>
+    <section className="rec-enter fg-card fg-card-pad">
+      <p className="fg-eyebrow">Best pick</p>
       {rescuedFrom && (
         <p className="mt-2 rounded-xl border border-maybe/40 bg-maybe/15 px-3 py-2 text-sm text-foreground" role="status">
           Rescue · {rescuedFrom.item.title} is blocked ({rescueCopy(rescuedReason)}). Next open pick is below. Not a live occupancy count.
@@ -38,7 +38,7 @@ export function BestPick({
       )}
       <h3 className="mt-2 font-display text-xl font-semibold leading-snug">{pick.item.title}</h3>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1 font-mono text-primary">
+        <span className="fg-mono inline-flex items-center gap-1 text-[color:var(--fg-navy)]">
           <MapPin className="size-3" />
           {pick.item.roomLabel ?? pick.item.roomId}
           {pick.item.level != null ? ` · L${pick.item.level}` : ""}
@@ -53,10 +53,10 @@ export function BestPick({
       )}
       <p className="mt-2 text-sm leading-snug text-foreground/85">Why · {pick.why}</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button type="button" onClick={onTake}>
+        <Button type="button" variant="guide" onClick={onTake}>
           Take me there
         </Button>
-        <Button type="button" variant="outline" onClick={onSkip}>
+        <Button type="button" variant="guideGhost" onClick={onSkip}>
           Next pick
         </Button>
       </div>

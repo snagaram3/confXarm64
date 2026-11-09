@@ -30,8 +30,8 @@ export function SponsorView() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs uppercase tracking-wide text-maybe">Sponsor mirror</p>
-        <h2 className="font-display text-xl font-semibold">Who’s walking by</h2>
+        <p className="fg-eyebrow">Sponsor mirror</p>
+        <h2 className="font-display text-xl font-medium">Who’s walking by</h2>
         <p className="text-sm text-muted-foreground">
           Official exhibitor names and booth numbers from the KCNA26 Expo Hall Map.
           Logos sit on PDF-text booth anchors (image-relative, not indoor GPS). Seeded
@@ -46,7 +46,7 @@ export function SponsorView() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="fg-card p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <SponsorLogo booth={booth} className="size-14" />
