@@ -6,7 +6,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express from "express";
-import { pingCluster, waitForElasticsearch } from "./es.ts";
+import { es, INDEX, pingCluster, waitForElasticsearch } from "./es.ts";
 import { noteRequest } from "./tools/local-stats.ts";
 import { mountToolRoutes } from "./tools-http.ts";
 import { mountLeadRoutes, sqlitePath } from "./leads-http.ts";
@@ -243,6 +243,18 @@ if (existsSync(dist)) {
 async function ensureIndex() {
   if (indexReady) return;
   await waitForElasticsearch();
+  const exists = await es.indices.exists({ index: INDEX });
+  const skip = process.env.FLOORWISE_SKIP_SEED === "1";
+  const force = process.env.FLOORWISE_FORCE_SEED === "1";
+  if (exists && !force) {
+    indexReady = true;
+    lastSeedError = null;
+    console.log(`[floorwise] using existing ${INDEX} index (will not reseed)`);
+    return;
+  }
+  if (skip) {
+    throw new Error(`FLOORWISE_SKIP_SEED=1 and index ${INDEX} is missing — wait for the seed Job`);
+  }
   const seeded = await seedIndex();
   indexReady = true;
   lastSeedError = null;

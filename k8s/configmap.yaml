@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: floorwise-config
+  namespace: floorwise
+  labels:
+    app.kubernetes.io/name: floorwise
+    app.kubernetes.io/part-of: floorwise
+data:
+  ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  ELASTICSEARCH_INDEX: "floorwise"
+  PORT: "43181"
+  OTEL_SERVICE_NAME: "floorwise-api"
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""
+  FLOORWISE_SKIP_SEED: "1"

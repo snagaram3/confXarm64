@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/name: elasticsearch
     app.kubernetes.io/part-of: floorwise
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: elasticsearch
   ports:
@@ -15,7 +16,7 @@ spec:
       targetPort: 9200
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: elasticsearch
   namespace: floorwise
@@ -23,6 +24,7 @@ metadata:
     app.kubernetes.io/name: elasticsearch
     app.kubernetes.io/part-of: floorwise
 spec:
+  serviceName: elasticsearch
   replicas: 1
   selector:
     matchLabels:
@@ -72,3 +74,21 @@ spec:
             initialDelaySeconds: 25
             periodSeconds: 10
             failureThreshold: 18
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health?timeout=1s
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 4Gi

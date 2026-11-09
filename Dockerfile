@@ -1,3 +1,5 @@
+# Combined image for `docker compose --profile full`. Kubernetes uses
+# docker/api.Dockerfile and docker/web.Dockerfile instead.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./

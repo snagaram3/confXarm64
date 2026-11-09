@@ -118,7 +118,111 @@ Home and For you expose **Find the right talk**: type natural language such as `
 - **How search works** panel lets judges toggle keyword / semantic / hybrid and see `engine`, `mode`, `retriever`, and `tookMs`
 - Ask-the-schedule RAG is skipped unless `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set. This repo does not invent a summary
 
-Do **not** run `npm run seed` against a live demo index unless you intend to wipe and rebuild `floorwise`. API boot already seeds when the index is missing.
+Do **not** run `npm run seed` against a live demo index unless you intend to wipe and rebuild `floorwise`. API boot seeds only when the `floorwise` index is missing (`FLOORWISE_FORCE_SEED=1` to override). Kubernetes uses a seed Job and `FLOORWISE_SKIP_SEED=1` on the API.
+
+## Run on Kubernetes + Radar
+
+Split images: `docker/api.Dockerfile` (Express + `tsx`) and `docker/web.Dockerfile` (nginx on **8080**, proxies `/api` to the `api` Service). Manifests in `k8s/` (kustomize): namespace, ConfigMap, Secret placeholders, Elasticsearch **StatefulSet + PVC**, seed **Job**, API, web. Probes, requests/limits, no real secrets.
+
+This is **Skyhook Radar** ([in-cluster docs](https://radarhq.io/docs/configuration/in-cluster), [Helm chart](https://github.com/skyhook-io/helm-charts/blob/main/charts/radar/README.md)) — not the Tools tab `api.radar.io` geofence adapter.
+
+Do **not** point Floorwise at an unrelated host `:9200` cluster. In-cluster ES is `http://elasticsearch:9200` (cluster name `floorwise`).
+
+### kind (local)
+
+```bash
+kind create cluster --name floorwise
+docker build -f docker/api.Dockerfile -t floorwise-api:dev .
+docker build -f docker/web.Dockerfile -t floorwise-web:dev .
+kind load docker-image floorwise-api:dev --name floorwise
+kind load docker-image floorwise-web:dev --name floorwise
+kubectl apply -k k8s
+kubectl -n floorwise rollout status statefulset/elasticsearch --timeout=180s
+kubectl -n floorwise wait --for=condition=complete job/floorwise-seed --timeout=180s
+kubectl -n floorwise rollout status deploy/api --timeout=120s
+kubectl -n floorwise rollout status deploy/web --timeout=120s
+kubectl -n floorwise get pods,svc,pvc
+kubectl -n floorwise port-forward svc/web 43180:80
+```
+
+Then `curl -sS http://127.0.0.1:43180/healthz` and `curl -sS http://127.0.0.1:43180/api/health`. Open [http://127.0.0.1:43180](http://127.0.0.1:43180) — planner home, not 3D.
+
+Optional API dump: `kubectl -n floorwise port-forward svc/api 43181:43181`.
+
+### k3d (local)
+
+```bash
+k3d cluster create floorwise
+docker build -f docker/api.Dockerfile -t floorwise-api:dev .
+docker build -f docker/web.Dockerfile -t floorwise-web:dev .
+k3d image import floorwise-api:dev floorwise-web:dev -c floorwise
+kubectl apply -k k8s
+kubectl -n floorwise rollout status statefulset/elasticsearch --timeout=180s
+kubectl -n floorwise wait --for=condition=complete job/floorwise-seed --timeout=180s
+kubectl -n floorwise get pods
+kubectl -n floorwise port-forward svc/web 43180:80
+```
+
+### Provided cluster / namespace (venue)
+
+Replace `floorwise` if the organizers give you another namespace. You need their kubeconfig — this repo cannot mint it.
+
+```bash
+kubectl config current-context
+kubectl create namespace "$FLOORWISE_NS" --dry-run=client -o yaml | kubectl apply -f -
+# retag images for their registry if required, then:
+kubectl -n "$FLOORWISE_NS" apply -k k8s
+kubectl -n "$FLOORWISE_NS" get pods
+kubectl -n "$FLOORWISE_NS" port-forward svc/web 43180:80
+```
+
+Re-running `k8s/seed-job.yaml` **deletes and rebuilds** the Elasticsearch index. Do not apply it against a live demo you want to keep.
+
+### Skyhook Radar (official install — do not invent flags)
+
+Local CLI against the kind/k3d kubeconfig ([install docs](https://radarhq.io/docs/install)):
+
+```bash
+curl -fsSL https://get.radarhq.io | sh
+kubectl radar --port=9280 --no-browser
+# or: brew install skyhook-io/tap/radar
+# or: kubectl krew install radar && kubectl radar
+```
+
+In-cluster shared UI ([in-cluster docs](https://radarhq.io/docs/configuration/in-cluster)):
+
+```bash
+helm repo add skyhook https://skyhook-io.github.io/helm-charts
+helm repo update skyhook
+helm upgrade --install radar skyhook/radar -n radar --create-namespace
+kubectl port-forward svc/radar 9280:9280 -n radar
+```
+
+Radar Cloud needs **their** account at [app.radarhq.io](https://app.radarhq.io). Generate the install command there (token shown once). The public shape is:
+
+```bash
+helm repo add skyhook https://skyhook-io.github.io/helm-charts
+helm repo update skyhook
+kubectl create namespace radar --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic radar-cloud-config -n radar \
+  --from-literal=token=rhc_YOUR_TOKEN_FROM_THE_DASHBOARD \
+  --dry-run=client -o yaml | kubectl apply -f -
+helm upgrade --install radar skyhook/radar -n radar \
+  --set cloud.enabled=true \
+  --set cloud.url=wss://api.radarhq.io/agent \
+  --set cloud.insecureSkipVerify=false \
+  --set cloud.clusterName=cl_YOUR_CLUSTER_ID \
+  --set cloud.existingSecret=radar-cloud-config \
+  --set auth.mode=proxy \
+  --set rbac.helm=true \
+  --set rbac.secrets=true \
+  --set rbac.podExec=true \
+  --set rbac.portForward=true \
+  --set rbac.metrics=true \
+  --set rbac.selfUpgrade=true
+```
+
+Do not commit the `rhc_` token. Floorwise Tools → Radar is a separate `api.radar.io` geofence adapter and is unrelated to this Kubernetes install.
 
 ## Verify
 

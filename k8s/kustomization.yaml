@@ -3,5 +3,14 @@ kind: Kustomization
 namespace: floorwise
 resources:
   - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
   - elasticsearch.yaml
-  - app.yaml
+  - seed-job.yaml
+  - api.yaml
+  - web.yaml
+images:
+  - name: floorwise-api
+    newTag: dev
+  - name: floorwise-web
+    newTag: dev

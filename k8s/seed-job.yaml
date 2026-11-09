@@ -1,0 +1,41 @@
+# Wipes and rebuilds the floorwise Elasticsearch index. Do not run this against
+# a live demo index you want to keep. The API uses existing indexes and will
+# not reseed unless FLOORWISE_FORCE_SEED=1.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: floorwise-seed
+  namespace: floorwise
+  labels:
+    app.kubernetes.io/name: seed
+    app.kubernetes.io/part-of: floorwise
+spec:
+  backoffLimit: 8
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seed
+        app.kubernetes.io/part-of: floorwise
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: floorwise-api:dev
+          imagePullPolicy: IfNotPresent
+          command: ["npx", "tsx", "server/seed.ts"]
+          envFrom:
+            - configMapRef:
+                name: floorwise-config
+          env:
+            - name: FLOORWISE_SKIP_SEED
+              value: "0"
+            - name: ELASTICSEARCH_URL
+              value: http://elasticsearch:9200
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
