@@ -46,6 +46,27 @@ describe("confXarm64 Helm chart", () => {
     const web = read("templates/web.yaml");
     assert.match(web, /path: \/healthz/);
     assert.match(web, /targetPort: 8080/);
+    assert.match(web, /containerPort: 8080/);
+    assert.match(web, /runAsNonRoot: true/);
+    assert.match(web, /runAsUser: 101/);
+    assert.match(web, /runAsGroup: 101/);
+    assert.match(web, /fsGroup: 101/);
+    assert.match(web, /drop: \["ALL"\]/);
+    assert.match(web, /allowPrivilegeEscalation: false/);
+    assert.match(web, /mountPath: \/var\/cache\/nginx/);
+    assert.match(web, /mountPath: \/run/);
+    assert.match(web, /mountPath: \/etc\/nginx\/nginx.conf/);
+    assert.match(web, /emptyDir: \{\}/);
+
+    const webNginx = read("templates/web-nginx-config.yaml");
+    assert.match(webNginx, /pid \/tmp\/nginx.pid;/);
+    assert.match(webNginx, /include \/etc\/nginx\/conf.d\/\*\.conf;/);
+    assert.doesNotMatch(webNginx, /^\s*user /m);
+    assert.doesNotMatch(webNginx, /listen 80;/);
+    assert.doesNotMatch(web, /privileged:\s*true/);
+    assert.doesNotMatch(web, /hostPath:/);
+    assert.doesNotMatch(web, /hostNetwork:\s*true/);
+    assert.doesNotMatch(web, /hostPID:\s*true/);
 
     const app = read("templates/app-service.yaml");
     assert.match(app, /name: app/);

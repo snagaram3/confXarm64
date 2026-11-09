@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-nginx
+  labels:
+    app.kubernetes.io/name: web
+    {{- include "confxarm64.labels" . | nindent 4 }}
+data:
+  # No `user` directive: a root master would chown cache dirs to uid 101 and
+  # fail under capabilities.drop ALL. Pid/temp stay in /tmp (emptyDir).
+  nginx.conf: |
+    worker_processes auto;
+    error_log /var/log/nginx/error.log notice;
+    pid /tmp/nginx.pid;
+    events {
+      worker_connections 1024;
+    }
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      sendfile on;
+      keepalive_timeout 65;
+      client_body_temp_path /tmp/client_temp;
+      proxy_temp_path /tmp/proxy_temp;
+      fastcgi_temp_path /tmp/fastcgi_temp;
+      uwsgi_temp_path /tmp/uwsgi_temp;
+      scgi_temp_path /tmp/scgi_temp;
+      include /etc/nginx/conf.d/*.conf;
+    }
