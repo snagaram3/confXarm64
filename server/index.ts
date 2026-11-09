@@ -15,7 +15,7 @@ import { otelStatus } from "./otel.ts";
 import { mountReminderRoutes } from "./reminders-http.ts";
 import { ReminderStore, remindersPath } from "./reminders-store.ts";
 import { seedIndex } from "./seed.ts";
-import { hybridSearch } from "./search.ts";
+import { hybridSearch, parseQueryMode } from "./search.ts";
 import { mountScheduleRoutes } from "./schedule-http.ts";
 import { scheduleMeta, sessionById as officialSessionById } from "./schedule.ts";
 import { isAuthConfigured } from "./sponsor-auth.ts";
@@ -72,6 +72,7 @@ app.get("/api/health", async (_req, res) => {
         webPushConfigured: isPushConfigured(leadDataDir),
         store: "sqlite",
       },
+      askSchedule: askScheduleStatus(),
     });
   } catch (err) {
     res.status(503).json({
@@ -101,15 +102,19 @@ app.post("/api/rank", async (req, res) => {
     const interests = asStringArray(req.body?.interests);
     const role = String(req.body?.role ?? "");
     const q = String(req.body?.q ?? "");
+    const mode = parseQueryMode(req.body?.mode);
+    const track = String(req.body?.track ?? "").trim();
     const [sessions, booths] = await Promise.all([
-      hybridSearch({ kind: "session", interests, role, q }),
-      hybridSearch({ kind: "booth", interests, role, q }),
+      hybridSearch({ kind: "session", interests, role, q, mode, track: track || undefined }),
+      hybridSearch({ kind: "booth", interests, role, q, mode }),
     ]);
     const boothById = new Map(catalog.booths.map((b) => [b.id, b]));
     res.json({
       meta: {
         engine: "elasticsearch",
-        mode: "hybrid-bm25-knn",
+        mode: sessions.mode,
+        queryMode: mode,
+        retriever: sessions.retriever,
         tookMs: sessions.took + booths.took,
       },
       sessions: sessions.hits
@@ -272,4 +277,14 @@ boot().catch((err) => {
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.map((v) => String(v)).filter(Boolean);
+}
+
+function askScheduleStatus() {
+  const hasKey = Boolean(process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY);
+  return {
+    available: hasKey,
+    reason: hasKey
+      ? "An LLM key is present. Ask-the-schedule is still not wired in this build."
+      : "No OPENAI_API_KEY or ANTHROPIC_API_KEY. Floorwise will not invent a RAG summary.",
+  };
 }

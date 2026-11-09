@@ -1,14 +1,13 @@
 import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
+import { TalkSearch } from "@/components/search/TalkSearch";
 import { BestPick } from "@/components/sessions/BestPick";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { CONFERENCE_DAYS } from "@/lib/ask";
 import { pickBest } from "@/lib/rescue";
 import { filterRankedSessions } from "@/lib/ranked-filter";
 import { RANK_LABEL } from "@/lib/ranking";
 import { LATE_SESSION_ID } from "@/lib/catalog";
 import type { Rank } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { Bookmark, Search } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -21,7 +20,6 @@ export function RankedList() {
     selectSession,
     profile,
     searchQuery,
-    setSearchQuery,
     rankStatus,
     rankError,
     retryRank,
@@ -31,9 +29,8 @@ export function RankedList() {
     roomAnchors,
     plannerIso,
     dayFilter,
-    setDayFilter,
     includeEnded,
-    setIncludeEnded,
+    trackFilter,
     askUnderstood,
     applyAsk,
     pickId,
@@ -54,8 +51,9 @@ export function RankedList() {
         includeEnded,
         clock,
         attendanceDays: profile.attendanceDays,
+        track: trackFilter,
       }),
-    [rankedSessions, dayFilter, includeEnded, clock, profile.attendanceDays],
+    [rankedSessions, dayFilter, includeEnded, clock, profile.attendanceDays, trackFilter],
   );
   const savedRows = visible.filter((row) => savedIds.includes(row.item.id));
   const best = useMemo(
@@ -70,14 +68,12 @@ export function RankedList() {
 
   return (
     <div className="flex flex-col gap-6">
+      <TalkSearch prominent />
+
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Find the right talk
-        </p>
-        <h2 className="mt-1 font-display text-2xl font-semibold">Talks for your topics</h2>
+        <h2 className="font-display text-2xl font-semibold">Talks for your topics</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Elasticsearch hybrid over the official 2026 main schedule. This is your interest
-          fit, not a global popularity score.
+          Rankings are personal Elasticsearch fit, not a global popularity score.
           {rankMeta ? ` Last query ${rankMeta.tookMs}ms.` : ""}
         </p>
         <form
@@ -113,42 +109,6 @@ export function RankedList() {
             ))}
           </ul>
         )}
-        <div className="relative mt-3">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="eBPF, keynote, Hall DE…"
-            className="h-11 min-h-11 pl-9"
-            aria-label="Search official sessions"
-          />
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1" role="tablist" aria-label="Conference day">
-          <DayChip
-            id="all"
-            label={profile.attendanceDays.length ? "Your days" : "All days"}
-            active={dayFilter === "all"}
-            onSelect={() => setDayFilter("all")}
-          />
-          {CONFERENCE_DAYS.map((day) => (
-            <DayChip
-              key={day.id}
-              id={day.id}
-              label={day.label}
-              active={dayFilter === day.id}
-              onSelect={() => setDayFilter(day.id)}
-            />
-          ))}
-        </div>
-        <label className="mt-2 flex min-h-11 items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="size-4 accent-[var(--primary)]"
-            checked={includeEnded}
-            onChange={(e) => setIncludeEnded(e.target.checked)}
-          />
-          Include ended talks
-        </label>
       </div>
 
       <BestPick
@@ -223,33 +183,5 @@ export function RankedList() {
         );
       })}
     </div>
-  );
-}
-
-function DayChip({
-  id,
-  label,
-  active,
-  onSelect,
-}: {
-  id: string;
-  label: string;
-  active: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onSelect}
-      className={cn(
-        "min-h-11 rounded-full border px-3 text-xs font-semibold",
-        active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground",
-      )}
-    >
-      {label}
-      <span className="sr-only"> {id === "all" ? "" : id}</span>
-    </button>
   );
 }

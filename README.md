@@ -104,13 +104,17 @@ Fresh `/` does **not** assume Alex Rivera. Set your own topics, or tap **Preview
 
 ## Elasticsearch track
 
-`POST /api/rank` hybrid-ranks the official main schedule:
+Home and For you expose **Find the right talk**: type natural language such as `something on eBPF and security`. `POST /api/rank` ranks the official main schedule:
 
-- BM25 `multi_match` on title^3, abstract, tags, track, speaker
-- 48-dim cosine `dense_vector`
-- Must / Maybe / Meh from ES `_score` + tag overlap (personal fit, not global popularity)
+- **Keyword** — BM25 `multi_match` on title^3, abstract^2, tags, track, speaker (`fuzziness: AUTO`)
+- **Semantic** — kNN cosine on a 48-dim `dense_vector` stored with each abstract (local vocab, not a hosted LLM embedding)
+- **Hybrid** (default) — Reciprocal Rank Fusion of BM25 + kNN when this Elasticsearch accepts `retriever.rrf`; otherwise `function_score` BM25 + `cosineSimilarity`
+- Result cards show **why** (retriever, score, matched tags) plus highlighted abstract snippets and matched fields
+- Day chips and an official-track filter. Rankings are personal fit, not a popularity score
+- **How search works** panel lets judges toggle keyword / semantic / hybrid and see `engine`, `mode`, `retriever`, and `tookMs`
+- Ask-the-schedule RAG is skipped unless `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set. This repo does not invent a summary
 
-Re-seed without restarting: `npm run seed`.
+Do **not** run `npm run seed` against a live demo index unless you intend to wipe and rebuild `floorwise`. API boot already seeds when the index is missing.
 
 ## Verify
 

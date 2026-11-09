@@ -130,14 +130,20 @@ export interface WayfindingRoute {
   steps: WayfindingStep[];
 }
 
+export type QueryMode = "keyword" | "semantic" | "hybrid";
+export type RankEngineMode = "keyword-bm25" | "semantic-knn" | "hybrid-bm25-knn";
+
 export interface SearchExplanation {
   engine: "elasticsearch";
-  mode: "hybrid-bm25-knn";
+  mode: RankEngineMode;
   score: number;
   rank: Rank;
   matchedQueries: string[];
   matchedTags: string[];
   highlights: string[];
+  highlightHtml?: string[];
+  matchedFields?: string[];
+  retriever?: string;
   why: string;
 }
 
@@ -147,8 +153,10 @@ export interface Ranked<T> extends SearchExplanation {
 
 export interface RankMeta {
   engine: "elasticsearch";
-  mode: "hybrid-bm25-knn";
+  mode: RankEngineMode;
   tookMs: number;
+  retriever?: string;
+  queryMode?: QueryMode;
 }
 
 export interface Catalog {

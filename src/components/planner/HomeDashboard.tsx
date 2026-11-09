@@ -1,15 +1,14 @@
 import { OnboardingFlow } from "@/components/planner/OnboardingFlow";
 import { SessionPlanCard } from "@/components/planner/SessionPlanCard";
+import { TalkSearch } from "@/components/search/TalkSearch";
 import { Button } from "@/components/ui/button";
 import { conflictGroups } from "@/lib/agenda";
-import { CONFERENCE_DAYS } from "@/lib/ask";
 import { SponsorLogo } from "@/components/sponsor/SponsorLogo";
 import { catalog } from "@/lib/catalog";
 import { mustGoBooths } from "@/lib/expo-pins";
 import { PLANNER_GOALS, profileDisplayName } from "@/lib/planner-profile";
 import { filterRankedSessions, hasInterestMatch } from "@/lib/ranked-filter";
 import { pickSponsorSuggestion } from "@/lib/suggestions";
-import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { Star } from "lucide-react";
 import { useMemo } from "react";
@@ -34,11 +33,13 @@ export function HomeDashboard() {
     sponsorPrefs,
     plannerIso,
     dayFilter,
-    setDayFilter,
     includeEnded,
     scheduleNote,
+    searchQuery,
+    trackFilter,
   } = useAppState();
 
+  const searching = searchQuery.trim().length > 0;
   const visible = useMemo(() => {
     const clock = plannerIso === "live" ? new Date() : new Date(plannerIso);
     return filterRankedSessions(rankedSessions, {
@@ -46,20 +47,22 @@ export function HomeDashboard() {
       includeEnded,
       clock,
       attendanceDays: profile.attendanceDays,
+      track: trackFilter,
     });
-  }, [rankedSessions, dayFilter, includeEnded, plannerIso, profile.attendanceDays]);
+  }, [rankedSessions, dayFilter, includeEnded, plannerIso, profile.attendanceDays, trackFilter]);
 
   if (!profile.onboarded) return <OnboardingFlow />;
   const talks = visible
     .filter((row) => {
       if (row.item.dataset === "sample") return false;
-      if (!hasInterestMatch(row)) return false;
+      if (!searching && !hasInterestMatch(row)) return false;
+      if (searching) return true;
       const track = row.item.track ?? "";
       const types = row.item.sessionTypeLabels ?? [];
       if (/registration/i.test(track) || types.some((label) => /registration/i.test(label))) return false;
       return true;
     })
-    .slice(0, 5);
+    .slice(0, searching ? 12 : 5);
   const saved = officialSessions.filter((session) => savedIds.includes(session.id) && session.startIso);
   const conflicts = conflictGroups(
     saved
@@ -93,7 +96,6 @@ export function HomeDashboard() {
     .filter((row) => row.item.id !== sponsor?.boothId)
     .slice(0, 3);
   const personalMustGo = mustGoBooths(catalog.booths, sponsorPrefs);
-  const days = CONFERENCE_DAYS.filter((day) => profile.attendanceDays.includes(day.id));
   const emphasizeBooths = profile.goals.includes("exhibitors");
 
   return (
@@ -125,35 +127,7 @@ export function HomeDashboard() {
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Days you marked">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={dayFilter === "all"}
-          className={cn(
-            "min-h-11 rounded-full border px-3 text-xs font-semibold",
-            dayFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
-          )}
-          onClick={() => setDayFilter("all")}
-        >
-          Your days
-        </button>
-        {days.map((day) => (
-          <button
-            key={day.id}
-            type="button"
-            role="tab"
-            aria-selected={dayFilter === day.id}
-            className={cn(
-              "min-h-11 rounded-full border px-3 text-xs font-semibold",
-              dayFilter === day.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card",
-            )}
-            onClick={() => setDayFilter(day.id)}
-          >
-            {day.weekday}
-          </button>
-        ))}
-      </div>
+      <TalkSearch prominent />
 
       {rankStatus === "loading" && rankedSessions.length === 0 && (
         <p className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground" role="status">
@@ -176,8 +150,12 @@ export function HomeDashboard() {
         <div className="flex flex-col gap-3">
           <div className="flex items-end justify-between gap-2">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Recommended talks</p>
-              <h2 className="font-display text-xl font-semibold">What to do, and why</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {searching ? "Search results" : "Recommended talks"}
+              </p>
+              <h2 className="font-display text-xl font-semibold">
+                {searching ? "Why these talks matched" : "What to do, and why"}
+              </h2>
             </div>
             <Button type="button" variant="ghost" onClick={() => setView("agenda")}>
               All matches
@@ -185,7 +163,9 @@ export function HomeDashboard() {
           </div>
           {rankStatus === "ready" && talks.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-              No official talks matched these topics on the days you picked. Try another topic or include another day. This is not a live hall count.
+              {searching
+                ? "No official talks matched that query on the days and track you picked. Try keyword or hybrid, or another day. Floorwise will not invent sessions."
+                : "No official talks matched these topics on the days you picked. Try another topic or include another day. This is not a live hall count."}
             </p>
           )}
           {talks.map((row) => (

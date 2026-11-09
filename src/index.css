@@ -118,6 +118,15 @@
     outline-offset: 2px;
   }
 
+  .search-hit em {
+    background: var(--highlight);
+    color: var(--highlight-fg);
+    font-style: normal;
+    font-weight: 650;
+    padding: 0 0.12em;
+    border-radius: 0.2em;
+  }
+
   [data-radix-scroll-area-viewport] > * {
     display: block !important;
     min-width: 0 !important;

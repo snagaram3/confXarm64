@@ -1,3 +1,4 @@
+import { SearchHitSnippets } from "@/components/search/SearchHitSnippets";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { overlappingSaved } from "@/lib/agenda";
@@ -56,32 +57,43 @@ export function SessionPlanCard({
     setView("map");
   };
 
+  const when = `${row.item.start}–${row.item.end}`;
+  const where = row.item.roomLabel ?? row.item.roomId;
   return (
     <article
       className={cn(
         "rounded-2xl border border-border bg-card p-3 shadow-[0_8px_24px_rgba(17,62,130,0.06)]",
         compact && "p-3",
       )}
+      aria-labelledby={`talk-${row.item.id}`}
+      aria-describedby={`talk-why-${row.item.id}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-display text-[16px] font-semibold leading-snug">{row.item.title}</h3>
+        <h3 id={`talk-${row.item.id}`} className="font-display text-[16px] font-semibold leading-snug">
+          {row.item.title}
+        </h3>
         <Badge variant={row.rank} className="shrink-0">
           {RANK_LABEL[row.rank]}
         </Badge>
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1 font-mono text-primary">
-          <MapPin className="size-3" />
-          {row.item.roomLabel ?? row.item.roomId}
+          <MapPin className="size-3" aria-hidden />
+          <span className="sr-only">Room </span>
+          {where}
           {row.item.level != null ? ` · L${row.item.level}` : ""}
         </span>
         <span>
-          {row.item.start}–{row.item.end}
+          <span className="sr-only">Time </span>
+          {when}
         </span>
         {row.item.speaker ? <span>{row.item.speaker}</span> : null}
         <Badge variant="outline">{match}</Badge>
       </p>
-      <p className="mt-2 text-[13px] leading-snug text-foreground/85">Why · {row.why}</p>
+      <p id={`talk-why-${row.item.id}`} className="mt-2 text-[13px] leading-snug text-foreground/85">
+        Why · {row.why}
+      </p>
+      <SearchHitSnippets row={row} />
       {clashes.length > 0 && !saved && (
         <p className="mt-2 rounded-lg bg-maybe/15 px-2 py-1.5 text-xs text-maybe" role="status">
           Overlaps “{clashes[0]!.title}” on your itinerary. Favorites are not seat holds.

@@ -51,6 +51,21 @@ describe("filterRankedSessions", () => {
     });
     assert.deepEqual(attending.map((r) => r.item.id), ["wed"]);
   });
+
+  it("filters by official track label", () => {
+    const tue = row("tue", "2026-11-10T09:00:00-07:00", "2026-11-10T09:30:00-07:00");
+    tue.item.track = "Security";
+    const wed = row("wed", "2026-11-11T09:00:00-07:00", "2026-11-11T09:30:00-07:00");
+    wed.item.track = "Observability";
+    const clock = new Date("2026-11-10T11:00:00-07:00");
+    const only = filterRankedSessions([tue, wed], {
+      day: "all",
+      includeEnded: true,
+      clock,
+      track: "Security",
+    });
+    assert.deepEqual(only.map((r) => r.item.id), ["tue"]);
+  });
 });
 
 describe("hasInterestMatch", () => {
@@ -65,7 +80,12 @@ describe("hasInterestMatch", () => {
 });
 
 describe("matchContribution", () => {
-  it("labels keyword+tag as hybrid", () => {
+  it("labels keyword+tag as hybrid and kNN-only as semantic", () => {
     assert.equal(matchContribution(row("a", "2026-11-10T09:00:00-07:00", "2026-11-10T09:30:00-07:00")), "hybrid");
+    const knn = row("b", "2026-11-10T09:00:00-07:00", "2026-11-10T09:30:00-07:00");
+    knn.matchedQueries = ["semantic_knn"];
+    knn.matchedTags = [];
+    knn.mode = "semantic-knn";
+    assert.equal(matchContribution(knn), "semantic");
   });
 });

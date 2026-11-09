@@ -1,4 +1,4 @@
-import type { Booth, EsHealth, Profile, Ranked, RankMeta, Session, Visitor } from "./types";
+import type { Booth, EsHealth, Profile, QueryMode, Ranked, RankMeta, Session, Visitor } from "./types";
 
 export class ApiError extends Error {
   code?: string;
@@ -32,6 +32,7 @@ export async function fetchRank(
   profile: Profile,
   q: string,
   signal?: AbortSignal,
+  opts?: { mode?: QueryMode; track?: string },
 ): Promise<{ sessions: Ranked<Session>[]; booths: Ranked<Booth>[]; meta: RankMeta }> {
   const res = await fetch("/api/rank", {
     method: "POST",
@@ -41,6 +42,8 @@ export async function fetchRank(
       interests: profile.interests,
       role: profile.role,
       q,
+      mode: opts?.mode ?? "hybrid",
+      track: opts?.track && opts.track !== "all" ? opts.track : undefined,
     }),
   });
   return readJson(res);

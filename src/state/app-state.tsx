@@ -55,6 +55,7 @@ import type {
   Floor,
   MapSurface,
   Profile,
+  QueryMode,
   VenueLayer,
   Rank,
   RankMeta,
@@ -76,6 +77,10 @@ interface AppStateValue {
   setProfile: (profile: Profile) => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
+  searchMode: QueryMode;
+  setSearchMode: (mode: QueryMode) => void;
+  trackFilter: string | "all";
+  setTrackFilter: (track: string | "all") => void;
   rankedSessions: Ranked<Session>[];
   rankedBooths: Ranked<Booth>[];
   rankedVisitors: Ranked<Visitor>[];
@@ -262,6 +267,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     writePlannerProfile(attendeeId(), next);
   }, []);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchMode, setSearchMode] = useState<QueryMode>("hybrid");
+  const [trackFilter, setTrackFilter] = useState<string | "all">("all");
   const [retryTick, setRetryTick] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(readSaved);
   const [sponsorPrefs, setSponsorPrefs] = useState<Record<string, Rank>>(readSponsorPrefs);
@@ -471,7 +478,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const ac = new AbortController();
     const timer = window.setTimeout(() => {
       setRankStatus((prev) => (prev === "ready" ? prev : "loading"));
-      fetchRank(profile, composeRankQuery(profile, searchQuery), ac.signal)
+      fetchRank(profile, composeRankQuery(profile, searchQuery), ac.signal, {
+        mode: searchMode,
+        track: trackFilter,
+      })
         .then((res) => {
           setRankedSessions(res.sessions);
           setRankedBooths(res.booths);
@@ -489,7 +499,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ac.abort();
       window.clearTimeout(timer);
     };
-  }, [profile, searchQuery, retryTick]);
+  }, [profile, searchQuery, searchMode, trackFilter, retryTick]);
 
   useEffect(() => {
     if (rankStatus !== "error") return;
@@ -821,6 +831,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setProfile,
       searchQuery,
       setSearchQuery,
+      searchMode,
+      setSearchMode,
+      trackFilter,
+      setTrackFilter,
       rankedSessions,
       rankedBooths,
       rankedVisitors,
@@ -904,6 +918,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [
       profile,
       searchQuery,
+      searchMode,
+      trackFilter,
       rankedSessions,
       rankedBooths,
       rankedVisitors,
