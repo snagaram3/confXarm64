@@ -74,8 +74,16 @@ describe("infra bootstrap kit", () => {
     assert.match(app, /values-images\.yaml/);
     assert.match(app, /repoURL: https:\/\/github\.com\/snagaram3\/confXarm64\.git/);
     assert.match(app, /targetRevision: main/);
+    assert.match(app, /kind: Secret/);
+    assert.match(app, /name: confxarm64-secrets/);
+    assert.match(app, /jsonPointers:/);
+    assert.match(app, /\/data/);
+    assert.match(app, /RespectIgnoreDifferences=true/);
+    assert.match(app, /prune: true/);
+    assert.match(app, /selfHeal: true/);
+    assert.doesNotMatch(app, /kind: ConfigMap/);
     assert.doesNotMatch(app, /OWNER\/REPO/);
-    assert.doesNotMatch(app, /rhc_|sk-|AKIA/);
+    assert.doesNotMatch(app, /rhc_|sk-|AKIA|Bearer |Authorization/);
   });
 
   it("builds lowercase GHCR images on push to main", () => {

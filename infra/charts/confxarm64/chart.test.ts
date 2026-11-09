@@ -32,6 +32,9 @@ describe("confXarm64 Helm chart", () => {
     assert.match(cnh, /enabled: true/);
     assert.match(cnh, /confxarm64\.cnh\.radarhq\.io/);
     assert.match(cnh, /enabled: false/);
+    assert.match(cnh, /https:\/\/ingress\.us-east-1\.aws\.dash0\.com/);
+    assert.match(cnh, /https:\/\/api\.us-east-1\.aws\.dash0\.com/);
+    assert.doesNotMatch(cnh, /rhc_|sk-|AKIA|Bearer |Authorization/);
 
     const images = read("values-images.yaml");
     assert.match(images, /ghcr\.io\/snagaram3\/confxarm64-api/);
@@ -89,6 +92,8 @@ describe("confXarm64 Helm chart", () => {
     const cm = read("templates/configmap.yaml");
     assert.match(cm, /RADAR_UI_URL/);
     assert.match(cm, /DASH0_DASHBOARD_URL/);
+    assert.match(cm, /OTEL_EXPORTER_OTLP_ENDPOINT/);
+    assert.match(cm, /DASH0_API_BASE_URL/);
     assert.match(cm, /SONAR_HOST_URL/);
     assert.match(cm, /FLOORWISE_SYNTHETIC_OTEL/);
   });
