@@ -1,0 +1,17 @@
+# Overlay for skyhook/radar on the OPTIONAL local minikube path only.
+# Host is set by infra/local-minikube.sh. Do not apply this on the CNH cluster
+# (Radar is already installed there).
+# Official flags only: https://github.com/skyhook-io/helm-charts/blob/main/charts/radar/README.md
+# Cloud AI SRE stays off until radar/radar-cloud-config exists (rhc_ token from app.radarhq.io).
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: radar.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+cloud:
+  enabled: false

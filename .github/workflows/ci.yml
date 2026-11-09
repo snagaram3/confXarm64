@@ -1,9 +1,10 @@
-# GitHub Actions CI for Floorwise (tests + optional Sonar scan).
-# This Origin repository has NO GitHub Actions runner and no GitHub mirror, so
-# Origin will not execute this workflow automatically. Keep it for a GitHub
-# mirror or a local `act` run. The path that works immediately is:
+# GitHub Actions CI for confXarm64 (tests + optional Sonar scan).
+# This Origin repository has NO GitHub Actions runner. Origin will not execute
+# this workflow. A public GitHub repository is required for Gitar and Actions.
+# GitHub requires workflows under .github/workflows/ — this file is the Actions
+# entry; infra/README.md is the human bootstrap. Local scan:
 #   npm test && npm run build
-#   ./scripts/sonar-scan.sh   # only with SONAR_TOKEN + SONAR_HOST_URL you supply
+#   ./infra/sonar-scan.sh   # only with SONAR_TOKEN + SONAR_HOST_URL you supply
 name: CI
 
 on:

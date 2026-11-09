@@ -66,7 +66,7 @@ Docs: [Import a dashboard](https://www.dash0.com/docs/api-reference/operations/p
 
 ## Radar (two different products)
 
-**Skyhook Radar** is the Kubernetes UI (`helm upgrade --install radar skyhook/radar -n radar`). Tools → Radar shows `RADAR_UI_URL` (minikube: `http://radar.$(minikube ip).nip.io`). Port-forward fallback: `kubectl -n radar port-forward svc/radar 9280:9280` → `http://127.0.0.1:9280`. Optional Radar Cloud AI SRE (`cloud.enabled`, `rhc_` token from https://app.radarhq.io) is off unless Secret `radar/radar-cloud-config` exists. This is **not** `api.radar.io`.
+**Skyhook Radar** on the judged path is the CNH cluster UI at `https://confxarm64.cnh.radarhq.io` (`RADAR_UI_URL`). Do not helm-install `skyhook/radar` there. Optional local minikube Radar is `infra/local-minikube.sh`. This is **not** `api.radar.io`.
 
 **api.radar.io geofence adapter** (same Tools tab, labeled separately):
 
@@ -98,12 +98,12 @@ Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). Flo
 
 ```bash
 # Requires sonar-scanner or Docker, plus SONAR_HOST_URL + SONAR_TOKEN in gitignored .env.
-./scripts/sonar-scan.sh
+./infra/sonar-scan.sh
 ```
 
-`.github/workflows/ci.yml` runs the same scan on GitHub Actions using `SONAR_HOST_URL` / `SONAR_TOKEN` secrets. This Origin repository has **no GitHub Actions runner** and no GitHub mirror, so Origin will not execute that workflow. The script is the path that works immediately.
+`.github/workflows/ci.yml` runs the same scan on GitHub Actions using `SONAR_HOST_URL` / `SONAR_TOKEN` secrets. This Origin repository has **no GitHub Actions runner**. A **public GitHub repository** is required for Gitar and Actions. The script is the path that works immediately.
 
-Optional in-cluster SonarQube: `scripts/minikube-up.sh --with-sonar` (official `sonarqube/sonarqube` chart, Ingress `http://sonarqube.$(minikube ip).nip.io`). Sets Floorwise `SONAR_HOST_URL` to that host. Still needs a token you create in SonarQube before any upload.
+Optional local SonarQube (not CNH — it will not fit the quota): `infra/local-minikube.sh --with-sonar`. Still needs a token you create before any upload. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
 
 ## Run
 

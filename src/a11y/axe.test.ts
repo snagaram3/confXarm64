@@ -4,11 +4,11 @@ import { JSDOM } from "jsdom";
 
 const FIXTURE = `<!doctype html>
 <html lang="en">
-  <head><title>Floorwise · KCNA26 companion</title></head>
+  <head><title>confXarm64 · KCNA26 companion</title></head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header>
-      <button type="button">Floorwise</button>
+      <button type="button">confXarm64</button>
       <button type="button" aria-haspopup="dialog">Accessibility</button>
     </header>
     <main id="main-content">

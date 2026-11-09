@@ -1,0 +1,25 @@
+# Apply once through Radar MCP (apply_resource) or kubectl after the public
+# GitHub repo exists. Argo CD in the CNH cluster reads the repo without credentials.
+# Origin cannot host this Application. Replace OWNER/REPO. Do not commit kubeconfigs.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app
+  namespace: team-confxarm64
+spec:
+  project: team-confxarm64
+  source:
+    repoURL: https://github.com/OWNER/REPO.git
+    targetRevision: main
+    path: infra/charts/confxarm64
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-cnh.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: team-confxarm64
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

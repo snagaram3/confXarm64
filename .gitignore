@@ -21,6 +21,11 @@ uploads
 sponsor-secret-*.txt
 sponsor-credentials.json
 
+# Cluster credentials — never commit
+**/kubeconfig
+*.kubeconfig
+cnh-kubeconfig
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

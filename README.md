@@ -1,8 +1,10 @@
-# Floorwise
+# confXarm64
 
 Private conference-trip companion for Salt Palace + Hyatt during KubeCon + CloudNativeCon North America 2026. Plan a visit from official sessions, save a day-by-day itinerary, then open the map only when you need a room or booth.
 
-Hackathon: WeMakeDevs Cloud Native Hackathon. Primary prize track: **Elasticsearch**. Product name: Floorwise. Not an official Linux Foundation, CNCF, Grok, or sponsor app.
+Hackathon: WeMakeDevs Cloud Native Hackathon. Team **confxarm64**. Primary prize track: **Elasticsearch**. Product name: **confXarm64** (this codebase was previously called Floorwise; Elasticsearch index and env names still use `floorwise` so existing data keeps working). Not an official Linux Foundation, CNCF, Grok, or sponsor app.
+
+**Cluster / Radar / Dash0 / Sonar bootstrap:** [`infra/README.md`](infra/README.md) — one folder, one script: `./infra/bootstrap.sh`.
 
 ## Retrieve this update (non-destructive)
 
@@ -120,134 +122,20 @@ Home and For you expose **Find the right talk**: type natural language such as `
 
 Do **not** run `npm run seed` against a live demo index unless you intend to wipe and rebuild `floorwise`. API boot seeds only when the `floorwise` index is missing (`FLOORWISE_FORCE_SEED=1` to override). Kubernetes uses a seed Job and `FLOORWISE_SKIP_SEED=1` on the API.
 
-## Run on minikube + Helm (primary local cluster)
+## Kubernetes, Radar, Dash0, Gitar/Sonar
 
-Helm chart `charts/floorwise` deploys web, API, Elasticsearch **StatefulSet + PVC**, seed **Job**, ConfigMap, Secret placeholders, probes, and an nginx Ingress. In-cluster ES stays `http://elasticsearch:9200` (cluster name `floorwise`). Raw kustomize under `k8s/` is kept for kind/k3d; prefer Helm.
+All of that lives in **[`infra/`](infra/README.md)** — one README, one script.
 
-`scripts/minikube-up.sh` starts minikube at **4 CPU / 8192 Mi** (enough for ES + app + Skyhook Radar; add ~2 Gi and `--with-sonar` only if you want in-cluster SonarQube), enables the ingress addon, builds/loads `floorwise-api` / `floorwise-web`, then `helm upgrade --install`.
-
-```bash
-./scripts/minikube-up.sh
-# optional: ./scripts/minikube-up.sh --with-sonar
-# skip extras: ./scripts/minikube-up.sh --skip-radar --skip-dash0
-```
-
-Equivalent manual commands:
+Primary: the Cloud Native Hackathon cluster the team already created (`confxarm64`, namespace `team-confxarm64`, https://confxarm64.cnh.radarhq.io). Do not create a new Radar team. Do not helm-install Skyhook Radar there (it is already running).
 
 ```bash
-minikube start --cpus=4 --memory=8192
-minikube addons enable ingress
-docker build -f docker/api.Dockerfile -t floorwise-api:dev .
-docker build -f docker/web.Dockerfile -t floorwise-web:dev .
-minikube image load floorwise-api:dev
-minikube image load floorwise-web:dev
-IP="$(minikube ip)"
-helm upgrade --install floorwise charts/floorwise \
-  --namespace floorwise --create-namespace --timeout 8m \
-  --set ingress.host="floorwise.${IP}.nip.io" \
-  --set elasticsearch.url=http://elasticsearch:9200 \
-  --set elasticsearch.clusterName=floorwise \
-  --set config.radarUiUrl="http://radar.${IP}.nip.io" \
-  --set config.syntheticOtel=0
+./infra/bootstrap.sh --print-plan
+./infra/bootstrap.sh                  # needs kubectl + Helm pointed at CNH
+# optional local fallback only:
+./infra/bootstrap.sh --local
 ```
 
-Reachable URLs (script prints these with the live minikube IP):
-
-| What | URL |
-| --- | --- |
-| Planner home | `http://floorwise.$(minikube ip).nip.io/` |
-| Tools → Dash0 | `http://floorwise.$(minikube ip).nip.io/tools/dash0` |
-| Tools → Radar | `http://floorwise.$(minikube ip).nip.io/tools/radar` |
-| Tools → Sonar | `http://floorwise.$(minikube ip).nip.io/tools/sonar` |
-| Dash0 product UI | `https://app.dash0.com` (needs a Dash0 account; not self-hosted) |
-| Skyhook Radar UI | `http://radar.$(minikube ip).nip.io/` |
-| SonarQube UI (only `--with-sonar`) | `http://sonarqube.$(minikube ip).nip.io/` |
-
-Port-forward fallbacks if nip.io or the ingress addon is down:
-
-```bash
-kubectl -n floorwise port-forward svc/web 43180:80    # http://127.0.0.1:43180
-kubectl -n floorwise port-forward svc/api 43181:43181
-kubectl -n radar port-forward svc/radar 9280:9280     # http://127.0.0.1:9280
-kubectl -n floorwise get pods,svc,ingress
-```
-
-Do **not** point Floorwise at an unrelated host `:9200` cluster. Do **not** `docker compose down -v`. The seed Job **deletes and rebuilds** the `floorwise` index on first Helm install — do not re-run it against a live demo.
-
-### Secrets (never commit)
-
-Charts install cleanly with empty placeholders. Tools tabs stay **Needs setup** until you fill them. Helm `lookup()` will not wipe an existing `floorwise-secrets` on upgrade.
-
-| Secret | Keys |
-| --- | --- |
-| `floorwise/floorwise-secrets` | `DASH0_AUTH_TOKEN`, `OTEL_EXPORTER_OTLP_HEADERS` (`Authorization=Bearer …`), `SONAR_TOKEN`, `RADAR_SECRET_KEY` / `RADAR_PUBLISHABLE_KEY` (api.radar.io only) |
-| `dash0-system/dash0-auth` | `token` (no `Bearer ` prefix) plus env `DASH0_OTLP_GRPC_ENDPOINT=ingress.<region>.aws.dash0.com:4317`, `DASH0_API_ENDPOINT=https://api.<region>.aws.dash0.com`, `DASH0_OTLP_HTTP_ENDPOINT=https://ingress.<region>.aws.dash0.com` |
-| `radar/radar-cloud-config` | `token` (`rhc_…` from https://app.radarhq.io) — optional Cloud AI SRE, off by default |
-
-Then `kubectl -n floorwise rollout restart deploy/api`.
-
-### Skyhook Radar (official install — do not invent flags)
-
-This is **Skyhook Radar** ([in-cluster docs](https://radarhq.io/docs/configuration/in-cluster), [Helm chart](https://github.com/skyhook-io/helm-charts/blob/main/charts/radar/README.md)) — **not** the Tools tab `api.radar.io` geofence adapter. Tools → Radar labels both. `RADAR_UI_URL` is the Skyhook Ingress.
-
-`scripts/minikube-up.sh` already runs:
-
-```bash
-helm repo add skyhook https://skyhook-io.github.io/helm-charts
-helm repo update skyhook
-helm upgrade --install radar skyhook/radar -n radar --create-namespace \
-  --values deploy/minikube/values-radar.yaml \
-  --set ingress.enabled=true \
-  --set ingress.className=nginx \
-  --set ingress.hosts[0].host="radar.$(minikube ip).nip.io" \
-  --set cloud.enabled=false
-```
-
-Local CLI against any kubeconfig ([install docs](https://radarhq.io/docs/install)): `curl -fsSL https://get.radarhq.io | sh` then `kubectl radar --port=9280 --no-browser`.
-
-Radar Cloud needs **their** account at [app.radarhq.io](https://app.radarhq.io). Generate the install command there (token shown once). Create `radar/radar-cloud-config` with key `token`; the minikube script then sets `cloud.enabled=true` and `cloud.existingSecret=radar-cloud-config`. Do not commit the `rhc_` token.
-
-### Dash0 operator (official chart only)
-
-[Installation docs](https://www.dash0.com/docs/dash0/monitoring/kubernetes/dash0-operator/installation). No Dash0 account in this repo — export stays **off** until the secret exists ([install without backend](https://www.dash0.com/docs/dash0/monitoring/kubernetes/dash0-operator/installation#installation-without-backend-configuration)):
-
-```bash
-helm repo add dash0-operator https://dash0hq.github.io/dash0-operator
-helm repo update dash0-operator
-helm upgrade --install dash0-operator dash0-operator/dash0-operator \
-  --namespace dash0-system --create-namespace \
-  --values deploy/minikube/values-dash0-operator.yaml
-```
-
-When `dash0-system/dash0-auth` (key `token`) plus `DASH0_OTLP_GRPC_ENDPOINT` / `DASH0_API_ENDPOINT` are set, the script adds official flags only:
-
-`--set operator.dash0Export.enabled=true --set operator.dash0Export.endpoint=ingress.<region>.aws.dash0.com:4317 --set operator.dash0Export.apiEndpoint=https://api.<region>.aws.dash0.com --set operator.dash0Export.secretRef.name=dash0-auth --set operator.dash0Export.secretRef.key=token`
-
-App OTLP HTTP ingest (`OTEL_EXPORTER_OTLP_ENDPOINT=https://ingress.<region>.aws.dash0.com`) is separate from operator gRPC `:4317`. `FLOORWISE_SYNTHETIC_OTEL` stays `0` unless you intend demo gauges.
-
-### SonarQube (optional) + git CI
-
-Two related things, kept distinct:
-
-1. **Tools → Sonar** talks to `SONAR_HOST_URL` (real adapter state: needs setup / connected / empty / error). Optional in-cluster server: `./scripts/minikube-up.sh --with-sonar` (official `sonarqube/sonarqube` chart). Never commit a token; never upload source without a token you supply.
-2. **Gitar (Sonar)** Never Merge Broken track: `.github/workflows/ci.yml` runs `npm test`, `npm run build`, and `SonarSource/sonarqube-scan-action@v5` against `SONAR_HOST_URL` / `SONAR_TOKEN` secrets. **This Origin repository has no GitHub Actions runner and no GitHub mirror** — Origin will not execute that workflow. Local/in-cluster path: `./scripts/sonar-scan.sh`.
-
-### kind / k3d (secondary)
-
-```bash
-kind create cluster --name floorwise   # or: k3d cluster create floorwise
-docker build -f docker/api.Dockerfile -t floorwise-api:dev .
-docker build -f docker/web.Dockerfile -t floorwise-web:dev .
-kind load docker-image floorwise-api:dev --name floorwise
-kind load docker-image floorwise-web:dev --name floorwise
-# k3d: k3d image import floorwise-api:dev floorwise-web:dev -c floorwise
-helm upgrade --install floorwise charts/floorwise -n floorwise --create-namespace \
-  --set elasticsearch.url=http://elasticsearch:9200 --set elasticsearch.clusterName=floorwise
-# or: kubectl apply -k k8s
-kubectl -n floorwise port-forward svc/web 43180:80
-```
-
-Venue cluster: retag images, `helm upgrade --install floorwise charts/floorwise -n "$FLOORWISE_NS" --create-namespace`. This repo cannot mint their kubeconfig.
+In-cluster ES stays `http://elasticsearch:9200` (cluster name `floorwise`). Helm `lookup()` does not wipe filled secrets. Tools tabs stay honest. Origin will not run `.github/workflows/ci.yml` — a public GitHub repo is required for Gitar and Actions (`./infra/sonar-scan.sh` is the local path).
 
 ## Verify
 
@@ -255,10 +143,8 @@ Venue cluster: retag images, `helm upgrade --install floorwise charts/floorwise 
 npm test
 npm run build
 # Optional, only with SONAR_TOKEN + SONAR_HOST_URL you supply:
-# ./scripts/sonar-scan.sh
+# ./infra/sonar-scan.sh
 ```
-
-Origin will not run `.github/workflows/ci.yml`. That file is for a GitHub mirror.
 
 ## What is in / out
 

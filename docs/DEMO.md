@@ -1,6 +1,6 @@
-# Floorwise 3-minute demo — WeMakeDevs Cloud Native Hackathon (9 Nov 2026)
+# confXarm64 3-minute demo — WeMakeDevs Cloud Native Hackathon (9 Nov 2026)
 
-Product: **Floorwise**, a private KCNA 2026 trip planner. Home is the planner (`/`), not 3D. Rankings come from Elasticsearch over the official main schedule. The map is a schematic of official labels — **not** verified step-free navigation.
+Product: **confXarm64**, a private KCNA 2026 trip planner. Home is the planner (`/`), not 3D. Rankings come from Elasticsearch over the official main schedule. The map is a schematic of official labels — **not** verified step-free navigation. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
 
 Run locally (Mac). Do **not** `docker compose down -v`, do **not** touch a foreign `:9200` cluster.
 
@@ -76,44 +76,37 @@ Do **not** claim an accessible indoor graph.
 
 ## 2:10–2:50 — Radar + Tools URLs (Kubernetes)
 
-Criteria: Floorwise runs on Kubernetes; Skyhook Radar visualizes the cluster; Dash0 / Sonar adapters stay honest.
+Criteria: confXarm64 runs on the **provided CNH cluster**; Radar visualizes it; Dash0 / Sonar adapters stay honest.
 
-Primary path (README **Run on minikube + Helm**):
+Primary path ([`infra/README.md`](../infra/README.md)):
 
 ```bash
-./scripts/minikube-up.sh
-kubectl -n floorwise get pods,svc,ingress
-kubectl -n radar get pods,svc,ingress
+./infra/bootstrap.sh --print-plan
+kubectl -n team-confxarm64 get pods,svc
 ```
 
-Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `floorwise-seed`. Open the printed Floorwise URL (planner home, not 3D). curl `http://floorwise.$(minikube ip).nip.io/api/health` (or port-forward `svc/web 43180:80`).
+Team slug `confxarm64`, namespace `team-confxarm64`, URL **https://confxarm64.cnh.radarhq.io**. Do not create a new Radar team. Do not helm-install `skyhook/radar` on CNH (Radar is already there). Service `app` port 80 is what the platform routes.
+
+Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `confxarm64-seed`. Open the CNH URL (planner home, not 3D).
 
 **Judge beat — Tools (do not invent live data):**
 
-1. Open `http://floorwise.$(minikube ip).nip.io/tools/dash0` — Needs setup until `DASH0_AUTH_TOKEN` exists; link to `https://app.dash0.com` only when query creds exist. There is no self-hosted Dash0.
-2. Open `http://floorwise.$(minikube ip).nip.io/tools/radar` — **Skyhook Radar** link (`RADAR_UI_URL` / `http://radar.$(minikube ip).nip.io`) is labeled separately from the **api.radar.io** geofence adapter.
-3. Open `http://floorwise.$(minikube ip).nip.io/tools/sonar` — Needs setup without `SONAR_TOKEN`; never a fake quality gate.
-4. Open the Skyhook Radar UI URL (`http://radar.$(minikube ip).nip.io/` or `kubectl -n radar port-forward svc/radar 9280:9280` → http://127.0.0.1:9280). Point it at namespace `floorwise`.
+1. https://confxarm64.cnh.radarhq.io/tools/dash0 — Needs setup until `DASH0_AUTH_TOKEN` exists; link to `https://app.dash0.com` only when query creds exist. There is no self-hosted Dash0.
+2. https://confxarm64.cnh.radarhq.io/tools/radar — **Skyhook Radar** (`RADAR_UI_URL` = the CNH URL) labeled separately from the **api.radar.io** geofence adapter.
+3. https://confxarm64.cnh.radarhq.io/tools/sonar — Needs setup without `SONAR_TOKEN`; never a fake quality gate.
+4. Open Radar Cloud at https://confxarm64.cnh.radarhq.io. Point it at namespace `team-confxarm64`. MCP: https://api.radarhq.io/mcp → Cloud Native Hackathon.
 
-Skyhook Radar — **official** install only ([in-cluster](https://radarhq.io/docs/configuration/in-cluster)):
+Optional local fallback only: `./infra/bootstrap.sh --local` (minikube). Not the judged CNH path.
 
-```bash
-helm repo add skyhook https://skyhook-io.github.io/helm-charts
-helm repo update skyhook
-helm upgrade --install radar skyhook/radar -n radar --create-namespace
-```
+**Venue-only leftovers:** public GitHub repo for Argo CD + Gitar, image registry, Dash0 token, Sonar token. Do not commit kubeconfigs or `rhc_` tokens.
 
-or local CLI: `curl -fsSL https://get.radarhq.io | sh` then `kubectl radar --port=9280 --no-browser`.
-
-**Venue-only:** organizers’ cluster/namespace, registry push, Radar Cloud account + `rhc_` token (shown once at app.radarhq.io), Dash0 token, Sonar token. This laptop demo does not have those.
-
-**Wi-Fi / no Docker backup:** show `charts/floorwise` + `k8s/*.yaml` (StatefulSet, seed Job, probes, Secret placeholders) and README commands. Do not fake a cluster.
+**Wi-Fi / no Docker backup:** show `infra/` (chart, bootstrap, README). Do not fake a cluster.
 
 ---
 
 ## 2:50–3:00 — Close
 
-Floorwise: Elasticsearch hybrid over the real schedule, honest accessibility, Kubernetes + Radar-ready. Home stays the planner.
+confXarm64: Elasticsearch hybrid over the real schedule, honest accessibility, on the CNH Radar cluster. Home stays the planner.
 
 ---
 
@@ -124,13 +117,13 @@ Floorwise: Elasticsearch hybrid over the real schedule, honest accessibility, Ku
 | Taste | Days → Deal official talks → Love / Skip → watch interest map + live preview + recs reorder |
 | Search | Home → Find the right talk → `something on eBPF and security` → How search works → Keyword / Semantic / Hybrid |
 | Merge Forward | Tab → Skip to content → Accessibility → High contrast → Larger text → Inclusion rooms → Map → Expo → keyboard booth list |
-| Radar | `./scripts/minikube-up.sh` → Floorwise URL → Tools → Radar (Skyhook link) → `http://radar.$(minikube ip).nip.io` |
+| Radar | `./infra/bootstrap.sh` → https://confxarm64.cnh.radarhq.io → Tools → Radar (Skyhook link) |
 | Dash0 | Tools → Dash0 (`/tools/dash0`); `https://app.dash0.com` only with creds |
-| Sonar | Tools → Sonar; `./scripts/sonar-scan.sh` only with your token (Origin does not run GHA) |
+| Sonar | Tools → Sonar; `./infra/sonar-scan.sh` only with your token (Origin does not run GHA; public GitHub needed for Gitar) |
 | Overall | `/` is planner; map disclaimer; no RAG without a key |
 
 ## What this environment verified vs not
 
 Verified in the agent VM: unit tests (including axe-core fixture + high-contrast AA), typecheck, live `POST /api/rank` hybrid on the existing **floorwise** ES (this VM publishes ES on `:9200`; Mac stays `:19200`), web `:43180` / API `:43181`.
 
-Not verified here: minikube/kind/k3d (no Docker in this VM unless a later run reports otherwise), Radar Cloud, Dash0 account, Sonar token, venue kubeconfig, LLM RAG. GitHub Actions CI is in-repo but Origin will not execute it.
+Not verified here: CNH kubectl apply (no kubeconfig in this VM), minikube/kind/k3d (no Docker unless a later run reports otherwise), Dash0 account, Sonar token, LLM RAG. GitHub Actions CI is in-repo but Origin will not execute it — a public GitHub repo is required for Gitar.

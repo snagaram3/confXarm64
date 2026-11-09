@@ -24,7 +24,7 @@ Bundle inspected in isolation at `/tmp/fw-ref/` and `/tmp/fw-ref-3d/` on this VM
 | MiniLM / Xenova model files | Extra dependency; Floorwise already has ES hybrid BM25+kNN. |
 | Dash0 / Sonar / Radar signup | Still blocked / needs keys. Do not retry Dash0 signup. Tools tabs stay honest. |
 | Replacing expo PDF with showcase schematic booths | User asked to keep official booth map. Showcase labels on Salt Palace L1 are dashed and point at Expo. |
-| CrowdCompass env, demo clock occupancy, k8s manifests, fictional sponsors | Out of scope / untrusted. |
+| CrowdCompass env, demo clock occupancy, fictional sponsors | Out of scope / untrusted. (Our cluster kit is `infra/`, not the reference bundle.) |
 
 ## Honesty notes
 

@@ -28,9 +28,9 @@ export function TopBar() {
               type="button"
               className="font-display text-lg font-semibold leading-none tracking-tight"
               onClick={() => setView("home")}
-              aria-label="Floorwise home"
+              aria-label="confXarm64 home"
             >
-              Floorwise
+              confXarm64
             </button>
             <span className="hidden rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-foreground sm:inline">
               Private companion

@@ -31,7 +31,7 @@ export function OnboardingFlow() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:py-10">
       <header className="flex flex-col gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Floorwise trip planner</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">confXarm64 trip planner</p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {current.title}
         </h1>

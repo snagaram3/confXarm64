@@ -1,0 +1,20 @@
+# Overlay for the official SonarQube Helm chart (optional local fallback —
+# infra/local-minikube.sh --with-sonar). Do not install this on the CNH cluster;
+# it will not fit the 2 CPU / 4 GiB request budget. Use SonarCloud instead.
+# helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+# Host is overridden by the script. Community edition. No token in git.
+
+community:
+  enabled: true
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - name: sonarqube.local
+      path: /
+
+postgresql:
+  persistence:
+    enabled: true
+    size: 8Gi

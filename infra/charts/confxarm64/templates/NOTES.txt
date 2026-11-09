@@ -1,0 +1,42 @@
+confXarm64 {{ .Chart.Version }} in namespace {{ .Release.Namespace }}.
+
+CNH app URL (Service `app` port 80):
+  https://confxarm64.cnh.radarhq.io
+Radar Cloud (this team's cluster):
+  https://confxarm64.cnh.radarhq.io
+{{- if .Values.ingress.enabled }}
+Local ingress:
+  http://{{ .Values.ingress.host }}/
+  http://{{ .Values.ingress.host }}/tools/dash0
+  http://{{ .Values.ingress.host }}/tools/radar
+  http://{{ .Values.ingress.host }}/tools/sonar
+{{- end }}
+Tools (same app):
+  /tools/dash0  /tools/radar  /tools/sonar  /tools/elasticsearch
+Dash0 product UI (not self-hosted): https://app.dash0.com
+{{- if .Values.config.radarUiUrl }}
+RADAR_UI_URL: {{ .Values.config.radarUiUrl }}
+{{- end }}
+
+In-cluster Elasticsearch is {{ .Values.elasticsearch.url }} (cluster.name={{ .Values.elasticsearch.clusterName }}).
+Do not point this release at a foreign host :9200 cluster.
+Do not wipe a Compose volume on loopback :19200.
+
+Port-forward fallbacks:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/web 43180:80
+  kubectl -n {{ .Release.Namespace }} port-forward svc/api 43181:{{ .Values.api.port }}
+  Then http://127.0.0.1:43180/
+
+Secrets (never commit tokens). Apply then restart the API:
+  kubectl -n {{ .Release.Namespace }} create secret generic {{ include "confxarm64.secretName" . }} \
+    --from-literal=DASH0_AUTH_TOKEN= \
+    --from-literal=OTEL_EXPORTER_OTLP_HEADERS= \
+    --from-literal=SONAR_TOKEN= \
+    --from-literal=RADAR_SECRET_KEY= \
+    --from-literal=RADAR_PUBLISHABLE_KEY= \
+    --dry-run=client -o yaml | kubectl apply -f -
+  kubectl -n {{ .Release.Namespace }} rollout restart deploy/api
+
+FLOORWISE_SYNTHETIC_OTEL is {{ .Values.config.syntheticOtel }} (leave 0 unless you intend demo gauges in Dash0).
+The seed Job runs once on install and rebuilds the floorwise index. Do not re-apply it against a live demo.
+Do not helm-install skyhook/radar on the CNH cluster (Radar is already there).
