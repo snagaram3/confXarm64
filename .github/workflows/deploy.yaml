@@ -1,6 +1,7 @@
 # On every push to main: build web + api images, push them to GHCR (lowercase),
 # and point infra/charts/confxarm64/values-images.yaml at the new tags.
 # Argo CD watches this public repo and deploys the Helm chart.
+# workflow_dispatch rebuilds the current main tip without a product change.
 name: build-and-deploy
 
 on:
