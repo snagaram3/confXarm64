@@ -36,7 +36,7 @@ export function OnboardingFlow() {
           {current.title}
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Preferences stay in this browser on this device. There is no Floorwise account, cloud sync, or email signup.
+          Preferences stay in this browser on this device. There is no confXarm64 account, cloud sync, or email signup.
         </p>
         <ol className="mt-2 flex gap-1" aria-label="Setup steps">
           {STEPS.map((item, index) => (

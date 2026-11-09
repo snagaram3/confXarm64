@@ -43,18 +43,30 @@ export function uniqueTracks(sessions: Session[]): string[] {
   return [...set].sort((a, b) => a.localeCompare(b));
 }
 
-/** True when ES named a tag or BM25 keyword — kNN-only neighbors are not a topic fit. */
+function namedTopicQueries(queries: string[]): boolean {
+  return queries.includes("bm25_keyword") || queries.some((q) => q.startsWith("tag:") || q.startsWith("topic:"));
+}
+
+/** True when ES named a tag, topic boost, or BM25 keyword — kNN-only neighbors are not a topic fit. */
 export function hasInterestMatch(row: Ranked<Session>): boolean {
   if (row.matchedTags.length > 0) return true;
-  const queries = row.matchedQueries ?? [];
-  return queries.includes("bm25_keyword") || queries.some((q) => q.startsWith("tag:"));
+  return namedTopicQueries(row.matchedQueries ?? []);
+}
+
+/** Exhibitors for your topics: real tag/keyword/topic hits only, not a stamped semantic_knn. */
+export function hasExhibitorTopicMatch(row: {
+  matchedTags: string[];
+  matchedQueries?: string[];
+}): boolean {
+  if (row.matchedTags.length > 0) return true;
+  return namedTopicQueries(row.matchedQueries ?? []);
 }
 
 export function matchContribution(row: Ranked<Session>): "hybrid" | "keyword" | "tag" | "semantic" {
   const queries = row.matchedQueries ?? [];
-  const hasKeyword = queries.some((q) => q === "bm25_keyword" || q.startsWith("role"));
+  const hasKeyword = queries.some((q) => q === "bm25_keyword" || q.startsWith("role") || q.startsWith("topic:"));
   const hasTag = queries.some((q) => q.startsWith("tag:"));
-  const hasSemantic = queries.includes("semantic_knn") || row.mode === "semantic-knn";
+  const hasSemantic = queries.includes("semantic_knn");
   if (hasKeyword && hasTag) return "hybrid";
   if (hasKeyword && hasSemantic) return "hybrid";
   if (hasKeyword) return "keyword";

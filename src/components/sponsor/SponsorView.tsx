@@ -42,7 +42,7 @@ export function SponsorView() {
           <a href="/sponsor-portal" className="text-primary underline">
             Exhibitor lead portal
           </a>
-          <span className="text-muted-foreground"> · Floorwise-hosted, not a sponsor site</span>
+          <span className="text-muted-foreground"> · confXarm64-hosted, not a sponsor site</span>
         </p>
       </div>
 

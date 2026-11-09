@@ -43,7 +43,7 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_INDEX: floorwise
       PORT: "43181"
-      OTEL_SERVICE_NAME: floorwise-api
+      OTEL_SERVICE_NAME: confxarm64-api
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       FLOORWISE_DATA_DIR: /app/data

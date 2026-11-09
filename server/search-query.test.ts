@@ -3,12 +3,15 @@ import { describe, it } from "node:test";
 import {
   engineModeFor,
   explainMode,
+  formatScore,
   keywordQuery,
   matchedFieldsFromHighlight,
   parseQueryMode,
+  parseTopicWeights,
   plainHighlight,
   queryVector,
   rrfRetriever,
+  topicWeightShould,
 } from "./search-query.ts";
 
 describe("parseQueryMode", () => {
@@ -46,10 +49,27 @@ describe("rrfRetriever", () => {
       keyword: keywordQuery("ebpf"),
       filters: [{ term: { kind: "session" } }],
     });
-    const rrf = body.rrf as { retrievers: unknown[] };
+    const rrf = body.rrf as { retrievers: Array<Record<string, { query?: { bool?: { should?: unknown[] } } }>> };
     assert.equal(rrf.retrievers.length, 2);
     assert.ok("standard" in (rrf.retrievers[0] as object));
     assert.ok("knn" in (rrf.retrievers[1] as object));
+    assert.ok((rrf.retrievers[0]?.standard?.query?.bool?.should ?? []).length >= 1);
+  });
+});
+
+describe("topicWeightShould", () => {
+  it("emits named Elasticsearch boosts for positive taste weights", () => {
+    const weights = parseTopicWeights({ eBPF: 1, noise: 0, Security: 2 });
+    const should = topicWeightShould(weights);
+    assert.equal(should.length, 2);
+    assert.ok(should.every((clause) => "multi_match" in clause));
+  });
+});
+
+describe("formatScore", () => {
+  it("keeps RRF-sized scores readable instead of rounding them to 0.0", () => {
+    assert.equal(formatScore(0.021), "0.021");
+    assert.equal(formatScore(12.4), "12.4");
   });
 });
 

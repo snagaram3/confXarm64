@@ -19,7 +19,7 @@ function rejectClientUpstream(req: Request, res: Response, next: NextFunction): 
   for (const key of Object.keys(bag)) {
     if (BANNED.has(key.toLowerCase())) {
       res.status(400).json({
-        error: "Client-supplied upstream URLs, hosts, and credentials are rejected. Floorwise uses server env only.",
+        error: "Client-supplied upstream URLs, hosts, and credentials are rejected. confXarm64 uses server env only.",
       });
       return;
     }
@@ -55,7 +55,7 @@ export function mountToolRoutes(app: Express): void {
   });
 
   app.get("/api/tools/dash0/engagement", (req, res) => {
-    const mode = String(req.query.mode ?? "synthetic");
+    const mode = String(req.query.mode ?? "live");
     if (mode === "live") {
       res.json(liveEngagementUnavailable());
       return;
@@ -81,7 +81,7 @@ export function mountToolRoutes(app: Express): void {
     };
     if (body.consent !== true) {
       res.status(400).json({
-        error: "Consent is required. Floorwise does not locate you just by opening Radar.",
+        error: "Consent is required. confXarm64 does not locate you just by opening Radar.",
       });
       return;
     }
@@ -103,6 +103,6 @@ export function mountToolRoutes(app: Express): void {
 function accessNote() {
   return {
     boundary:
-      "Companion API on this Floorwise process. Credentials come only from gitignored .env. Hosts are allowlisted (Dash0 API regions, api.radar.io). Sonar and Elasticsearch queries are scoped to SONAR_PROJECT_KEY / ELASTICSEARCH_INDEX. Clients cannot supply upstream URLs. Radar lookup requires consent:true. No lead PII is included.",
+      "Companion API on this confXarm64 process. Credentials come only from gitignored .env. Dash0 query hosts are allowlisted. Skyhook Radar is not called from this app. Sonar and Elasticsearch queries are scoped to SONAR_PROJECT_KEY / ELASTICSEARCH_INDEX. Clients cannot supply upstream URLs. Radar lookup requires consent:true. No lead PII is included.",
   };
 }

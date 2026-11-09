@@ -22,13 +22,14 @@ spec:
     server: https://kubernetes.default.svc
     namespace: team-confxarm64
   # Live tokens are patched into Secret confxarm64-secrets outside GitOps.
-  # Ignore /data so automated selfHeal cannot replace them with empty placeholders.
+  # Ignore /data and /stringData so automated selfHeal cannot replace them with empty placeholders.
   # Do not ignore ConfigMap confxarm64-config — public Dash0 URLs live in values-cnh.yaml.
   ignoreDifferences:
     - kind: Secret
       name: confxarm64-secrets
       jsonPointers:
         - /data
+        - /stringData
   syncPolicy:
     automated:
       prune: true

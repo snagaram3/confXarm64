@@ -181,7 +181,7 @@ async function tick(store: ReminderStore, vapid: VapidFile | null): Promise<void
             keys: { p256dh: job.sub.p256dh, auth: job.sub.auth },
           },
           JSON.stringify({
-            title: "Floorwise reminder",
+            title: "confXarm64 reminder",
             body: job.title,
             url: `/?session=${encodeURIComponent(job.sessionId)}`,
           }),

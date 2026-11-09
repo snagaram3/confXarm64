@@ -52,12 +52,12 @@ appService:
   enabled: false
 
 seed:
-  # post-install hook. Re-running wipes the floorwise index — do not apply against a live demo.
+  # Helm post-install / Argo PostSync. seed.ts skips when the floorwise index already exists.
   enabled: true
 
 config:
   elasticsearchIndex: floorwise
-  otelServiceName: floorwise-api
+  otelServiceName: confxarm64-api
   # HTTP OTLP ingest for this process (not the operator gRPC :4317 URL).
   otelExporterEndpoint: ""
   syntheticOtel: "0"
@@ -69,11 +69,12 @@ config:
     hostUrl: ""
     projectKey: floorwise
     organization: ""
-  # Skyhook Radar UI. On CNH this is https://confxarm64.cnh.radarhq.io — not api.radar.io.
+  # Skyhook Radar Kubernetes UI (minikube Radar chart). Not this app and not api.radar.io.
   radarUiUrl: ""
 
 secrets:
-  # Empty placeholders on first install. lookup() skips upgrades so filled tokens stay.
+  # Empty Secret shell (no token values). Argo CD cannot lookup(); empty stringData would wipe
+  # kubectl-patched tokens on selfHeal. Operators patch confxarm64-secrets in-cluster.
   create: true
   existingName: confxarm64-secrets
 

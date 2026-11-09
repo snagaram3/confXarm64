@@ -43,12 +43,14 @@ describe("tools HTTP boundaries", () => {
       lookup: unknown;
       window: string;
       skyhook: { uiUrl: string | null; note: string };
-      apiHost: string;
+      apiHost: string | null;
+      state: string;
     };
     assert.equal(radar.lookup, null);
     assert.match(radar.window, /does not locate/i);
-    assert.equal(radar.apiHost, "api.radar.io");
-    assert.match(radar.skyhook.note, /not the api\.radar\.io/i);
+    assert.equal(radar.apiHost, null);
+    assert.equal(radar.state, "not_configured");
+    assert.match(radar.skyhook.note, /No Skyhook Radar UI/i);
   });
 
   it("returns needs-setup Sonar without inventing a gate", async () => {
@@ -67,6 +69,11 @@ describe("tools HTTP boundaries", () => {
   });
 
   it("isolates live engagement from synthetic totals", async () => {
+    const def = await fetch(`${base}/api/tools/dash0/engagement`);
+    const defBody = (await def.json()) as { mode: string; available?: boolean; data?: null };
+    assert.equal(defBody.mode, "live");
+    assert.equal(defBody.available, false);
+    assert.equal(defBody.data, null);
     const live = await fetch(`${base}/api/tools/dash0/engagement?mode=live`);
     const liveBody = (await live.json()) as { mode: string; data: null; available: boolean };
     const syn = await fetch(`${base}/api/tools/dash0/engagement?mode=synthetic`);

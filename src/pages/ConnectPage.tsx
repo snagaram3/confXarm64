@@ -49,7 +49,7 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
         return res.json() as Promise<Meta>;
       })
       .then(setMeta)
-      .catch(() => setError("This exhibitor is not in the Floorwise sample catalog."));
+      .catch(() => setError("This exhibitor is not in the confXarm64 sample catalog."));
   }, [sponsorId]);
 
   const displayBooth: Booth | undefined = booth;
@@ -96,10 +96,10 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
     <div className="min-h-[100svh] bg-background">
       <div className="mx-auto flex max-w-xl flex-col gap-5 px-4 py-8">
         <header className="flex items-center gap-3">
-          <BotIcon label="Floorwise" />
+          <BotIcon label="confXarm64" />
           <div>
             <p className="font-display text-lg font-semibold">Share details</p>
-            <p className="text-xs text-muted-foreground">Floorwise exhibitor connect · not an official organizer form</p>
+            <p className="text-xs text-muted-foreground">confXarm64 exhibitor connect · not an official organizer form</p>
           </div>
         </header>
 
@@ -222,7 +222,7 @@ export function ConnectPage({ sponsorId }: { sponsorId: string }) {
             {copied ? "Link copied" : "Copy booth link"}
           </Button>
           <a href="/" className="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-primary underline">
-            Back to Floorwise
+            Back to confXarm64
           </a>
         </div>
       </div>

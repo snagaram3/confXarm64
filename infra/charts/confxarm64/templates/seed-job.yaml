@@ -1,6 +1,7 @@
 {{- if .Values.seed.enabled }}
-# Wipes and rebuilds the floorwise Elasticsearch index on first install.
-# Do not re-run against a live demo index you want to keep.
+# First install seeds the floorwise index. Argo CD remaps Helm post-install to PostSync
+# (reruns after every sync). server/seed.ts skips when the index already exists — never
+# wipe a live demo. FLOORWISE_FORCE_SEED=1 is the only rebuild switch.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -39,6 +40,8 @@ spec:
                 name: {{ include "confxarm64.configMapName" . }}
           env:
             - name: FLOORWISE_SKIP_SEED
+              value: "0"
+            - name: FLOORWISE_FORCE_SEED
               value: "0"
             - name: ELASTICSEARCH_URL
               value: {{ .Values.elasticsearch.url | quote }}

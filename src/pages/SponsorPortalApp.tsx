@@ -300,10 +300,10 @@ function LoginForm({
   return (
     <form onSubmit={onSubmit} className="flex max-w-md flex-col gap-4 rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center gap-3">
-        <BotIcon label="Floorwise exhibitor portal" />
+        <BotIcon label="confXarm64 exhibitor portal" />
         <div>
           <h1 className="font-display text-2xl font-semibold">Exhibitor portal</h1>
-          <p className="text-sm text-muted-foreground">Floorwise-hosted leads. Not an official sponsor site.</p>
+          <p className="text-sm text-muted-foreground">confXarm64-hosted leads. Not an official sponsor site.</p>
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
@@ -363,7 +363,7 @@ function PortalHeader({
       {booth ? <SponsorLogo booth={booth} className="size-12" /> : <BotIcon />}
       <div className="min-w-0 flex-1">
         <p className="font-display text-xl font-semibold">{name}</p>
-        <p className="text-sm text-muted-foreground">Booth {boothNumber} · Floorwise exhibitor portal</p>
+        <p className="text-sm text-muted-foreground">Booth {boothNumber} · confXarm64 exhibitor portal</p>
       </div>
       {counts && (
         <p className="font-mono text-xs text-primary">

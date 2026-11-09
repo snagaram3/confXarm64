@@ -3,6 +3,7 @@ import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { es, INDEX } from "./es.ts";
 import { noteRank } from "./tools/local-stats.ts";
 import {
+  boostedTopicNames,
   engineModeFor,
   explainMode,
   interestShould,
@@ -10,8 +11,10 @@ import {
   keywordQuery,
   matchedFieldsFromHighlight,
   parseQueryMode,
+  parseTopicWeights,
   queryVector,
   rrfRetriever,
+  topicWeightShould,
   type QueryMode,
   type RankEngineMode,
 } from "./search-query.ts";
@@ -59,17 +62,18 @@ export async function hybridSearch(opts: {
   track?: string;
   mode?: QueryMode;
   size?: number;
+  topicWeights?: Record<string, number>;
 }): Promise<{ hits: RankHit[]; took: number; mode: RankEngineMode; retriever: string }> {
-  const tracer = trace.getTracer("floorwise-search");
+  const tracer = trace.getTracer("confxarm64-search");
   const mode = parseQueryMode(opts.mode);
-  return tracer.startActiveSpan("floorwise.hybridSearch", async (span) => {
-    span.setAttribute("floorwise.search.kind", opts.kind);
-    span.setAttribute("floorwise.search.mode", mode);
+  return tracer.startActiveSpan("confxarm64.hybridSearch", async (span) => {
+    span.setAttribute("confxarm64.search.kind", opts.kind);
+    span.setAttribute("confxarm64.search.mode", mode);
     try {
       const result = await runSearch({ ...opts, mode });
-      span.setAttribute("floorwise.search.hits", result.hits.length);
-      span.setAttribute("floorwise.search.took_ms", result.took);
-      span.setAttribute("floorwise.search.retriever", result.retriever);
+      span.setAttribute("confxarm64.search.hits", result.hits.length);
+      span.setAttribute("confxarm64.search.took_ms", result.took);
+      span.setAttribute("confxarm64.search.retriever", result.retriever);
       const ctx = span.spanContext();
       noteRank(
         {
@@ -104,18 +108,20 @@ async function runSearch(opts: {
   track?: string;
   mode: QueryMode;
   size?: number;
+  topicWeights?: Record<string, number>;
 }): Promise<{ hits: RankHit[]; took: number; mode: RankEngineMode; retriever: string }> {
   const interests = opts.interests ?? [];
+  const topicWeights = parseTopicWeights(opts.topicWeights);
   const textQuery = (opts.q ?? "").trim();
   const role = opts.role ?? "";
   const size = opts.size ?? (opts.kind === "session" ? 40 : 50);
   const filters = kindFilter(opts.kind, opts.boothId, opts.track);
-  const qvec = queryVector(textQuery, role, interests);
-  const keyword = keywordQuery(textQuery) ?? keywordQuery(interests.join(" "));
+  const qvec = queryVector(textQuery, role, [...interests, ...boostedTopicNames(topicWeights)]);
+  const keyword = keywordQuery(textQuery) ?? keywordQuery([...interests, ...boostedTopicNames(topicWeights)].join(" "));
 
   if (opts.mode === "hybrid" && (textQuery || interests.length)) {
     try {
-      const rrf = await searchRrf({ filters, keyword, qvec, size, mode: opts.mode, interests });
+      const rrf = await searchRrf({ filters, keyword, qvec, size, mode: opts.mode, interests, topicWeights });
       if (rrf.hits.length) return rrf;
     } catch {
       /* mapping or license may reject retrievers — fall back */
@@ -126,6 +132,7 @@ async function runSearch(opts: {
     mode: opts.mode,
     filters,
     interests,
+    topicWeights,
     textQuery,
     role,
     qvec,
@@ -140,6 +147,7 @@ async function searchRrf(opts: {
   size: number;
   mode: QueryMode;
   interests: string[];
+  topicWeights: Record<string, number>;
 }): Promise<{ hits: RankHit[]; took: number; mode: RankEngineMode; retriever: string }> {
   const response = await es.search({
     index: INDEX,
@@ -149,6 +157,7 @@ async function searchRrf(opts: {
       qvec: opts.qvec,
       keyword: opts.keyword,
       filters: opts.filters,
+      extraShould: topicWeightShould(opts.topicWeights),
     }) as never,
     highlight: HIGHLIGHT,
   });
@@ -159,6 +168,7 @@ async function searchFunctionScore(opts: {
   mode: QueryMode;
   filters: estypes.QueryDslQueryContainer[];
   interests: string[];
+  topicWeights: Record<string, number>;
   textQuery: string;
   role: string;
   qvec: number[];
@@ -167,7 +177,7 @@ async function searchFunctionScore(opts: {
   const should =
     opts.mode === "semantic"
       ? []
-      : interestShould(opts.interests, opts.textQuery, opts.role);
+      : interestShould(opts.interests, opts.textQuery, opts.role, opts.topicWeights);
   const knnFn =
     opts.mode === "keyword"
       ? []
@@ -220,6 +230,11 @@ async function searchFunctionScore(opts: {
   return packHits(response, opts.mode, opts.interests, retriever);
 }
 
+/** Named queries Elasticsearch actually returned. Do not stamp semantic_knn on every hybrid hit. */
+export function reportedMatchedQueries(hit: { matched_queries?: string[] }): string[] {
+  return [...(hit.matched_queries ?? [])];
+}
+
 function packHits(
   response: estypes.SearchResponse,
   mode: QueryMode,
@@ -228,10 +243,7 @@ function packHits(
 ): { hits: RankHit[]; took: number; mode: RankEngineMode; retriever: string } {
   const hits: RankHit[] = response.hits.hits.map((hit) => {
     const src = (hit._source ?? {}) as { id: string; kind: string; tags?: string[] };
-    let matchedQueries = ((hit as { matched_queries?: string[] }).matched_queries ?? []) as string[];
-    if (mode !== "keyword" && !matchedQueries.includes("semantic_knn") && retriever !== "standard") {
-      matchedQueries = [...matchedQueries, "semantic_knn"];
-    }
+    const matchedQueries = reportedMatchedQueries(hit as { matched_queries?: string[] });
     const highlight = (hit.highlight ?? {}) as Record<string, string[]>;
     const highlightHtml = [
       ...(highlight.title ?? []),

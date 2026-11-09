@@ -518,7 +518,7 @@ export function syntheticEngagement(filters: EngagementFilters = {}): Engagement
   return {
     mode: "synthetic",
     label: SYNTHETIC_LABEL,
-    source: "Floorwise deterministic SAMPLE-catalog scenario (not Dash0 remote, not live KCNA)",
+    source: "confXarm64 deterministic SAMPLE-catalog scenario (not Dash0 remote, not live KCNA)",
     window: `Demo clock ${DEMO_DATE} ${DEMO_CLOCK} ${DEMO_TZ} · SAMPLE sessions only`,
     fetchedAt: new Date().toISOString(),
     demo: {
@@ -557,7 +557,7 @@ export function liveEngagementUnavailable() {
     available: false,
     label: "Live attendance is not available",
     source: "No consented live attendee presence feed is configured",
-    window: "KCNA 2026 is 9–12 Nov 2026 — Floorwise does not observe halls",
+    window: "KCNA 2026 is 9–12 Nov 2026 — confXarm64 does not observe halls",
     fetchedAt: new Date().toISOString(),
     error:
       "Live participant counts are not configured. Agenda saves and Must/Maybe prefs are intentions, not attendance. Synthetic mode is a separate labeled demo.",

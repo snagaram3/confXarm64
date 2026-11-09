@@ -15,6 +15,7 @@ import { VenueSchematic } from "@/components/map/VenueSchematic";
 import { Button } from "@/components/ui/button";
 import { catalog, venue } from "@/lib/catalog";
 import { destinationAdvice } from "@/lib/map-destination";
+import { hasExhibitorTopicMatch } from "@/lib/ranked-filter";
 import {
   EAST_REGISTRATION_ID,
   SOUTH_ENTRANCE_ID,
@@ -124,7 +125,7 @@ export function VenueMap() {
   const mustBooth =
     catalog.booths.find((b) => sponsorPrefs[b.id] === "must") ??
     rankedBooths.find((b) => b.rank === "must")?.item;
-  const topicalBooth = rankedBooths.find((row) => row.matchedTags.length > 0 || row.matchedQueries.length > 0)?.item;
+  const topicalBooth = rankedBooths.find((row) => hasExhibitorTopicMatch(row))?.item;
 
   const expoPins = placedExpoPins(catalog.booths, sponsorPrefs).map((pin) => ({
     id: pin.id,
