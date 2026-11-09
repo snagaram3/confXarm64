@@ -68,6 +68,14 @@ export function HowSearchWorks() {
             ? "No rank meta yet."
             : null}
       </p>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        {rankMeta?.cloud
+          ? rankMeta.cloud.configured
+            ? `Elastic Cloud Jina (${rankMeta.cloud.projectAlias}): ${rankMeta.cloud.state}. embeddings ${rankMeta.cloud.embeddings.inferenceId}${rankMeta.cloud.embeddings.used ? " used" : " not used"} · rerank ${rankMeta.cloud.rerank.inferenceId}${rankMeta.cloud.rerank.used ? " used" : " not used"} · ${rankMeta.cloud.demoIndex.name} hits=${rankMeta.cloud.demoIndex.hits}. In-cluster floorwise ranking still runs.`
+            : `Elastic Cloud Jina needs setup (${rankMeta.cloud.missingEnv.join(", ") || "ELASTIC_CLOUD_API_KEY"}). In-cluster floorwise ranking still runs. No Jina hits are invented.`
+          : (esHealth?.elasticCloud?.notice ??
+            "Elastic Cloud Jina is a separate optional path. In-cluster floorwise ranking still runs.")}
+      </p>
       <p className="mt-2 text-[11px] text-muted-foreground">{askReason}</p>
     </details>
   );

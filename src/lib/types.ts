@@ -174,12 +174,40 @@ export interface Ranked<T> extends SearchExplanation {
   item: T;
 }
 
+export interface CloudRankMeta {
+  state: "not_configured" | "ok" | "error" | "empty";
+  configured: boolean;
+  missingEnv: string[];
+  projectAlias: string;
+  region: string;
+  kibanaUrl: string;
+  embeddings: {
+    inferenceId: string;
+    model: string;
+    dims: number;
+    similarity: "cosine";
+    used: boolean;
+  };
+  rerank: {
+    inferenceId: string;
+    model: string;
+    used: boolean;
+  };
+  demoIndex: {
+    name: string;
+    semanticField: string;
+    hits: number;
+  };
+  error: string | null;
+}
+
 export interface RankMeta {
   engine: "elasticsearch";
   mode: RankEngineMode;
   tookMs: number;
   retriever?: string;
   queryMode?: QueryMode;
+  cloud?: CloudRankMeta;
 }
 
 export interface Catalog {
@@ -214,5 +242,17 @@ export interface EsHealth {
   askSchedule?: {
     available: boolean;
     reason: string;
+  };
+  elasticCloud?: {
+    configured: boolean;
+    state: "not_configured" | "ok" | "error" | "empty";
+    missingEnv: string[];
+    projectAlias: string;
+    region: string;
+    kibanaUrl: string;
+    embeddingsInferenceId: string;
+    rerankInferenceId: string;
+    demoIndex: string;
+    notice: string;
   };
 }

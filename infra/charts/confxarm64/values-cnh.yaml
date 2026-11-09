@@ -53,6 +53,18 @@ config:
   otelExporterEndpoint: "https://ingress.us-east-1.aws.dash0.com"
   dash0:
     apiBaseUrl: "https://api.us-east-1.aws.dash0.com"
+  # Public Elastic Cloud endpoints only (no tokens). API key stays in Secret confxarm64-secrets.
+  elasticCloud:
+    elasticsearchUrl: "https://confxarm64-f141cd.es.us-central1.gcp.elastic.cloud"
+    ingestUrl: "https://confxarm64-f141cd.ingest.us-central1.gcp.elastic.cloud"
+    kibanaUrl: "https://confxarm64-f141cd.kb.us-central1.gcp.elastic.cloud"
+    mcpUrl: "https://confxarm64-f141cd.kb.us-central1.gcp.elastic.cloud/api/agent_builder/mcp"
+    projectAlias: confxarm64-f141cd
+    projectId: "f141cd752dcf402aade777317073039e"
+    region: gcp-us-central1
+    embeddingsInferenceId: confxarm64-jina-embeddings
+    rerankInferenceId: confxarm64-jina-rerank
+    demoIndex: confxarm64-jina-demo
 
 secrets:
   # Do not let Argo render empty token placeholders. Create/patch confxarm64-secrets by hand.

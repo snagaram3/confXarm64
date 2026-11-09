@@ -16,7 +16,10 @@ import { mountReminderRoutes } from "./reminders-http.ts";
 import { ReminderStore, remindersPath } from "./reminders-store.ts";
 import { seedIndex } from "./seed.ts";
 import { askScheduleStatus, livenessBody, readinessOk, readinessStatusCode } from "./health.ts";
+import { cloudRankMetaBase, elasticCloudConfigured, elasticCloudHealth } from "./elastic-cloud.ts";
+import { applyJinaAssist, jinaAssistQuery } from "./jina.ts";
 import { hybridSearch, parseQueryMode } from "./search.ts";
+import { redactError } from "./tools/redact.ts";
 import { parseTopicWeights } from "./search-query.ts";
 import { mountScheduleRoutes } from "./schedule-http.ts";
 import { scheduleMeta, sessionById as officialSessionById } from "./schedule.ts";
@@ -75,6 +78,7 @@ app.get("/api/health", async (_req, res) => {
       store: "sqlite",
     },
     askSchedule: askScheduleStatus(),
+    elasticCloud: elasticCloudHealth(),
   };
   try {
     const esHealth = await pingCluster();
@@ -113,6 +117,24 @@ app.post("/api/rank", async (req, res) => {
       hybridSearch({ kind: "session", interests, role, q, mode, track: track || undefined, topicWeights }),
       hybridSearch({ kind: "booth", interests, role, q, mode, topicWeights }),
     ]);
+    let sessionHits = sessions.hits;
+    let boothHits = booths.hits;
+    let cloud = cloudRankMetaBase();
+    try {
+      const assisted = await applyJinaAssist({
+        query: jinaAssistQuery(q, interests),
+        sessionHits,
+        boothHits,
+      });
+      sessionHits = assisted.sessionHits;
+      boothHits = assisted.boothHits;
+      cloud = assisted.cloud;
+    } catch (err) {
+      cloud = cloudRankMetaBase(process.env, {
+        state: elasticCloudConfigured() ? "error" : "not_configured",
+        error: redactError(err),
+      });
+    }
     const boothById = new Map(catalog.booths.map((b) => [b.id, b]));
     res.json({
       meta: {
@@ -121,8 +143,9 @@ app.post("/api/rank", async (req, res) => {
         queryMode: mode,
         retriever: sessions.retriever,
         tookMs: sessions.took + booths.took,
+        cloud,
       },
-      sessions: sessions.hits
+      sessions: sessionHits
         .map((hit) => {
           const item = officialSessionById.get(hit.id);
           if (!item) return null;
@@ -131,7 +154,7 @@ app.post("/api/rank", async (req, res) => {
           return { item: rest, ...hit.explanation };
         })
         .filter(Boolean),
-      booths: booths.hits
+      booths: boothHits
         .map((hit) => {
           const item = boothById.get(hit.id);
           if (!item) return null;

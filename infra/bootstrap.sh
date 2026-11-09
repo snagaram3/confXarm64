@@ -96,6 +96,7 @@ Secrets still needed (never commit):
     DASH0_AUTH_TOKEN
     OTEL_EXPORTER_OTLP_HEADERS     Authorization=Bearer <token>
     SONAR_TOKEN
+    ELASTIC_CLOUD_API_KEY
     RADAR_SECRET_KEY / RADAR_PUBLISHABLE_KEY   (api.radar.io adapter only)
   dash0-system/dash0-auth:
     token

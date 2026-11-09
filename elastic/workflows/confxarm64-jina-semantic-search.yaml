@@ -1,0 +1,23 @@
+version: "1"
+name: confXarm64 Jina semantic search
+description: Manual search over Jina-backed semantic text for the confXarm64 planner.
+enabled: true
+tags: ["confxarm64", "jina"]
+triggers:
+  - type: manual
+    inputs:
+      properties:
+        query:
+          type: string
+          description: Attendee interest or search text
+          default: "Jina embeddings"
+steps:
+  - name: search_jina_demo
+    type: elasticsearch.search
+    with:
+      index: "confxarm64-jina-demo"
+      size: 5
+      query:
+        semantic:
+          field: body
+          query: "{{ inputs.query }}"

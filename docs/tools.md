@@ -10,6 +10,7 @@ This is not sponsor-logo display. Each tab talks to a real adapter on the confXa
 - Clients cannot supply `url` / `endpoint` / `host` / `token` query or body fields.
 - Dash0 query hosts are allowlisted (`api.*.aws.dash0.com`, `api.europe-west4.gcp.dash0.com`). Sonar host comes from `SONAR_HOST_URL` (http/https, no credentials in the URL, metadata IPs blocked).
 - Elasticsearch uses `ELASTICSEARCH_URL` + `ELASTICSEARCH_INDEX` (index name `floorwise`). No arbitrary index console, no deletes.
+- Elastic Cloud Jina uses public URLs from GitOps/`elastic/cloud.json` plus `ELASTIC_CLOUD_API_KEY` from Secret `confxarm64-secrets`. Missing key → **Needs setup**, never invented Jina hits.
 - This app does not call `api.radar.io`. Tools → Radar is Skyhook Radar UI only, and stays **Needs setup** unless `RADAR_UI_URL` is a real Radar UI (not the live app URL).
 - Responses are sanitized (tokens redacted). Lead emails/notes never appear in tools metrics or traces.
 - `/api/tools` is this process’s companion API, scoped to the configured project/index/service name — not a public provider proxy.
@@ -26,6 +27,19 @@ curl -sS "http://127.0.0.1:19200/_cluster/health?pretty"
 ```
 
 Env names: `ELASTICSEARCH_URL`, `ELASTICSEARCH_INDEX`, `ES_HOST_PORT`.
+
+### Elastic Cloud + Jina (separate path)
+
+Public Serverless project `confxarm64-f141cd` (region `gcp-us-central1`). In-cluster `http://elasticsearch:9200` / index `floorwise` is unchanged.
+
+- Embeddings: named inference id `confxarm64-jina-embeddings` (`jina-embeddings-v5-text-small`, 1024-dim, cosine)
+- Rerank: named inference id `confxarm64-jina-rerank` (`jina-reranker-v3.5`)
+- Demo semantic index: `confxarm64-jina-demo` (`body` as `semantic_text`)
+- Workflow as code: `elastic/workflows/confxarm64-jina-semantic-search.yaml`
+
+When `ELASTIC_CLOUD_API_KEY` is set, `POST /api/rank` still ranks the official catalog on in-cluster Elasticsearch, then may call Cloud inference (embeddings, demo semantic search, rerank). Each of those can fail on its own; a Cloud error does not wipe in-cluster hits. Tools → Elasticsearch shows a nested **Elastic Cloud · Jina** card with connected / needs setup / empty / error.
+
+Env names: `ELASTIC_CLOUD_API_KEY`, `ELASTIC_CLOUD_ELASTICSEARCH_URL`, `ELASTIC_CLOUD_KIBANA_URL`, `ELASTIC_CLOUD_EMBEDDINGS_INFERENCE_ID`, `ELASTIC_CLOUD_RERANK_INFERENCE_ID`, `ELASTIC_CLOUD_DEMO_INDEX`. See [`elastic/README.md`](../elastic/README.md).
 
 ## Dash0 / OpenTelemetry
 

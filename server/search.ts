@@ -40,7 +40,22 @@ export interface HitExplanation {
 export interface RankHit {
   id: string;
   kind: string;
+  /** Title + abstract + tags for Cloud Jina rerank. Not sent to the client. */
+  rerankText?: string;
   explanation: HitExplanation;
+}
+
+export function rerankTextFromSource(src: {
+  title?: string;
+  abstract?: string;
+  speaker?: string;
+  tags?: string[];
+}): string | undefined {
+  const text = [src.title, src.abstract, src.speaker, ...(src.tags ?? [])]
+    .filter((part): part is string => typeof part === "string" && Boolean(part.trim()))
+    .join(" ")
+    .slice(0, 2000);
+  return text || undefined;
 }
 
 const HIGHLIGHT = {
@@ -242,7 +257,14 @@ function packHits(
   retriever: string,
 ): { hits: RankHit[]; took: number; mode: RankEngineMode; retriever: string } {
   const hits: RankHit[] = response.hits.hits.map((hit) => {
-    const src = (hit._source ?? {}) as { id: string; kind: string; tags?: string[] };
+    const src = (hit._source ?? {}) as {
+      id: string;
+      kind: string;
+      tags?: string[];
+      title?: string;
+      abstract?: string;
+      speaker?: string;
+    };
     const matchedQueries = reportedMatchedQueries(hit as { matched_queries?: string[] });
     const highlight = (hit.highlight ?? {}) as Record<string, string[]>;
     const highlightHtml = [
@@ -255,6 +277,7 @@ function packHits(
     return {
       id: src.id,
       kind: src.kind,
+      rerankText: rerankTextFromSource(src),
       explanation: {
         ...explanation,
         highlightHtml,

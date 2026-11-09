@@ -27,6 +27,7 @@ describe("infra bootstrap kit", () => {
     assert.match(boot, /helm-install skyhook\/radar/);
     assert.match(boot, /DASH0_AUTH_TOKEN/);
     assert.match(boot, /SONAR_TOKEN/);
+    assert.match(boot, /ELASTIC_CLOUD_API_KEY/);
     assert.match(boot, /rhc_/);
     assert.match(boot, /github\.com\/snagaram3\/confXarm64/);
   });
@@ -95,6 +96,10 @@ describe("infra bootstrap kit", () => {
     assert.match(wf, /docker\/api\.Dockerfile/);
     assert.match(wf, /values-images\.yaml/);
     assert.doesNotMatch(wf, /privileged/);
+
+    const apiDocker = readFileSync(resolve(root, "docker/api.Dockerfile"), "utf8");
+    assert.match(apiDocker, /COPY elastic \.\/elastic/);
+    assert.match(apiDocker, /COPY server \.\/server/);
 
     const webDocker = readFileSync(resolve(root, "docker/web.Dockerfile"), "utf8");
     assert.match(webDocker, /FROM nginxinc\/nginx-unprivileged:1\.27-alpine/);

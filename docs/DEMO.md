@@ -94,7 +94,8 @@ Show pods: `elasticsearch-0` (StatefulSet + PVC), `api-*`, `web-*`, completed `c
 1. https://confxarm64.cnh.radarhq.io/tools/dash0 — Needs setup until `DASH0_AUTH_TOKEN` exists; link to `https://app.dash0.com` only when query creds exist. There is no self-hosted Dash0.
 2. https://confxarm64.cnh.radarhq.io/tools/radar — **Skyhook Radar** (`RADAR_UI_URL` = the CNH URL) labeled separately from the **api.radar.io** geofence adapter.
 3. https://confxarm64.cnh.radarhq.io/tools/sonar — Needs setup without `SONAR_TOKEN`; never a fake quality gate.
-4. Open Radar Cloud at https://confxarm64.cnh.radarhq.io. Point it at namespace `team-confxarm64`. MCP: https://api.radarhq.io/mcp → Cloud Native Hackathon.
+4. https://confxarm64.cnh.radarhq.io/tools/elasticsearch — in-cluster `floorwise` plus nested Elastic Cloud · Jina. Needs setup until `ELASTIC_CLOUD_API_KEY` exists; do not invent Jina hits.
+5. Open Radar Cloud at https://confxarm64.cnh.radarhq.io. Point it at namespace `team-confxarm64`. MCP: https://api.radarhq.io/mcp → Cloud Native Hackathon.
 
 Optional local fallback only: `./infra/bootstrap.sh --local` (minikube). Not the judged CNH path.
 

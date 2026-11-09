@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { reportedMatchedQueries } from "./search.ts";
+import { reportedMatchedQueries, rerankTextFromSource } from "./search.ts";
 import { explainMode, parseTopicWeights, topicWeightShould } from "./search-query.ts";
 
 describe("reportedMatchedQueries", () => {
@@ -22,6 +22,21 @@ describe("explainMode vector claims", () => {
     const named = explainMode("hybrid", 0.021, ["semantic_knn"], [], [], [], "rrf");
     assert.match(named.why, /lexical dense_vector/);
     assert.match(named.why, /0\.021/);
+  });
+});
+
+describe("rerankTextFromSource", () => {
+  it("joins title abstract speaker and tags for Cloud rerank", () => {
+    assert.equal(
+      rerankTextFromSource({
+        title: "eBPF observability",
+        abstract: "Deep dive",
+        speaker: "Alex",
+        tags: ["eBPF", "otel"],
+      }),
+      "eBPF observability Deep dive Alex eBPF otel",
+    );
+    assert.equal(rerankTextFromSource({ title: "   ", tags: [] }), undefined);
   });
 });
 
