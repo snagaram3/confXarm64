@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { contrastRatio } from "./contrast.ts";
-import { ADJUSTED, PALETTE, PREFERENCE, SOURCE } from "./tokens.ts";
+import { ADJUSTED, EDITORIAL, PALETTE, PREFERENCE, SOURCE } from "./tokens.ts";
 
 describe("KCNA-inspired palette contrast", () => {
   it("keeps white on event navy well above AA", () => {
@@ -32,5 +32,12 @@ describe("KCNA-inspired palette contrast", () => {
 
   it("keeps destructive red readable on white cards", () => {
     assert.ok(contrastRatio(PALETTE.destructive, ADJUSTED.card) >= 4.5);
+  });
+
+  it("keeps Field Guide editorial ink, teal, coral, and gold readable", () => {
+    assert.ok(contrastRatio(EDITORIAL.ink, EDITORIAL.paper) >= 10);
+    assert.ok(contrastRatio(EDITORIAL.teal, EDITORIAL.tealBg) >= 4.5);
+    assert.ok(contrastRatio(EDITORIAL.coral, EDITORIAL.coralBg) >= 4.5);
+    assert.ok(contrastRatio(EDITORIAL.gold, ADJUSTED.card) >= 4.5);
   });
 });

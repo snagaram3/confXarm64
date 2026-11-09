@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./components/planner/field-guide.css";
 
 @theme inline {
   --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
@@ -38,6 +39,11 @@
   --color-highlight: var(--highlight);
   --color-highlight-fg: var(--highlight-fg);
   --color-map-canvas: var(--map-canvas);
+  --color-teal: var(--teal);
+  --color-teal-bg: var(--teal-bg);
+  --color-coral: var(--coral);
+  --color-coral-bg: var(--coral-bg);
+  --color-match: var(--match);
 
   --radius-sm: 0.4rem;
   --radius-md: 0.65rem;
@@ -57,22 +63,27 @@
   --ring: #113e82;
   --path: #113e82;
   /* ADJUSTED surfaces (not official event hexes) */
-  --background: #f3f6fb;
-  --foreground: #0b0f1f;
+  --background: #f7f4ec;
+  --foreground: #0b1426;
   --card: #ffffff;
-  --card-foreground: #0b0f1f;
+  --card-foreground: #0b1426;
   --popover: #ffffff;
-  --popover-foreground: #0b0f1f;
-  --secondary: #e6ecf5;
+  --popover-foreground: #0b1426;
+  --secondary: #efe9dc;
   --secondary-foreground: #1a2744;
-  --muted: #e8eef6;
-  --muted-foreground: #4a5568;
-  --accent: #d9e3f2;
-  --accent-foreground: #0b0f1f;
+  --muted: #efe9dc;
+  --muted-foreground: #4a5878;
+  --accent: #efe9dc;
+  --accent-foreground: #0b1426;
   --destructive: #b42318;
-  --border: #c5d0e0;
-  --input: #b7c4d6;
+  --border: #e4dccb;
+  --input: #d9d0bc;
   --map-canvas: #c8d4e8;
+  --teal: #08655f;
+  --teal-bg: #d2f4f1;
+  --coral: #a3341c;
+  --coral-bg: #fce3dd;
+  --match: #8a5306;
   /* Preference ranks — not event navy/pink */
   --must: #176b3a;
   --must-fg: #f4fbf6;

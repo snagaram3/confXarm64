@@ -282,7 +282,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     writePlannerProfile(attendeeId(), next);
   }, []);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchMode, setSearchMode] = useState<QueryMode>("hybrid");
+  const [searchMode, setSearchMode] = useState<QueryMode>("semantic");
   const [trackFilter, setTrackFilter] = useState<string | "all">("all");
   const [retryTick, setRetryTick] = useState(0);
   const [savedIds, setSavedIds] = useState<string[]>(readSaved);

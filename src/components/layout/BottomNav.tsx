@@ -1,25 +1,28 @@
+import { catalog } from "@/lib/catalog";
+import { mustGoBooths } from "@/lib/expo-pins";
 import type { AppView } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
-import { CalendarDays, Compass, Home, Map } from "lucide-react";
+import { Heart, Home, Map, Search } from "lucide-react";
 
-const ITEMS: { id: AppView; label: string; icon: typeof Map }[] = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "agenda", label: "For you", icon: Compass },
-  { id: "plan", label: "Itinerary", icon: CalendarDays },
+const ITEMS: { id: "home" | "agenda" | "must" | "map"; label: string; icon: typeof Map }[] = [
+  { id: "home", label: "Plan", icon: Home },
+  { id: "agenda", label: "Search", icon: Search },
+  { id: "must", label: "Must Go", icon: Heart },
   { id: "map", label: "Map", icon: Map },
 ];
 
 export function BottomNav() {
-  const { view, setView } = useAppState();
+  const { view, setView, setMapSurface, sponsorPrefs } = useAppState();
+  const mustCount = mustGoBooths(catalog.booths, sponsorPrefs).length;
 
   return (
     <nav
-      aria-label="Primary"
-      className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)]"
+      aria-label="Mobile"
+      className="grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       {ITEMS.map((item) => {
-        const active = view === item.id;
+        const active = item.id === "must" ? false : view === item.id;
         const Icon = item.icon;
         return (
           <button
@@ -27,7 +30,12 @@ export function BottomNav() {
             type="button"
             aria-current={active ? "page" : undefined}
             onClick={() => {
-              setView(item.id);
+              if (item.id === "must") {
+                setMapSurface("expo");
+                setView("map");
+                return;
+              }
+              setView(item.id as AppView);
               if (window.location.pathname.startsWith("/tools")) {
                 window.history.pushState({}, "", item.id === "map" ? "/map" : "/");
               }
@@ -39,6 +47,7 @@ export function BottomNav() {
           >
             <Icon className="size-5" />
             {item.label}
+            {item.id === "must" && mustCount > 0 ? <span className="font-mono text-[10px] text-[#a3341c]">{mustCount}</span> : null}
           </button>
         );
       })}
