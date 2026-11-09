@@ -87,6 +87,16 @@ describe("infra bootstrap kit", () => {
     assert.match(wf, /values-images\.yaml/);
     assert.doesNotMatch(wf, /privileged/);
 
+    const webDocker = readFileSync(resolve(root, "docker/web.Dockerfile"), "utf8");
+    assert.match(webDocker, /FROM nginx:1\.27-alpine/);
+    assert.match(webDocker, /USER nginx/);
+    assert.match(webDocker, /nginx-main\.conf/);
+    assert.match(webDocker, /EXPOSE 8080/);
+
+    const nginxMain = readFileSync(resolve(root, "docker/nginx-main.conf"), "utf8");
+    assert.match(nginxMain, /pid \/tmp\/nginx\.pid;/);
+    assert.doesNotMatch(nginxMain, /^\s*user /m);
+
     const images = read("charts/confxarm64/values-images.yaml");
     assert.match(images, /ghcr\.io\/snagaram3\/confxarm64/);
     assert.doesNotMatch(images, /ghcr\.io\/snagaram3\/confXarm64/);
