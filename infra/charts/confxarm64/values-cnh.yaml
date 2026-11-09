@@ -6,6 +6,7 @@
 
 image:
   pullPolicy: IfNotPresent
+  # api/web tags live in values-images.yaml (GitHub Action owned).
 
 appService:
   enabled: true

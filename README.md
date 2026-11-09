@@ -122,7 +122,7 @@ Home and For you expose **Find the right talk**: type natural language such as `
 
 Do **not** run `npm run seed` against a live demo index unless you intend to wipe and rebuild `floorwise`. API boot seeds only when the `floorwise` index is missing (`FLOORWISE_FORCE_SEED=1` to override). Kubernetes uses a seed Job and `FLOORWISE_SKIP_SEED=1` on the API.
 
-## Kubernetes, Radar, Dash0, Gitar/Sonar
+## Kubernetes, Radar, Dash0, Gitar
 
 All of that lives in **[`infra/`](infra/README.md)** — one README, one script.
 
@@ -135,7 +135,7 @@ Primary: the Cloud Native Hackathon cluster the team already created (`confxarm6
 ./infra/bootstrap.sh --local
 ```
 
-In-cluster ES stays `http://elasticsearch:9200` (cluster name `floorwise`). Helm `lookup()` does not wipe filled secrets. Tools tabs stay honest. Origin will not run `.github/workflows/ci.yml` — a public GitHub repo is required for Gitar and Actions (`./infra/sonar-scan.sh` is the local path).
+In-cluster ES stays `http://elasticsearch:9200` (cluster name `floorwise`). Helm `lookup()` does not wipe filled secrets. Tools tabs stay honest. GitHub https://github.com/snagaram3/confXarm64.git is the forge of record: `npm test` / `npm run build` in CI, image build to lowercase GHCR on `main`. Gitar review lives in `.gitar/` (no Sonar CI).
 
 ## Verify
 
