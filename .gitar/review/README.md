@@ -17,9 +17,16 @@ Forge of record: public GitHub https://github.com/snagaram3/confXarm64.git. Infr
 5. Seeded catalog still has 8–12 sample sessions including room 255. Exhibitors are a labeled official slice with expo-map booth numbers, not invented hall coordinates.
 6. No ARKit/ARCore, beacons, heatmaps, or auth.
 7. Tools tabs stay honest (needs setup / connected / empty / error). Do not invent Dash0, Radar, or telemetry live data. Do not invent official venue routes.
-8. No secrets in git (no `.env`, kubeconfigs, `rhc_*`, Dash0 tokens, `SONAR_TOKEN` values).
+8. No secrets in git (no `.env`, kubeconfigs, `rhc_*`, Dash0 tokens, `SONAR_TOKEN` values). Public Elastic Cloud endpoints in `elastic/cloud.json` and Helm values are allowed; API keys must stay in env vars or Kubernetes Secrets only.
 9. Do not add SonarQube, SonarCloud, `SONAR_TOKEN` CI jobs, or new sonar files.
 10. CNH budget and host rules stay respected in Helm: no privileged, hostPath, hostNetwork, or hostPID. Keep Service `app` port 80. GHCR image names stay lowercase (`ghcr.io/snagaram3/confxarm64`).
+
+## Empty states and honesty
+
+11. Empty-state copy must not be misleading. When Elasticsearch ranking returns zero results, the UI must say confXarm64 will not invent talks to fill the space. Loading states ("Ranking in Elasticsearch…") are fine during initial fetch.
+12. Sample data must be clearly labeled: "SAMPLE" for catalog items, "Alex Rivera" labeled as sample persona, "Main hall · Sample" for placeholder itinerary rows. Sample elements should not be visually identical to official data.
+13. Search result cards must honestly explain why a result matched: show retriever type (BM25, kNN, hybrid), matched fields, score, and highlighted snippets. Do not hide the ranking logic.
+14. Pre-hydration state (server-rendered or initial client render before API response) should show loading indicators, not "0 of 0 picks" that could be mistaken for broken search. The actual empty-result state only appears after ranking completes.
 
 ## Out of scope
 
