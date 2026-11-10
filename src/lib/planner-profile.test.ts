@@ -98,4 +98,47 @@ describe("planner profile", () => {
     assert.notEqual(platform, security);
     assert.ok(!DEMO_PROFILE.interests.includes("security"));
   });
+
+  it("parses and preserves accessibility needs", () => {
+    const stored = parsePlannerProfile(
+      JSON.stringify({
+        name: "Jordan Chen",
+        role: "Senior SRE",
+        interests: ["Kubernetes"],
+        goals: ["talks"],
+        attendanceDays: ["2026-11-10"],
+        onboarded: true,
+        demoPersona: false,
+        accessibilityNeeds: ["sensory", "mobility"],
+      }),
+    );
+    assert.deepEqual(stored.accessibilityNeeds, ["sensory", "mobility"]);
+  });
+
+  it("filters out invalid accessibility needs", () => {
+    const stored = parsePlannerProfile(
+      JSON.stringify({
+        name: "Test",
+        interests: [],
+        goals: [],
+        attendanceDays: ["2026-11-10"],
+        onboarded: true,
+        accessibilityNeeds: ["sensory", "invalid", "mobility", 123],
+      }),
+    );
+    assert.deepEqual(stored.accessibilityNeeds, ["sensory", "mobility"]);
+  });
+
+  it("defaults to empty accessibility needs when missing", () => {
+    const stored = parsePlannerProfile(
+      JSON.stringify({
+        name: "Test",
+        interests: [],
+        goals: [],
+        attendanceDays: ["2026-11-10"],
+        onboarded: true,
+      }),
+    );
+    assert.deepEqual(stored.accessibilityNeeds, []);
+  });
 });

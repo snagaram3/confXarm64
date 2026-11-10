@@ -1,10 +1,11 @@
+import { AccessibilityPreferences } from "@/components/a11y/AccessibilityPreferences";
 import { SwipeDeck } from "@/components/planner/SwipeDeck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CONFERENCE_DAYS } from "@/lib/ask";
 import { catalog } from "@/lib/catalog";
-import { DEMO_PROFILE, EMPTY_PROFILE, canFinishOnboarding } from "@/lib/planner-profile";
+import { ACCESSIBILITY_DEMO_PROFILE, DEMO_PROFILE, EMPTY_PROFILE, canFinishOnboarding } from "@/lib/planner-profile";
 import { emptyTaste } from "@/lib/taste";
 import type { Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import { useState } from "react";
 const STEPS = [
   { id: "welcome", title: "Plan this visit" },
   { id: "days", title: "Days on site" },
+  { id: "accessibility", title: "Accessibility" },
   { id: "swipe", title: "This or that" },
 ] as const;
 
@@ -55,21 +57,38 @@ export function OnboardingFlow() {
         <section className="flex flex-col gap-4">
           <p className="text-base leading-relaxed text-foreground">
             Deal real KCNA 2026 session cards, love or skip them, and watch a day plan appear. This is not the official
-            schedule’s audience-level filter.
+            schedule's audience-level filter.
           </p>
           <p className="text-sm text-muted-foreground">
             We will not invent walking times, live attendance, or a hotel/flight plan. Rankings are your taste over
             Elasticsearch, not a popularity score.
           </p>
-          <div className="rounded-2xl border border-dashed border-border bg-card p-4">
-            <p className="text-sm font-semibold">Optional labeled sample</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Preview as “Alex Rivera, Staff Platform Engineer” — a sample persona, not your identity. Your real
-              itinerary is not overwritten until you save.
-            </p>
-            <Button type="button" variant="outline" className="mt-3" onClick={() => save({ ...DEMO_PROFILE })}>
-              Preview with sample persona
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="rounded-2xl border border-dashed border-border bg-card p-4">
+              <p className="text-sm font-semibold">Optional labeled sample</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Preview as "Alex Rivera, Staff Platform Engineer" — a sample persona, not your identity. Your real
+                itinerary is not overwritten until you save.
+              </p>
+              <Button type="button" variant="outline" className="mt-3" onClick={() => save({ ...DEMO_PROFILE })}>
+                Preview with sample persona
+              </Button>
+            </div>
+            <div className="rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-4">
+              <p className="text-sm font-semibold">Merge Forward accessibility sample</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Preview as "Jordan Chen, Senior SRE" with accessibility needs (sensory-friendly / mobility) — shows how
+                the planner surfaces official amenities and quiet rooms.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3"
+                onClick={() => save({ ...ACCESSIBILITY_DEMO_PROFILE })}
+              >
+                Preview accessibility sample
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -140,6 +159,18 @@ export function OnboardingFlow() {
       )}
 
       {step === 2 && (
+        <section className="flex flex-col gap-4">
+          <p className="text-sm text-muted-foreground">
+            Optional. These preferences will show relevant official amenities and be honest when data is missing.
+          </p>
+          <AccessibilityPreferences
+            selected={draft.accessibilityNeeds}
+            onChange={(needs) => setDraft({ ...draft, accessibilityNeeds: needs })}
+          />
+        </section>
+      )}
+
+      {step === 3 && (
         <SwipeDeck
           profile={draft}
           onChange={setDraft}
@@ -148,7 +179,7 @@ export function OnboardingFlow() {
         />
       )}
 
-      {step < 2 && (
+      {step < 3 && (
         <div className="flex flex-wrap gap-2 pb-8">
           {step > 0 && (
             <Button type="button" variant="outline" onClick={() => setStep((n) => n - 1)}>
@@ -161,7 +192,7 @@ export function OnboardingFlow() {
             disabled={step === 1 && !finish.ok}
             onClick={() => setStep((n) => n + 1)}
           >
-            {step === 0 ? "Continue" : "Deal official talks"}
+            {step === 0 ? "Continue" : step === 2 ? "Continue" : "Deal official talks"}
           </Button>
         </div>
       )}

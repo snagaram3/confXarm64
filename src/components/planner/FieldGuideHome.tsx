@@ -1,3 +1,4 @@
+import { AccessibilityAmenities } from "@/components/a11y/AccessibilityAmenities";
 import { DayRail } from "@/components/planner/DayRail";
 import { PlannerSearch } from "@/components/planner/PlannerSearch";
 import { RankedPicks } from "@/components/planner/RankedPicks";
@@ -180,6 +181,8 @@ export function FieldGuideHome() {
           </button>
         </div>
       </section>
+
+      <AccessibilityAmenities />
 
       <DayRail
         day={day}

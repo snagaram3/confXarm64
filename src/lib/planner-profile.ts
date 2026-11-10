@@ -42,6 +42,7 @@ export const EMPTY_PROFILE: Profile = {
   onboarded: false,
   demoPersona: false,
   taste: emptyTaste(),
+  accessibilityNeeds: [],
 };
 
 const DEMO_INTERESTS = ["Kubernetes", "observability", "platform engineering", "eBPF", "OpenTelemetry"];
@@ -57,6 +58,20 @@ export const DEMO_PROFILE: Profile = {
   onboarded: true,
   demoPersona: true,
   taste: tasteFromInterests(DEMO_INTERESTS, DEMO_GOALS),
+  accessibilityNeeds: [],
+};
+
+/** Accessibility-focused sample persona for Merge Forward demo. */
+export const ACCESSIBILITY_DEMO_PROFILE: Profile = {
+  name: "Jordan Chen",
+  role: "Senior SRE",
+  interests: ["Kubernetes", "CI/CD", "platform engineering"],
+  goals: ["talks"],
+  attendanceDays: CONFERENCE_DAYS.map((day) => day.id),
+  onboarded: true,
+  demoPersona: true,
+  taste: tasteFromInterests(["Kubernetes", "CI/CD", "platform engineering"], ["talks"]),
+  accessibilityNeeds: ["sensory", "mobility"],
 };
 
 export function profileStorageKey(attendeeId: string): string {
@@ -97,6 +112,12 @@ export function parsePlannerProfile(raw: string | null): Profile {
       ? parsed.goals.filter((goal): goal is string => PLANNER_GOALS.some((item) => item.id === goal))
       : [];
     const interests = Array.isArray(parsed.interests) ? parsed.interests.map(String).filter(Boolean) : [];
+    const VALID_NEEDS = ["mobility", "deaf-hoh", "sensory", "other"] as const;
+    const accessibilityNeeds = Array.isArray(parsed.accessibilityNeeds)
+      ? (parsed.accessibilityNeeds.filter((need) => 
+          typeof need === "string" && VALID_NEEDS.includes(need as any)
+        ) as import("./types").AccessibilityNeed[])
+      : [];
     const taste = hydrateTaste(interests, goals, parsed.taste);
     return {
       name: typeof parsed.name === "string" ? parsed.name.slice(0, 80) : "",
@@ -107,6 +128,7 @@ export function parsePlannerProfile(raw: string | null): Profile {
       onboarded: parsed.onboarded === true,
       demoPersona: parsed.demoPersona === true,
       taste,
+      accessibilityNeeds,
     };
   } catch {
     return { ...EMPTY_PROFILE, taste: emptyTaste() };
