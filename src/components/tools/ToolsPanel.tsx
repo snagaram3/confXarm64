@@ -127,7 +127,9 @@ function Shell({
       </div>
       {loading && <p className="text-sm text-muted-foreground">Loading {title}…</p>}
       {error && <p role="alert" className="break-words text-sm text-destructive">{error}</p>}
-      {frame?.error && <p role="alert" className="break-words text-sm text-destructive">{frame.error}</p>}
+      {frame?.error && frame.state !== "not_configured" && (
+        <p role="alert" className="break-words text-sm text-destructive">{frame.error}</p>
+      )}
       {frame?.missingEnv.length ? (
         <p className="break-all font-mono text-xs text-muted-foreground">Missing {frame.missingEnv.join(", ")}</p>
       ) : null}
@@ -399,7 +401,9 @@ function ElasticPane() {
                   URLs are in GitOps; the API key is not.
                 </p>
               ) : null}
-              {data.cloud.error ? <p className="mt-2 text-sm text-muted-foreground">{data.cloud.error}</p> : null}
+              {data.cloud.error && data.cloud.state !== "not_configured" ? (
+                <p className="mt-2 text-sm text-muted-foreground">{data.cloud.error}</p>
+              ) : null}
               {data.cloud.semanticHits.length > 0 ? (
                 <ul className="mt-2 flex flex-col gap-1 text-sm">
                   {data.cloud.semanticHits.map((hit) => (
