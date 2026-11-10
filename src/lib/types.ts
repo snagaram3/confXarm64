@@ -26,6 +26,8 @@ export interface TasteProfile {
   swipes: TasteSwipe[];
 }
 
+export type AccessibilityNeed = "mobility" | "deaf-hoh" | "sensory" | "other";
+
 export interface Profile {
   name: string;
   role: string;
@@ -35,6 +37,7 @@ export interface Profile {
   onboarded: boolean;
   demoPersona: boolean;
   taste: TasteProfile;
+  accessibilityNeeds: AccessibilityNeed[];
 }
 
 export interface CrowdTake {

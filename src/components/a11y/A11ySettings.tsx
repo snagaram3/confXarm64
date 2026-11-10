@@ -15,11 +15,10 @@ export function A11ySettings({ compact = false }: { compact?: boolean }) {
     <section aria-labelledby="a11y-settings-heading" className={cn("grid gap-3", compact && "gap-2")}>
       <div>
         <h3 id="a11y-settings-heading" className="text-sm font-semibold">
-          Accessibility
+          Display settings
         </h3>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          These change this device’s UI only. They do not claim a step-free route or captioned
-          sessions — the official schedule does not publish those fields.
+          UI preferences for this device. Accessibility preferences (above) surface official amenities and are honest about data availability.
         </p>
       </div>
       <fieldset className="grid gap-1">
@@ -67,7 +66,7 @@ export function A11ySettings({ compact = false }: { compact?: boolean }) {
           />
         </div>
         <p className="text-[11px] text-muted-foreground">
-          The operating system “reduce motion” setting always wins over Full motion.
+          The operating system "reduce motion" setting always wins over Full motion.
         </p>
       </fieldset>
     </section>

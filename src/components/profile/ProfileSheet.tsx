@@ -1,4 +1,5 @@
 import { A11ySettings } from "@/components/a11y/A11ySettings";
+import { AccessibilityPreferences } from "@/components/a11y/AccessibilityPreferences";
 import { catalog } from "@/lib/catalog";
 import { CONFERENCE_DAYS } from "@/lib/ask";
 import { cn } from "@/lib/utils";
@@ -139,6 +140,11 @@ export function ProfileSheet() {
               })}
             </div>
           </div>
+
+          <AccessibilityPreferences
+            selected={profile.accessibilityNeeds}
+            onChange={(needs) => setProfile({ ...profile, accessibilityNeeds: needs, demoPersona: false })}
+          />
 
           <A11ySettings />
 
