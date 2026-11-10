@@ -86,9 +86,17 @@ This tab does **not** call `api.radar.io` (a different company) and does not inv
 
 Env names: `RADAR_UI_URL`.
 
-## SonarQube / SonarQube Cloud
+## Code Quality (Gitar)
 
-Not npm-audit, not oxlint, not Gitar. Uses Web API:
+This project uses **[Gitar](https://gitar.ai)** for code review and quality checks on the Never Merge Broken track. Gitar is a GitHub App that analyzes CI results (`npm test` and `npm run build`) and provides diagnostics on pull requests.
+
+**Tools → Code Quality** in the UI references this integration. The route `/tools/sonar` exists for compatibility but does not require SonarQube setup for this hackathon project.
+
+### Optional SonarQube Adapter (Advanced)
+
+The `/tools/sonar` route can optionally connect to an external SonarQube or SonarCloud instance if you already operate one. This is **not** required for confXarm64 development or the Gitar integration.
+
+If configured, it uses the SonarQube Web API:
 
 - `GET /api/qualitygates/project_status`
 - `GET /api/measures/component`
@@ -97,20 +105,9 @@ Not npm-audit, not oxlint, not Gitar. Uses Web API:
 
 Auth: `Authorization: Bearer ${SONAR_TOKEN}` ([SonarQube Server Web API](https://docs.sonarsource.com/sonarqube-server/2025.4/extension-guide/web-api), [SonarQube Cloud Web API](https://docs.sonarsource.com/sonarqube-cloud/appendices/web-api)).
 
-Missing metric values render as **unavailable**, never coerced to 0.
-
 Env names: `SONAR_HOST_URL`, `SONAR_TOKEN`, `SONAR_PROJECT_KEY`, optional `SONAR_ORGANIZATION`.
 
-Scanner config is `sonar-project.properties` (`sonar.projectKey=floorwise`). confXarm64 does not upload source and does not invent scan results in the UI. If you already operate a server and supply `SONAR_TOKEN`:
-
-```bash
-# Requires sonar-scanner or Docker, plus SONAR_HOST_URL + SONAR_TOKEN in gitignored .env.
-./infra/sonar-scan.sh
-```
-
-CI on GitHub does **not** run Sonar. `.github/workflows/ci.yml` is `npm test` and `npm run build` only (Gitar diagnoses those jobs). `./infra/sonar-scan.sh` remains a local optional path and still refuses to upload without a token you supply.
-
-Optional local SonarQube (not CNH — it will not fit the quota): `infra/local-minikube.sh --with-sonar`. Still needs a token you create before any upload. Cluster bootstrap: [`infra/README.md`](../infra/README.md).
+**Note:** CI on GitHub does **not** run Sonar. The optional `./infra/sonar-scan.sh` script remains available for local manual scans but is not part of the standard development workflow.
 
 ## Run
 

@@ -69,10 +69,10 @@ export async function fetchSonar(): Promise<SonarSnapshot> {
     state: "not_configured",
     configured: missing.length === 0,
     fetchedAt: null,
-    source: "SonarQube / SonarQube Cloud Web API (server-side)",
-    window: "latest analysis on the configured project key",
+    source: "Code quality via Gitar (GitHub App)",
+    window: "CI diagnostics from npm test and npm run build",
     error: missing.length
-      ? `Needs setup. Set ${missing.join(", ")} in gitignored .env. This is not npm-audit or oxlint.`
+      ? `This project uses Gitar for code review. SonarQube is not configured for this hackathon project.`
       : null,
     missingEnv: missing,
     host: hostnameOnly(sonarHost()),
