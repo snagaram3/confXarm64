@@ -177,7 +177,6 @@ function SonarPane() {
           <a className="font-semibold text-primary underline" href={data.uiUrl} target="_blank" rel="noreferrer">
             Open External Quality Gate
           </a>
-          <span className="text-muted-foreground"> — server at SONAR_HOST_URL (optional, not used by default).</span>
         </p>
       ) : null}
           {data?.configured && (
@@ -297,12 +296,7 @@ function RadarPane() {
                 </a>
                 <span className="font-mono text-xs text-muted-foreground"> {data.skyhook.uiUrl}</span>
               </p>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">
-                Needs setup. This tab does not call api.radar.io (a different company) and does not invent geofences.
-                Set RADAR_UI_URL only for a real Skyhook Radar UI (minikube: http://radar.&lt;minikube-ip&gt;.nip.io).
-              </p>
-            )}
+            ) : null}
           </section>
           <p className="text-sm text-muted-foreground">{data.venue.note}</p>
         </>
