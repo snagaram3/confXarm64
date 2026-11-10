@@ -1,4 +1,4 @@
 # Managed by .github/workflows/deploy.yaml. Do not hand-edit image tags.
 image:
-  api: ghcr.io/snagaram3/confxarm64-api:548391d
-  web: ghcr.io/snagaram3/confxarm64:548391d
+  api: ghcr.io/snagaram3/confxarm64-api:1551000
+  web: ghcr.io/snagaram3/confxarm64:1551000
