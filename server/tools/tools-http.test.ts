@@ -50,10 +50,10 @@ describe("tools HTTP boundaries", () => {
     assert.match(radar.window, /does not locate/i);
     assert.equal(radar.apiHost, null);
     assert.equal(radar.state, "not_configured");
-    assert.match(radar.skyhook.note, /No Skyhook Radar UI/i);
+    assert.match(radar.skyhook.note, /not a Radar control plane/i);
   });
 
-  it("returns needs-setup Sonar without inventing a gate", async () => {
+  it("returns not-configured Sonar without exposing env var names", async () => {
     const prev = { ...process.env };
     delete process.env.SONAR_HOST_URL;
     delete process.env.SONAR_TOKEN;
@@ -62,7 +62,7 @@ describe("tools HTTP boundaries", () => {
     const body = (await res.json()) as { state: string; qualityGate: { status: string | null }; missingEnv: string[] };
     assert.equal(body.state, "not_configured");
     assert.equal(body.qualityGate.status, null);
-    assert.ok(body.missingEnv.includes("SONAR_TOKEN"));
+    assert.equal(body.missingEnv.length, 0);
     const sonar = body as { uiUrl?: string | null };
     assert.equal(sonar.uiUrl ?? null, null);
     Object.assign(process.env, prev);

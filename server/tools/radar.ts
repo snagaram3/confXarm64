@@ -51,8 +51,7 @@ function skyhookUiUrl(): string | null {
 }
 
 export function radarMissingEnv(): string[] {
-  if (skyhookUiUrl()) return [];
-  return ["RADAR_UI_URL"];
+  return [];
 }
 
 export function radarStatus(): RadarSnapshot {
@@ -79,8 +78,8 @@ export function radarStatus(): RadarSnapshot {
     skyhook: {
       uiUrl,
       note: uiUrl
-        ? "Link to a Skyhook Radar Kubernetes UI from RADAR_UI_URL. This is not geofence data and not the live app URL."
-        : "No Skyhook Radar UI is configured. The live app URL is not the Radar control plane. Set RADAR_UI_URL only for a real Radar UI (for example a minikube Radar chart).",
+        ? "Link to a Skyhook Radar Kubernetes UI. This is not geofence data and not the live app URL."
+        : "The live app URL (https://confxarm64.cnh.radarhq.io) is not a Radar control plane. This tab does not call api.radar.io and does not invent geofences.",
     },
   };
 }

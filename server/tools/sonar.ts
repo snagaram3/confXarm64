@@ -40,11 +40,7 @@ function sonarHost(): string | null {
 }
 
 export function sonarMissingEnv(): string[] {
-  const missing: string[] = [];
-  if (!sonarHost()) missing.push("SONAR_HOST_URL");
-  if (!process.env.SONAR_TOKEN) missing.push("SONAR_TOKEN");
-  if (!process.env.SONAR_PROJECT_KEY) missing.push("SONAR_PROJECT_KEY");
-  return missing;
+  return [];
 }
 
 function authHeader(): string {
@@ -63,18 +59,15 @@ export function measureValue(
 }
 
 export async function fetchSonar(): Promise<SonarSnapshot> {
-  const missing = sonarMissingEnv();
   const empty: SonarSnapshot = {
     tool: "sonar",
     state: "not_configured",
-    configured: missing.length === 0,
+    configured: false,
     fetchedAt: null,
     source: "Code quality via Gitar (GitHub App)",
     window: "CI diagnostics from npm test and npm run build",
-    error: missing.length
-      ? `This project uses Gitar for code review. SonarQube is not configured for this hackathon project.`
-      : null,
-    missingEnv: missing,
+    error: null,
+    missingEnv: [],
     host: hostnameOnly(sonarHost()),
     projectKey: process.env.SONAR_PROJECT_KEY ?? null,
     qualityGate: { status: null, conditions: [] },
@@ -83,7 +76,7 @@ export async function fetchSonar(): Promise<SonarSnapshot> {
     issues: [],
     uiUrl: sonarHost(),
   };
-  if (missing.length) return empty;
+  if (!sonarHost() || !process.env.SONAR_TOKEN || !process.env.SONAR_PROJECT_KEY) return empty;
 
   const cached = readCache(cache, "sonar", TTL);
   if (cached) return cached;

@@ -40,7 +40,7 @@ describe("provider URL and coordinate guards", () => {
 });
 
 describe("not-configured adapters", () => {
-  it("lists Sonar env names without inventing a token", () => {
+  it("does not expose Sonar env var names in missing list", () => {
     const prev = {
       url: process.env.SONAR_HOST_URL,
       token: process.env.SONAR_TOKEN,
@@ -50,8 +50,7 @@ describe("not-configured adapters", () => {
     delete process.env.SONAR_TOKEN;
     delete process.env.SONAR_PROJECT_KEY;
     const missing = sonarMissingEnv();
-    assert.ok(missing.includes("SONAR_TOKEN"));
-    assert.ok(missing.includes("SONAR_PROJECT_KEY"));
+    assert.equal(missing.length, 0);
     if (prev.url) process.env.SONAR_HOST_URL = prev.url;
     if (prev.token) process.env.SONAR_TOKEN = prev.token;
     if (prev.key) process.env.SONAR_PROJECT_KEY = prev.key;
